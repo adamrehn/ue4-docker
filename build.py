@@ -24,8 +24,9 @@ if __name__ == '__main__':
 	# Parse the supplied command-line arguments and validate the specified version string
 	args = parser.parse_args()
 	try:
-		ue4Version = semver.parse(args.release, False)
-		if ue4Version.major != 4 or len(ue4Version.prerelease) > 0:
+		ue4Version = semver.parse(args.release)
+		ue4VersionStr = semver.format_version(ue4Version['major'], ue4Version['minor'], ue4Version['patch'])
+		if ue4Version['major'] != 4 or ue4Version['prerelease'] != None:
 			raise Exception()
 	except:
 		logger.error('Error: invalid UE4 release number "{}", full semver format required (e.g. "4.19.0")'.format(args.release))
@@ -65,17 +66,17 @@ if __name__ == '__main__':
 		builder.build('ue4-build-prerequisites', 'latest', platformArgs, args.rebuild, args.dry_run)
 		
 		# Build the UE4 source image
-		ue4SourceArgs = ['--build-arg', 'GIT_TAG={}-release'.format(ue4Version.format())]
-		builder.build('ue4-source', ue4Version.format(), platformArgs + ue4SourceArgs + endpoint.args(), args.rebuild, args.dry_run)
+		ue4SourceArgs = ['--build-arg', 'GIT_TAG={}-release'.format(ue4VersionStr)]
+		builder.build('ue4-source', ue4VersionStr, platformArgs + ue4SourceArgs + endpoint.args(), args.rebuild, args.dry_run)
 		
 		# Build the UE4 build image
-		ue4BuildArgs = ['--build-arg', 'TAG={}'.format(ue4Version.format())]
-		builder.build('ue4-build', ue4Version.format(), platformArgs + ue4BuildArgs + endpoint.args(), args.rebuild, args.dry_run)
+		ue4BuildArgs = ['--build-arg', 'TAG={}'.format(ue4VersionStr)]
+		builder.build('ue4-build', ue4VersionStr, platformArgs + ue4BuildArgs + endpoint.args(), args.rebuild, args.dry_run)
 		
 		# Build the conan-ue4cli image for 4.19.0 or newer, unless requested otherwise by the user
-		if ue4Version.minor >= 19 and args.no_ue4cli == False:
-			ue4cliArgs = ['--build-arg', 'TAG={}'.format(ue4Version.format())]
-			builder.build('conan-ue4cli', ue4Version.format(), platformArgs + ue4cliArgs, args.rebuild, args.dry_run)
+		if ue4Version['minor'] >= 19 and args.no_ue4cli == False:
+			ue4cliArgs = ['--build-arg', 'TAG={}'.format(ue4VersionStr)]
+			builder.build('conan-ue4cli', ue4VersionStr, platformArgs + ue4cliArgs, args.rebuild, args.dry_run)
 		else:
 			logger.info('UE4 version less than 4.19.0 or user specified `--no-ue4cli`, skipping conan-ue4cli image build.')
 		
