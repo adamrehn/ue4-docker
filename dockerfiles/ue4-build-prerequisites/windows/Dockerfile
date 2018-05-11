@@ -11,6 +11,9 @@ RUN choco install -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal 
 # Install curl and wget
 RUN choco install -y curl wget
 
+# Install 7-Zip
+RUN choco install -y 7zip
+
 # Install CMake and add it to the system PATH
 RUN choco install -y cmake --installargs "ADD_CMAKE_TO_PATH=System"
 
