@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import argparse, getpass, os, platform, random, re, semver, sys
+import argparse, getpass, os, platform, random, re, semver, shutil, sys
+from os.path import join
 from utils import *
 
 if __name__ == '__main__':
@@ -57,8 +58,13 @@ if __name__ == '__main__':
 	endpoint.start()
 	
 	# Create the builder instance to build the Docker images
-	contextRoot = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dockerfiles')
+	contextRoot = join(os.path.dirname(os.path.abspath(__file__)), 'dockerfiles')
 	builder = ImageBuilder(contextRoot, 'adamrehn/', containerPlatform, logger)
+	
+	# If we are building Windows containers, copy the required DirectSound and OpenGL DLL files from the host system
+	if containerPlatform == 'windows':
+		for dll in ['dsound.dll', 'opengl32.dll', 'glu32.dll']:
+			shutil.copy2(join(os.environ['SystemRoot'], 'System32', dll), join(builder.context('ue4-build-prerequisites'), dll))
 	
 	try:
 

@@ -25,7 +25,7 @@ class ImageBuilder(object):
 		
 		# Determine if we are running in "dry run" mode
 		self.logger.action('Building image "{}"...'.format(fullName))
-		buildCommand = DockerUtils.build(fullName, self._context(name), args)
+		buildCommand = DockerUtils.build(fullName, self.context(name), args)
 		if dryRun == True:
 			print(buildCommand)
 			self.logger.action('Completed dry run for image "{}".'.format(fullName), newline=False)
@@ -46,7 +46,7 @@ class ImageBuilder(object):
 			self.logger.error('Error: failed to build image "{}".'.format(fullName))
 			raise Exception()
 	
-	def _context(self, name):
+	def context(self, name):
 		'''
 		Resolve the full path to the build context for the specified image
 		'''
