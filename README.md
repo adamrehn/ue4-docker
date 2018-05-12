@@ -19,6 +19,7 @@ For a detailed discussion on how the build process works, see [the accompanying 
     - [Building images](#building-images)
     - [Building Linux container images under Windows](#building-linux-container-images-under-windows)
     - [Performing a dry run](#performing-a-dry-run)
+    - [Upgrading from a previous version](#upgrading-from-a-previous-version)
 - [Windows `hcsshim` timeout issues](#windows-hcsshim-timeout-issues)
 
 
@@ -76,6 +77,10 @@ By default, Windows container images are built when running the build script und
 ### Performing a dry run
 
 If you would like to see what `docker build` commands will be run without actually building anything, you can specify the `--dry-run` flag when invoking the build script. Execution will proceed as normal, except that all `docker build` commands will be printed to standard output instead of being executed as child processes.
+
+### Upgrading from a previous version
+
+When upgrading to a newer version of the code in this repository, be sure to specify the `--rebuild` flag when invoking the build script. This will ensure all images are rebuilt using the updated Dockerfiles.
 
 
 ## Windows `hcsshim` timeout issues
