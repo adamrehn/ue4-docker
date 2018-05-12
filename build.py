@@ -15,8 +15,9 @@ if __name__ == '__main__':
 	parser.add_argument('--rebuild', action='store_true', help='Rebuild images even if they already exist')
 	parser.add_argument('--dry-run', action='store_true', help='Print `docker build` commands instead of running them')
 	parser.add_argument('--no-ue4cli', action='store_true', help='Don\'t build the conan-ue4cli image')
+	parser.add_argument('--no-package', action='store_true', help='Don\'t build the ue4-package image')
 	parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
-
+	
 	# If no command-line arguments were supplied, display the help message and exit
 	if len(sys.argv) < 2:
 		parser.print_help()
@@ -67,7 +68,7 @@ if __name__ == '__main__':
 			shutil.copy2(join(os.environ['SystemRoot'], 'System32', dll), join(builder.context('ue4-build-prerequisites'), dll))
 	
 	try:
-
+		
 		# Build the UE4 build prerequisites image
 		builder.build('ue4-build-prerequisites', 'latest', platformArgs, args.rebuild, args.dry_run)
 		
@@ -77,20 +78,26 @@ if __name__ == '__main__':
 		
 		# Build the UE4 build image
 		ue4BuildArgs = ['--build-arg', 'TAG={}'.format(ue4VersionStr)]
-		builder.build('ue4-build', ue4VersionStr, platformArgs + ue4BuildArgs + endpoint.args(), args.rebuild, args.dry_run)
+		builder.build('ue4-build', ue4VersionStr, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
 		
 		# Build the conan-ue4cli image for 4.19.0 or newer, unless requested otherwise by the user
-		if ue4Version['minor'] >= 19 and args.no_ue4cli == False:
-			ue4cliArgs = ['--build-arg', 'TAG={}'.format(ue4VersionStr)]
-			builder.build('conan-ue4cli', ue4VersionStr, platformArgs + ue4cliArgs, args.rebuild, args.dry_run)
+		buildUe4Cli = ue4Version['minor'] >= 19 and args.no_ue4cli == False
+		if buildUe4Cli == True:
+			builder.build('conan-ue4cli', ue4VersionStr, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
 		else:
 			logger.info('UE4 version less than 4.19.0 or user specified `--no-ue4cli`, skipping conan-ue4cli image build.')
+		
+		# Build the UE4 packaging image (for packaging Shipping builds of projects), unless requested otherwise by the user
+		if buildUe4Cli == True and args.no_package == False:
+			builder.build('ue4-package', ue4VersionStr, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
+		else:
+			logger.info('Not building conan-ue4cli or user specified `--no-package`, skipping ue4-package image build.')
 		
 		# Stop the HTTP server
 		endpoint.stop()
 	
 	except:
-
+		
 		# One of the images failed to build
 		endpoint.stop()
 		sys.exit(1)

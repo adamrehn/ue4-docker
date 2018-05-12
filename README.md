@@ -63,12 +63,13 @@ python3 build.py 4.19.1
 
 You will be prompted for the Git credentials to be used when cloning the UE4 GitHub repository (this will be the GitHub username and password you normally use when cloning <https://github.com/EpicGames/UnrealEngine>.) The build process will then start automatically, displaying progress output from each of the `docker build` commands that are being run.
 
-Once the build process is complete, you will have four new Docker images on your system (where `RELEASE` is the release that you specified when invoking the build script):
+Once the build process is complete, you will have five new Docker images on your system (where `RELEASE` is the release that you specified when invoking the build script):
 
 - `adamrehn/ue4-build-prerequisites:latest` - this contains the build prerequisites common to all Engine versions and should be kept in order to speed up subsequent builds of additional Engine versions.
 - `adamrehn/ue4-source:RELEASE` - this contains the cloned source code for UE4. This image is separated from the `ue4-build` image to isolate the effects of changing environment variables related to git credentials, so that they don't interfere with the build cache for the subsequent steps.
 - `adamrehn/ue4-build:RELEASE` - this contains the source build for UE4.
 - `adamrehn/conan-ue4cli:RELEASE` - this extends the source build with [conan-ue4cli](https://github.com/adamrehn/conan-ue4cli) support for building Conan packages that are compatible with UE4. This image will only be built for UE4 versions >= 4.19.0, which is the minimum Engine version required by ue4cli. You can disable the build for this image by specifying `--no-ue4cli` when you run the build script.
+- `adamrehn/ue4-package:RELEASE` - this extends the `conan-ue4cli` image and is designed for packaging Shipping builds of UE4 projects. Note that the image simply pre-builds components needed for packaging in order to speed up subsequent build time, and is not required in order to package projects (both the `ue4-build` and `conan-ue4cli` images can be used to package projects, albeit with longer build times.) This image will only be built if the `conan-ue4cli` image is built. You can disable the build for this image by specifying `--no-package` when you run the build script.
 
 ### Building Linux container images under Windows
 
