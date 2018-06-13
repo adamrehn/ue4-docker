@@ -7,3 +7,6 @@ WORKDIR /home/ue4/UnrealEngine
 RUN ./Engine/Build/BatchFiles/Linux/Build.sh ShaderCompileWorker Linux Development -WaitMutex
 RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealPak Linux Development -WaitMutex
 RUN ./Engine/Build/BatchFiles/Linux/Build.sh UE4Game Linux Shipping -WaitMutex
+
+# Generate the DDC data for all Engine content
+RUN ./Engine/Binaries/Linux/UE4Editor -run=DerivedDataCache -fill -TargetPlatform=Linux
