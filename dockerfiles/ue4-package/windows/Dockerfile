@@ -10,4 +10,4 @@ RUN .\Engine\Build\BatchFiles\Build.bat UnrealPak Win64 Development -WaitMutex
 RUN .\Engine\Build\BatchFiles\Build.bat UE4Game Win64 Shipping -WaitMutex
 
 # Generate the DDC data for all Engine content
-RUN .\Engine\Binaries\Win64\UE4Editor-Cmd.exe -run=DerivedDataCache -fill -TargetPlatform=Windows
+RUN .\Engine\Binaries\Win64\UE4Editor-Cmd.exe -run=DerivedDataCache -fill -TargetPlatform=Windows || exit 0

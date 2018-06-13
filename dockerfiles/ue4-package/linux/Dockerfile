@@ -9,4 +9,4 @@ RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealPak Linux Development -WaitMu
 RUN ./Engine/Build/BatchFiles/Linux/Build.sh UE4Game Linux Shipping -WaitMutex
 
 # Generate the DDC data for all Engine content
-RUN ./Engine/Binaries/Linux/UE4Editor -run=DerivedDataCache -fill -TargetPlatform=Linux
+RUN ./Engine/Binaries/Linux/UE4Editor -run=DerivedDataCache -fill -TargetPlatform=Linux || exit 0
