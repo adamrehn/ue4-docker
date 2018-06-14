@@ -34,10 +34,14 @@ The common requirements for both Windows and Linux containers are:
 
 Building **Windows containers** also requires:
 
-- Windows 10 Pro/Enterprise or Windows Server 2016
-- [Docker For Windows](https://www.docker.com/docker-windows) (under Windows 10) or [Docker EE For Windows Server](https://www.docker.com/docker-windows-server) (under Windows Server 2016)
+- Windows 10 Pro/Enterprise or Windows Server 2016 or newer
+- [Docker For Windows](https://www.docker.com/docker-windows) (under Windows 10) or [Docker EE For Windows Server](https://www.docker.com/docker-windows-server) (under Windows Server)
 - Under Windows 10, the Docker daemon must be configured to use Windows containers instead of Linux containers
 - The Docker daemon must be configured to increase the maximum container disk size from the default 20GB limit by following [the instructions provided by Microsoft](https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container#step-4-expand-maximum-container-disk-size). The 120GB limit specified in the instructions is sufficient.
+- Under Windows Server Core, you will need to copy the following DLL files from a copy of Windows 10 (or Windows Server 2016 [with the Desktop Experience feature](https://docs.microsoft.com/en-us/windows-server/get-started/getting-started-with-server-with-desktop-experience)) and place them in the `C:\Windows\System32` directory:
+    - `dsound.dll`
+    - `opengl32.dll`
+    - `glu32.dll`
 
 Building **Linux containers** also requires:
 
