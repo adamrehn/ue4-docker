@@ -5,8 +5,9 @@ SHELL ["cmd", "/S", "/C"]
 # Install chocolatey
 RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 
-# Install Git (make sure we disable the credential manager)
+# Install Git (make sure we forcibly disable the credential manager)
 RUN choco install -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'"
+RUN git config --system credential.helper ""
 
 # Install curl and wget
 RUN choco install -y curl wget
