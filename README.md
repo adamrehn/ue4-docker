@@ -20,6 +20,7 @@ For a detailed discussion on how the build process works, see [the accompanying 
     - [Building Linux container images under Windows](#building-linux-container-images-under-windows)
     - [Performing a dry run](#performing-a-dry-run)
     - [Upgrading from a previous version](#upgrading-from-a-previous-version)
+- [Troubleshooting common issues](#troubleshooting-common-issues)
 - [Windows `hcsshim` timeout issues](#windows-hcsshim-timeout-issues)
 
 
@@ -38,6 +39,7 @@ Building **Windows containers** also requires:
 - [Docker For Windows](https://www.docker.com/docker-windows) (under Windows 10) or [Docker EE For Windows Server](https://www.docker.com/docker-windows-server) (under Windows Server)
 - Under Windows 10, the Docker daemon must be configured to use Windows containers instead of Linux containers
 - The Docker daemon must be configured to increase the maximum container disk size from the default 20GB limit by following [the instructions provided by Microsoft](https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container#step-4-expand-maximum-container-disk-size). The 120GB limit specified in the instructions is sufficient.
+- Under Windows Server, you may need to configure the firewall to allow network access to the host from inside Docker containers
 - Under Windows Server Core, you will need to copy the following DLL files from a copy of Windows 10 (or Windows Server 2016 [with the Desktop Experience feature](https://docs.microsoft.com/en-us/windows-server/get-started/getting-started-with-server-with-desktop-experience)) and place them in the `C:\Windows\System32` directory:
     - `dsound.dll`
     - `opengl32.dll`
@@ -88,11 +90,29 @@ If you would like to see what `docker build` commands will be run without actual
 When upgrading to a newer version of the code in this repository, be sure to specify the `--rebuild` flag when invoking the build script. This will ensure all images are rebuilt using the updated Dockerfiles.
 
 
+## Troubleshooting common issues
+
+- **Building Windows containers fails with the message `hcsshim: timeout waiting for notification extra info`:**
+  
+  This is a known issue when using Windows containers in Hyper-V isolation mode. See the [Windows `hcsshim` timeout issues](#windows-hcsshim-timeout-issues) section below for a detailed discussion of this problem and the available workarounds.
+
+- **Building Windows containers fails with the message `hcsshim::ImportLayer failed in Win32: The system cannot find the path specified` or building Linux containers fails with a message about insufficient disk space:**
+  
+  Assuming you haven't actually run out of disk space, this means that the maximum Docker image size has not been configured correctly.
+  
+    - For Windows containers, follow [the instructions provided by Microsoft](https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container#step-4-expand-maximum-container-disk-size), making sure you restart the Docker daemon after you've modified the config JSON.
+    - For Linux containers, use the [Docker for Windows "Advanced" settings tab](https://docs.docker.com/docker-for-windows/#advanced) under Windows or the [Docker for Mac "Disk" settings tab](https://docs.docker.com/docker-for-mac/#disk) under macOS.
+
+- **Cloning the UnrealEngine Git repository fails with the message `error: unable to read askpass response from 'C:\git-credential-helper.bat'` (for Windows containers) or `'/tmp/git-credential-helper.sh'` (for Linux containers):**
+  
+  This typically indicates that the firewall on the host system is blocking connections from the Docker container, preventing it from retrieving the Git credentials supplied by the build script. (This is particularly noticeable under a clean installation of Windows Server, which blocks connections from other subnets by default.) The firewall will need to be configured appropriately to allow the connection, or else temporarily disabled. (Use the command `netsh advfirewall set allprofiles state off` under Windows Server.)
+
+
 ## Windows `hcsshim` timeout issues
 
-Recent versions of Docker For Windows may sometimes encounter the error [hcsshim: timeout waiting for notification extra info](https://github.com/Microsoft/hcsshim/issues/152) when building or running Windows containers. At the time of writing, Microsoft have stated that they are aware of the problem, but an official fix is yet to be released.
+Recent versions of Docker under Windows may sometimes encounter the error [hcsshim: timeout waiting for notification extra info](https://github.com/Microsoft/hcsshim/issues/152) when building or running Windows containers. **This issue appears to be related to [Hyper-V isolation](https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/hyperv-container) mode and has not been observed to affect containers running in process isolation mode.** At the time of writing, Microsoft have stated that they are aware of the problem, but an official fix is yet to be released.
 
-As a workaround until a proper fix is issued, it seems that altering the memory limit for containers between subsequent invocations of the `docker` command can reduce the frequency with which this error occurs. (Changing the memory limit when using Hyper-V isolation likely forces Docker to provision a new Hyper-V VM, preventing it from re-using an existing one that has become unresponsive.) **Please note that this workaround has been devised based on my own testing under Windows 10 and may not hold true for Windows Server 2016.**
+As a workaround until a proper fix is issued, it seems that altering the memory limit for containers between subsequent invocations of the `docker` command can reduce the frequency with which this error occurs. (Changing the memory limit when using Hyper-V isolation likely forces Docker to provision a new Hyper-V VM, preventing it from re-using an existing one that has become unresponsive.) Please note that this workaround has been devised based on my own testing under Windows 10 and may not hold true when using Hyper-V isolation under Windows Server.
 
 To enable the workaround, specify the `--random-memory` flag when invoking the build script. This will set the container memory limit to a random value between 8GB and 10GB when the build script starts. If a build fails with the `hcsshim` timeout error, simply re-run the build script and in most cases the build will continue successfully, even if only for a short while. Restarting the Docker daemon may also help.
 
