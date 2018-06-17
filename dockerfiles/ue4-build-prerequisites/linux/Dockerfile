@@ -1,4 +1,7 @@
-FROM ubuntu:17.10
+FROM ubuntu:18.04
+
+# Disable interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install our build prerequisites
 RUN apt-get update && apt-get install -y --no-install-recommends \
