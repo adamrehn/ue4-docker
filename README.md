@@ -92,6 +92,14 @@ When upgrading to a newer version of the code in this repository, be sure to spe
 
 ## Troubleshooting common issues
 
+- **The build script refuses to accept valid Engine version numbers (i.e. it fails with a message such as `Error: invalid UE4 release number "4.19.2", full semver format required (e.g. "4.19.0")`):**
+  
+  Sometimes a conflicting library called `semver` can exist on the system that clashes with the [PyPI semver package](https://pypi.org/project/semver/) upon which the build script depends. The conflicting library will need to be removed from the Python installation's packages directory to allow the build script to function correctly:
+  
+    1. Use the command `python3 -m site` to retrieve the list of package directories for the Python installation. Search through each of these directories in turn.
+    2. The correct package can be identified by a version-suffixed info directory (e.g. `semver-2.7.9.egg-info`) and an accompanying file called `semver.py`, which will match the code from the [semver package GitHub repository](https://github.com/k-bx/python-semver). This is the version that you want to keep.
+    3. The conflicting package can be identified by a directory called `semver` (with no version suffix) containing a file called `__init__.py`. Remove this directory (may require `sudo` under macOS and Linux.)
+
 - **Building Windows containers fails with the message `hcsshim: timeout waiting for notification extra info`:**
   
   This is a known issue when using Windows containers in Hyper-V isolation mode. See the [Windows `hcsshim` timeout issues](#windows-hcsshim-timeout-issues) section below for a detailed discussion of this problem and the available workarounds.
