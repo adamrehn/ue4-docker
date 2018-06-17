@@ -28,7 +28,7 @@ For a detailed discussion on how the build process works, see [the accompanying 
 
 The common requirements for both Windows and Linux containers are:
 
-- A minimum of 100GB of available disk space
+- A minimum of 120GB of available disk space
 - A minimum of 8GB of available memory
 - [Python](https://www.python.org/) 3.x with `pip`
 - The dependency packages listed in [requirements.txt](./requirements.txt), which can be installed by running `pip3 install -r requirements.txt`
