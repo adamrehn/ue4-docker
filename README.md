@@ -102,7 +102,7 @@ There are three main approaches for running [Automation Tests](https://docs.unre
 
 - **Invoking the Editor directly:**<br>`path/to/UE4Editor <UPROJECT> -game -buildmachine -stdout -fullstdoutlogoutput -forcelogflush -unattended -nopause -nullrhi -ExecCmds="automation RunTests <TEST1>+<TEST2>+<TESTN>;quit"`
 
-- **Using Unreal AutomationTool (UAT):**<br>`path/to/RunUAT BuildCookRun -project=<UPROJECT> -buildmachine -unattended -nullrhi -run "-RunAutomationTest=<TEST1>+<TEST2>+<TESTN>"`
+- **Using Unreal AutomationTool (UAT):**<br>`path/to/RunUAT BuildCookRun -project=<UPROJECT> -noP4 -buildmachine -unattended -nullrhi -run "-RunAutomationTest=<TEST1>+<TEST2>+<TESTN>"`
 
 - **Using [ue4cli](https://github.com/adamrehn/ue4cli)**:<br>`ue4 test <TEST1> <TEST2> <TESTN>`
   
