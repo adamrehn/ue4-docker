@@ -121,6 +121,7 @@ Each of these approaches has its own benefits and limitations:
 Irrespective of the invocation approach utilised, the following limitations apply when running automation tests inside Docker containers:
 
 - Tests requiring sound output will not function correctly.
+- Tests that require Virtual Reality (VR) or Augmented Reality (AR) devices or runtimes to be present will not function correctly.
 - The Windows-specific plugins `WindowsMoviePlayer` and `WmfMedia` that are enabled by default as of UE4.19 both require [Microsoft Media Foundation](https://msdn.microsoft.com/en-us/library/windows/desktop/ms694197(v=vs.85).aspx) in order to function correctly. Under Windows Server Core, Media Foundation is [provided by the `Server-Media-Foundation` optional feature](https://docs.microsoft.com/en-us/windows-server/administration/server-core/server-core-roles-and-services#features-included-in-server-core). However, this feature has a history of being problematic inside Docker containers, and was [removed from the Server Core container image in Windows Server, version 1803](https://docs.microsoft.com/en-us/windows-server/administration/server-core/server-core-container-removed-roles). As such, any tests that rely on these plugins will not function correctly.
 
 
