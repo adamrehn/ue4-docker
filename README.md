@@ -7,6 +7,7 @@ This repository contains a set of Dockerfiles and an accompanying Python build s
 
 - The images contain a full source build of the Engine and are suitable for use in a Continuous Integration (CI) pipeline.
 - **Both Windows containers and Linux containers are supported.**
+- Running automation tests is supported.
 - When building UE4 version 4.19.0 or newer, [conan-ue4cli](https://github.com/adamrehn/conan-ue4cli) support is also built by default, although this behaviour can be disabled by using the `--no-ue4cli` flag when invoking the build script.
 
 For a detailed discussion on how the build process works, see [the accompanying article on my website](http://adamrehn.com/articles/building-docker-images-for-unreal-engine-4).
@@ -20,6 +21,9 @@ For a detailed discussion on how the build process works, see [the accompanying 
     - [Building Linux container images under Windows](#building-linux-container-images-under-windows)
     - [Performing a dry run](#performing-a-dry-run)
     - [Upgrading from a previous version](#upgrading-from-a-previous-version)
+- [Running automation tests](#running-automation-tests)
+  - [Invocation approaches](#invocation-approaches)
+  - [Container limitations](#container-limitations)
 - [Troubleshooting common issues](#troubleshooting-common-issues)
 - [Windows `hcsshim` timeout issues](#windows-hcsshim-timeout-issues)
 
@@ -88,6 +92,36 @@ If you would like to see what `docker build` commands will be run without actual
 ### Upgrading from a previous version
 
 When upgrading to a newer version of the code in this repository, be sure to specify the `--rebuild` flag when invoking the build script. This will ensure all images are rebuilt using the updated Dockerfiles.
+
+
+## Running automation tests
+
+### Invocation approaches
+
+There are three main approaches for running [Automation Tests](https://docs.unrealengine.com/en-us/Programming/Automation) from the command line. These three approaches are illustrated below, accompanied by the recommended arguments for running correctly inside a Docker container:
+
+- **Invoking the Editor directly:**<br>`path/to/UE4Editor <UPROJECT> -game -buildmachine -stdout -fullstdoutlogoutput -forcelogflush -unattended -nopause -nullrhi -ExecCmds="automation RunTests <TEST1>+<TEST2>+<TESTN>;quit"`
+
+- **Using Unreal AutomationTool (UAT):**<br>`path/to/RunUAT BuildCookRun -project=<UPROJECT> -buildmachine -unattended -nullrhi -run "-RunAutomationTest=<TEST1>+<TEST2>+<TESTN>"`
+
+- **Using [ue4cli](https://github.com/adamrehn/ue4cli)**:<br>`ue4 test <TEST1> <TEST2> <TESTN>`
+  
+  *(Note that it is also possible to use the `uat` subcommand to invoke UAT, e.g. `ue4 uat BuildCookRun <ARGS...>`, but the `test` command is the recommended way of running automation tests using ue4cli.)*
+
+Each of these approaches has its own benefits and limitations:
+
+|Approach |Supported Docker images |Benefits |Limitations |
+|---------|------------------------|---------|------------|
+|Editor   |<ul><li>`ue4-build`</li><li>`conan-ue4cli`</li><li>`ue4-package`</li></ul>|<ul><li>Maximum control and flexibility</li></ul>|<ul><li>Extremely verbose syntax</li><li>Requires the full path to the platform-specific `UE4Editor` binary (must be `UE4Editor-Cmd.exe` under Windows)</li><li>Project must already be built, as the Editor will not prompt to build missing modules and will instead simply crash</li><li>Exit code is always non-zero, so log output must be parsed to detect failures</li></ul>|
+|UAT      |<ul><li>`ue4-build`</li><li>`conan-ue4cli`</li><li>`ue4-package`</li></ul>|<ul><li>Supports advanced functionality (e.g. running both client and server)</li><li>Exit code actually reflects success or failure</li></ul>|<ul><li>Restricts which arguments can be passed to the Editor (although most are supported)</li><li>Requires the full path to the platform-specific `RunUAT` batch file or shell script</li><li>Project must already be built, or else the relevant arguments must be included to perform the build</li><li>If the Editor crashes then UAT will wait for a 30 second grace period before reporting the error</li></ul> |
+|ue4cli   |<ul><li>`conan-ue4cli`</li><li>`ue4-package`</li></ul>|<p>When using `ue4 test`:</p><ul><li>Concise syntax</li><li>Determines the path to the Editor automatically</li><li>Automatically builds the project if not already built</li><li>Exit code actually reflects success or failure</li><li>Reports Editor crashes immediately</li></ul><p>When using `ue4 uat`:</p><ul><li>Determines the path to `RunUAT` automatically</li><li>All the benefits of using UAT listed above</li></ul>|<p>Irrespective of subcommand:</p><ul><li>Not supported by the `ue4-build` image, which lacks ue4cli</li><li>Must be run from the directory containing the `.uproject` file</li></ul><p>When using `ue4 test`:</p><ul><li>Restricts which arguments can be passed to the Editor (although I've included all the arguments I believe are necessary)</li></ul><p>When using `ue4 uat`:</p><ul><li>All the limitations of using UAT listed above</li></ul>|
+
+### Container limitations
+
+Irrespective of the invocation approach utilised, the following limitations apply when running automation tests inside Docker containers:
+
+- Tests requiring sound output will not function correctly.
+- The Windows-specific plugins `WindowsMoviePlayer` and `WmfMedia` that are enabled by default as of UE4.19 both require [Microsoft Media Foundation](https://msdn.microsoft.com/en-us/library/windows/desktop/ms694197(v=vs.85).aspx) in order to function correctly. Under Windows Server Core, Media Foundation is [provided by the `Server-Media-Foundation` optional feature](https://docs.microsoft.com/en-us/windows-server/administration/server-core/server-core-roles-and-services#features-included-in-server-core). However, this feature has a history of being problematic inside Docker containers, and was [removed from the Server Core container image in Windows Server, version 1803](https://docs.microsoft.com/en-us/windows-server/administration/server-core/server-core-container-removed-roles). As such, any tests that rely on these plugins will not function correctly.
 
 
 ## Troubleshooting common issues
