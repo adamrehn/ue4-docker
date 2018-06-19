@@ -3,6 +3,10 @@ import argparse, getpass, os, platform, random, re, semver, shutil, sys
 from os.path import join
 from utils import *
 
+# The default Windows Server Core base image tag
+# (See <https://hub.docker.com/r/microsoft/windowsservercore/> for a list of valid tags)
+DEFAULT_WINDOWS_BASETAG = '1803'
+
 if __name__ == '__main__':
 	
 	# Create our logger to generate coloured output on stderr
@@ -17,6 +21,8 @@ if __name__ == '__main__':
 	parser.add_argument('--no-ue4cli', action='store_true', help='Don\'t build the conan-ue4cli image')
 	parser.add_argument('--no-package', action='store_true', help='Don\'t build the ue4-package image')
 	parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
+	parser.add_argument('-isolation', default=None, help='Set the isolation mode to use for Windows containers (process or hyperv)')
+	parser.add_argument('-basetag', default=DEFAULT_WINDOWS_BASETAG, help='Windows Server Core base image tag to use for Windows containers (default is ' + DEFAULT_WINDOWS_BASETAG + ')')
 	
 	# If no command-line arguments were supplied, display the help message and exit
 	if len(sys.argv) < 2:
@@ -38,8 +44,14 @@ if __name__ == '__main__':
 	containerPlatform = 'windows' if platform.system() == 'Windows' and args.linux == False else 'linux'
 	platformArgs = []
 	if containerPlatform == 'windows':
+		
+		# Set the memory limit Docker flags
 		limit = 8.0 if args.random_memory == False else random.uniform(8.0, 10.0)
 		platformArgs = ['-m', '{:.2f}GB'.format(limit)]
+		
+		# Set the isolation mode Docker flags
+		if args.isolation != None:
+			platformArgs.append('-isolation=' + args.isolation)
 	
 	# If we are building Windows containers, ensure the Docker daemon is configured correctly
 	if containerPlatform == 'windows' and DockerUtils.maxsize() < 120.0:
@@ -70,7 +82,8 @@ if __name__ == '__main__':
 	try:
 		
 		# Build the UE4 build prerequisites image
-		builder.build('ue4-build-prerequisites', 'latest', platformArgs, args.rebuild, args.dry_run)
+		prereqsArgs = ['--build-arg', 'BASETAG=' + args.basetag] if platform.system() == 'Windows' else []
+		builder.build('ue4-build-prerequisites', 'latest', platformArgs + prereqsArgs, args.rebuild, args.dry_run)
 		
 		# Build the UE4 source image
 		ue4SourceArgs = ['--build-arg', 'GIT_TAG={}-release'.format(ue4VersionStr)]

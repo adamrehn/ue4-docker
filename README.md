@@ -18,6 +18,8 @@ For a detailed discussion on how the build process works, see [the accompanying 
 - [Requirements](#requirements)
 - [Build script usage](#build-script-usage)
     - [Building images](#building-images)
+    - [Specifying the Windows Server Core base image tag](#specifying-the-windows-server-core-base-image-tag)
+    - [Specifying the isolation mode under Windows](#specifying-the-isolation-mode-under-windows)
     - [Building Linux container images under Windows](#building-linux-container-images-under-windows)
     - [Performing a dry run](#performing-a-dry-run)
     - [Upgrading from a previous version](#upgrading-from-a-previous-version)
@@ -81,6 +83,22 @@ Once the build process is complete, you will have five new Docker images on your
 - `adamrehn/conan-ue4cli:RELEASE` - this extends the source build with [conan-ue4cli](https://github.com/adamrehn/conan-ue4cli) support for building Conan packages that are compatible with UE4. This image will only be built for UE4 versions >= 4.19.0, which is the minimum Engine version required by ue4cli. You can disable the build for this image by specifying `--no-ue4cli` when you run the build script.
 - `adamrehn/ue4-package:RELEASE` - this extends the `conan-ue4cli` image and is designed for packaging Shipping builds of UE4 projects. Note that the image simply pre-builds components needed for packaging in order to speed up subsequent build time, and is not required in order to package projects (both the `ue4-build` and `conan-ue4cli` images can be used to package projects, albeit with longer build times.) This image will only be built if the `conan-ue4cli` image is built. You can disable the build for this image by specifying `--no-package` when you run the build script.
 
+### Specifying the Windows Server Core base image tag
+
+By default, Windows container images are based on the latest Windows Server Core release from the [Semi-Annual Channel](https://docs.microsoft.com/en-us/windows-server/get-started/semi-annual-channel-overview) release track (currently **Windows Server, version 1803**.) However, Windows containers cannot run a newer kernel version than that of the host operating system, rendering the latest images unusable under older versions of Windows 10 and Windows Server. (See the [Windows Container Version Compatibility](https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/version-compatibility) page for a table detailing which configurations are supported.)
+
+If you are building or running images under an older version of Windows 10 or Windows Server, you will need to build images based on the same kernel version as the host system or older. The kernel version can be specified by providing the appropriate base OS image tag via the `-basetag=TAG` flag when invoking the build script:
+
+```
+python3 build.py 4.19.2 -basetag=ltsc2016  # Uses Windows Server 2016 (Long Term Support Channel)
+```
+
+For a list of supported base image tags, see the [Windows Server Core base image on Docker Hub](https://hub.docker.com/r/microsoft/windowsservercore/).
+
+### Specifying the isolation mode under Windows
+
+The isolation mode can be specified via the `-isolation=MODE` flag when invoking the build script. Valid values are `process` (supported under Windows Server only) or `hyperv` (supported under both Windows 10 or Windows Server.)
+
 ### Building Linux container images under Windows
 
 By default, Windows container images are built when running the build script under Windows. To build Linux container images instead, simply specify the `--linux` flag when invoking the build script.
@@ -134,6 +152,13 @@ Irrespective of the invocation approach utilised, the following limitations appl
 - **Building Windows containers fails with the message `hcsshim: timeout waiting for notification extra info`:**
   
   This is a known issue when using Windows containers in Hyper-V isolation mode. See the [Windows `hcsshim` timeout issues](#windows-hcsshim-timeout-issues) section below for a detailed discussion of this problem and the available workarounds.
+
+- **Building or running Windows containers fails with the message `The operating system of the container does not match the operating system of the host`:**
+  
+  This error is shown in two situations:
+  
+    - The host system is running an **older kernel version** than the container image. In this case, you will need to build the images using the same kernel version as the host system or older. See the [Specifying the Windows Server Core base image tag](#specifying-the-windows-server-core-base-image-tag) section above for details on specifying the correct kernel version when building Windows container images.
+    - The host system is running a **newer kernel version** than the container image and you are attempting to use process isolation mode instead of Hyper-V isolation mode. (Process isolation mode is the default under Windows Server.) In this case, you will need to use Hyper-V isolation mode instead. See the [Specifying the isolation mode under Windows](#specifying-the-isolation-mode-under-windows) section above for details on how to do this.
 
 - **Building Windows containers fails with the message `hcsshim::ImportLayer failed in Win32: The system cannot find the path specified` or building Linux containers fails with a message about insufficient disk space:**
   

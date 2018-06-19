@@ -1,5 +1,6 @@
 # escape=`
-FROM microsoft/dotnet-framework:4.7.2-sdk-windowsservercore-1803
+ARG BASETAG
+FROM microsoft/dotnet-framework:4.7.2-sdk-windowsservercore-${BASETAG}
 SHELL ["cmd", "/S", "/C"]
 
 # Install chocolatey
