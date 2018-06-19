@@ -167,6 +167,10 @@ Irrespective of the invocation approach utilised, the following limitations appl
     - For Windows containers, follow [the instructions provided by Microsoft](https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container#step-4-expand-maximum-container-disk-size), making sure you restart the Docker daemon after you've modified the config JSON.
     - For Linux containers, use the [Docker for Windows "Advanced" settings tab](https://docs.docker.com/docker-for-windows/#advanced) under Windows or the [Docker for Mac "Disk" settings tab](https://docs.docker.com/docker-for-mac/#disk) under macOS.
 
+- **Pulling the .NET Framework base image fails with the message `ProcessUtilityVMImage \\?\`(long path here)`\UtilityVM: The system cannot find the path specified`:**
+  
+  This is a known issue when the host system is running an older kernel version than the container image. Just like in the case of the *"The operating system of the container does not match the operating system of the host"* error mentioned above, you will need to build the images using the same kernel version as the host system or older. See the [Specifying the Windows Server Core base image tag](#specifying-the-windows-server-core-base-image-tag) section above for details on specifying the correct kernel version when building Windows container images.
+
 - **Cloning the UnrealEngine Git repository fails with the message `error: unable to read askpass response from 'C:\git-credential-helper.bat'` (for Windows containers) or `'/tmp/git-credential-helper.sh'` (for Linux containers):**
   
   This typically indicates that the firewall on the host system is blocking connections from the Docker container, preventing it from retrieving the Git credentials supplied by the build script. (This is particularly noticeable under a clean installation of Windows Server, which blocks connections from other subnets by default.) The firewall will need to be configured appropriately to allow the connection, or else temporarily disabled. (Use the command `netsh advfirewall set allprofiles state off` under Windows Server.)
