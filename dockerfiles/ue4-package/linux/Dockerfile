@@ -1,12 +1,6 @@
 ARG TAG
 FROM adamrehn/conan-ue4cli:${TAG}
 
-# Pre-build the components needed for creating Shipping builds of projects using Unreal Automation Tool
-# (UAT will build these automatically, but pre-building them will speed up builds that use this image.)
-WORKDIR /home/ue4/UnrealEngine
-RUN ./Engine/Build/BatchFiles/Linux/Build.sh ShaderCompileWorker Linux Development -WaitMutex
-RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealPak Linux Development -WaitMutex
-RUN ./Engine/Build/BatchFiles/Linux/Build.sh UE4Game Linux Shipping -WaitMutex
-
-# Generate the DDC data for all Engine content
-RUN ./Engine/Binaries/Linux/UE4Editor -run=DerivedDataCache -fill -TargetPlatform=Linux || exit 0
+# Create an Installed Build of the Engine and direct ue4cli to use it
+RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true
+RUN ue4 setroot /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux

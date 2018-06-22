@@ -9,6 +9,7 @@ This repository contains a set of Dockerfiles and an accompanying Python build s
 - **Both Windows containers and Linux containers are supported.**
 - Running automation tests is supported.
 - When building UE4 version 4.19.0 or newer, [conan-ue4cli](https://github.com/adamrehn/conan-ue4cli) support is also built by default, although this behaviour can be disabled by using the `--no-ue4cli` flag when invoking the build script.
+- When building UE4 version 4.19.0 or newer and building the `conan-ue4cli` image, an additional image containing an [Installed Build](https://docs.unrealengine.com/en-us/Programming/Deployment/Using-an-Installed-Build) of the Engine is also created for use when packaging Shipping builds of projects, although this behaviour can be disabled by using the `--no-package` flag when invoking the build script.
 
 For a detailed discussion on how the build process works, see [the accompanying article on my website](http://adamrehn.com/articles/building-docker-images-for-unreal-engine-4).
 
@@ -81,7 +82,7 @@ Once the build process is complete, you will have five new Docker images on your
 - `adamrehn/ue4-source:RELEASE` - this contains the cloned source code for UE4. This image is separated from the `ue4-build` image to isolate the effects of changing environment variables related to git credentials, so that they don't interfere with the build cache for the subsequent steps.
 - `adamrehn/ue4-build:RELEASE` - this contains the source build for UE4.
 - `adamrehn/conan-ue4cli:RELEASE` - this extends the source build with [conan-ue4cli](https://github.com/adamrehn/conan-ue4cli) support for building Conan packages that are compatible with UE4. This image will only be built for UE4 versions >= 4.19.0, which is the minimum Engine version required by ue4cli. You can disable the build for this image by specifying `--no-ue4cli` when you run the build script.
-- `adamrehn/ue4-package:RELEASE` - this extends the `conan-ue4cli` image and is designed for packaging Shipping builds of UE4 projects. Note that the image simply pre-builds components needed for packaging in order to speed up subsequent build time, and is not required in order to package projects (both the `ue4-build` and `conan-ue4cli` images can be used to package projects, albeit with longer build times.) This image will only be built if the `conan-ue4cli` image is built. You can disable the build for this image by specifying `--no-package` when you run the build script.
+- `adamrehn/ue4-package:RELEASE` - this extends the `conan-ue4cli` image and is designed for packaging Shipping builds of UE4 projects. Note that the image simply creates an Installed Build of the Engine in order to speed up subsequent build time, and is not required in order to package projects (both the `ue4-build` and `conan-ue4cli` images can be used to package projects, albeit with longer build times.) This image will only be built if the `conan-ue4cli` image is built. You can disable the build for this image by specifying `--no-package` when you run the build script.
 
 ### Specifying the Windows Server Core base image tag
 

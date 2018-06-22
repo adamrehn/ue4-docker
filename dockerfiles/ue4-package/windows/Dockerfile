@@ -2,12 +2,6 @@
 ARG TAG
 FROM adamrehn/conan-ue4cli:${TAG}
 
-# Pre-build the components needed for creating Shipping builds of projects using Unreal Automation Tool
-# (UAT will build these automatically, but pre-building them will speed up builds that use this image.)
-WORKDIR C:\UnrealEngine
-RUN .\Engine\Build\BatchFiles\Build.bat ShaderCompileWorker Win64 Development -WaitMutex
-RUN .\Engine\Build\BatchFiles\Build.bat UnrealPak Win64 Development -WaitMutex
-RUN .\Engine\Build\BatchFiles\Build.bat UE4Game Win64 Shipping -WaitMutex
-
-# Generate the DDC data for all Engine content
-RUN .\Engine\Binaries\Win64\UE4Editor-Cmd.exe -run=DerivedDataCache -fill -TargetPlatform=Windows || exit 0
+# Create an Installed Build of the Engine and direct ue4cli to use it
+RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph -target="Make Installed Build Win64" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true
+RUN ue4 setroot C:\UnrealEngine\LocalBuilds\Engine\Windows

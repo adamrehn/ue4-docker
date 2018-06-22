@@ -39,6 +39,13 @@ RUN %TEMP%\vs_buildtools.exe --quiet --wait --norestart --nocache `
 	--remove Microsoft.VisualStudio.Workload.WebBuildTools `
  || IF "%ERRORLEVEL%"=="3010" EXIT 0
 
+# Install WinDbg, which contains pdbcopy.exe (needed for creating an Installed Build of the Engine)
+RUN choco install -y windbg
+
+# Copy pdbcopy.exe to the expected location for UE4 versions prior to the UE-51362 fix (https://issues.unrealengine.com/issue/UE-51362)
+RUN echo f | xcopy "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\pdbcopy.exe" "C:\Program Files (x86)\MSBuild\Microsoft\VisualStudio\v12.0\AppxPackage\PDBCopy.exe" /Q /Y
+RUN echo f | xcopy "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\pdbcopy.exe" "C:\Program Files (x86)\MSBuild\Microsoft\VisualStudio\v14.0\AppxPackage\PDBCopy.exe" /Q /Y
+
 # Install the required DirectX runtime files, since Windows Server Core does not include them
 RUN curl --progress -L "https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe" --output %TEMP%\directx_redist.exe
 RUN start /wait %TEMP%\directx_redist.exe /Q /T:%TEMP% && `
