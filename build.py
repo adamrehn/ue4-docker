@@ -52,6 +52,13 @@ if __name__ == '__main__':
 		# Set the isolation mode Docker flags
 		if args.isolation != None:
 			platformArgs.append('-isolation=' + args.isolation)
+		
+		# Provide the user with feedback so they are aware of the Windows-specific values being used
+		logger.info('WINDOWS CONTAINER SETTINGS', False)
+		logger.info('Isolation mode:           {}'.format(args.isolation if args.isolation != None else 'default'), False)
+		logger.info('Base OS image tag:        ' + args.basetag, False)
+		logger.info('Memory limit:             {:.2f}GB'.format(limit), False)
+		logger.info('Detected max image size:  {:.0f}GB\n'.format(DockerUtils.maxsize()), False)
 	
 	# If we are building Windows containers, ensure the Docker daemon is configured correctly
 	if containerPlatform == 'windows' and DockerUtils.maxsize() < 200.0:
@@ -61,10 +68,20 @@ if __name__ == '__main__':
 		logger.error('https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container#step-4-expand-maximum-container-disk-size')
 		sys.exit(1)
 	
-	# Retrieve the Git username and password from the user
-	print('Enter the Git credentials that will be used to clone the UE4 repo')
-	username = input("Username: ")
-	password = getpass.getpass("Password: ")
+	# Determine if we are performing a dry run
+	if args.dry_run == True:
+		
+		# Don't bother prompting the user for any credentials
+		logger.info('Performing a dry run, `docker build` commands will be printed and not executed.', False)
+		username = ''
+		password = ''
+		
+	else:
+		
+		# Retrieve the Git username and password from the user
+		print('Enter the Git credentials that will be used to clone the UE4 repo')
+		username = input("Username: ")
+		password = getpass.getpass("Password: ")
 	
 	# Start the HTTP credential endpoint as a child process and wait for it to start
 	endpoint = CredentialEndpoint(username, password)
@@ -82,7 +99,7 @@ if __name__ == '__main__':
 	try:
 		
 		# Build the UE4 build prerequisites image
-		prereqsArgs = ['--build-arg', 'BASETAG=' + args.basetag] if platform.system() == 'Windows' else []
+		prereqsArgs = ['--build-arg', 'BASETAG=' + args.basetag] if containerPlatform == 'windows' else []
 		builder.build('ue4-build-prerequisites', 'latest', platformArgs + prereqsArgs, args.rebuild, args.dry_run)
 		
 		# Build the UE4 source image
