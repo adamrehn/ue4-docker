@@ -35,7 +35,7 @@ For a detailed discussion on how the build process works, see [the accompanying 
 
 The common requirements for both Windows and Linux containers are:
 
-- A minimum of 120GB of available disk space
+- A minimum of 200GB of available disk space
 - A minimum of 8GB of available memory
 - [Python](https://www.python.org/) 3.x with `pip`
 - The dependency packages listed in [requirements.txt](./requirements.txt), which can be installed by running `pip3 install -r requirements.txt`
@@ -45,7 +45,7 @@ Building **Windows containers** also requires:
 - Windows 10 Pro/Enterprise or Windows Server 2016 or newer
 - [Docker For Windows](https://www.docker.com/docker-windows) (under Windows 10) or [Docker EE For Windows Server](https://www.docker.com/docker-windows-server) (under Windows Server)
 - Under Windows 10, the Docker daemon must be configured to use Windows containers instead of Linux containers
-- The Docker daemon must be configured to increase the maximum container disk size from the default 20GB limit by following [the instructions provided by Microsoft](https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container#step-4-expand-maximum-container-disk-size). The 120GB limit specified in the instructions is sufficient.
+- The Docker daemon must be configured to increase the maximum container disk size from the default 20GB limit by following [the instructions provided by Microsoft](https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container#step-4-expand-maximum-container-disk-size). The 120GB limit specified in the instructions is not quite enough, so set a 200GB limit instead.
 - Under Windows Server, you may need to configure the firewall to allow network access to the host from inside Docker containers
 - Under Windows Server Core, you will need to copy the following DLL files from a copy of Windows 10 (or Windows Server 2016 [with the Desktop Experience feature](https://docs.microsoft.com/en-us/windows-server/get-started/getting-started-with-server-with-desktop-experience)) and place them in the `C:\Windows\System32` directory:
     - `dsound.dll`
@@ -57,7 +57,7 @@ Building **Linux containers** also requires:
 - Windows 10 Pro/Enterprise, Linux or macOS
 - [Docker For Windows](https://www.docker.com/docker-windows) (under Windows 10), [Docker CE](https://www.docker.com/community-edition) (under Linux) or [Docker For Mac](https://www.docker.com/docker-mac) (under macOS)
 - Under Windows 10, the Docker daemon must be configured to use Linux containers instead of Windows containers
-- Under Windows 10 and macOS, Docker must be configured in the "Advanced" settings pane to allocate 8GB of memory and a maximum disk image size of 120GB
+- Under Windows 10 and macOS, Docker must be configured in the "Advanced" settings pane to allocate 8GB of memory and a maximum disk image size of 200GB
 
 
 ## Build script usage

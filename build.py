@@ -54,10 +54,10 @@ if __name__ == '__main__':
 			platformArgs.append('-isolation=' + args.isolation)
 	
 	# If we are building Windows containers, ensure the Docker daemon is configured correctly
-	if containerPlatform == 'windows' and DockerUtils.maxsize() < 120.0:
+	if containerPlatform == 'windows' and DockerUtils.maxsize() < 200.0:
 		logger.error('SETUP REQUIRED:')
-		logger.error('The max image size for Windows containers must be set to at least 120GB.')
-		logger.error('See the Microsoft documentation for configuration instructions:\n')
+		logger.error('The max image size for Windows containers must be set to at least 200GB.')
+		logger.error('See the Microsoft documentation for configuration instructions:')
 		logger.error('https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container#step-4-expand-maximum-container-disk-size')
 		sys.exit(1)
 	
