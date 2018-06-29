@@ -1,4 +1,5 @@
-FROM ubuntu:18.04
+ARG BASEIMAGE
+FROM ${BASEIMAGE}
 
 # Disable interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -13,7 +14,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	git \
 	python3 \
 	python3-pip \
+	shared-mime-info \
 	tzdata \
 	unzip \
 	wget \
+	xdg-user-dirs \
 	zip

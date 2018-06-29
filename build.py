@@ -21,6 +21,7 @@ if __name__ == '__main__':
 	parser.add_argument('--no-ue4cli', action='store_true', help='Don\'t build the conan-ue4cli image')
 	parser.add_argument('--no-package', action='store_true', help='Don\'t build the ue4-package image')
 	parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
+	parser.add_argument('--nvidia', action='store_true', help='Build GPU-enabled images for NVIDIA Docker under Linux')
 	parser.add_argument('-isolation', default=None, help='Set the isolation mode to use for Windows containers (process or hyperv)')
 	parser.add_argument('-basetag', default=DEFAULT_WINDOWS_BASETAG, help='Windows Server Core base image tag to use for Windows containers (default is ' + DEFAULT_WINDOWS_BASETAG + ')')
 	
@@ -59,6 +60,14 @@ if __name__ == '__main__':
 		logger.info('Base OS image tag:        ' + args.basetag, False)
 		logger.info('Memory limit:             {:.2f}GB'.format(limit), False)
 		logger.info('Detected max image size:  {:.0f}GB\n'.format(DockerUtils.maxsize()), False)
+		
+	elif containerPlatform == 'linux':
+		
+		# Determine if we are building GPU-enabled container images
+		linuxBaseImage = 'ubuntu:18.04'
+		if args.nvidia == True:
+			logger.info('Building GPU-enabled images for use with NVIDIA Docker.\n', False)
+			linuxBaseImage = 'nvidia/opengl:1.0-glvnd-devel-ubuntu18.04'
 	
 	# If we are building Windows containers, ensure the Docker daemon is configured correctly
 	if containerPlatform == 'windows' and DockerUtils.maxsize() < 200.0:
@@ -99,7 +108,7 @@ if __name__ == '__main__':
 	try:
 		
 		# Build the UE4 build prerequisites image
-		prereqsArgs = ['--build-arg', 'BASETAG=' + args.basetag] if containerPlatform == 'windows' else []
+		prereqsArgs = ['--build-arg', 'BASETAG=' + args.basetag] if containerPlatform == 'windows' else ['--build-arg', 'BASEIMAGE=' + linuxBaseImage]
 		builder.build('ue4-build-prerequisites', 'latest', platformArgs + prereqsArgs, args.rebuild, args.dry_run)
 		
 		# Build the UE4 source image
