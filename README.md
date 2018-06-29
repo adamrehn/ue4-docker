@@ -22,6 +22,7 @@ For a detailed discussion on how the build process works, see [the accompanying 
     - [Specifying the Windows Server Core base image tag](#specifying-the-windows-server-core-base-image-tag)
     - [Specifying the isolation mode under Windows](#specifying-the-isolation-mode-under-windows)
     - [Building Linux container images under Windows](#building-linux-container-images-under-windows)
+    - [Building GPU-enabled Linux container images for use with NVIDIA Docker](#building-gpu-enabled-linux-container-images-for-use-with-nvidia-docker)
     - [Performing a dry run](#performing-a-dry-run)
     - [Upgrading from a previous version](#upgrading-from-a-previous-version)
 - [Running automation tests](#running-automation-tests)
@@ -103,6 +104,12 @@ The isolation mode can be specified via the `-isolation=MODE` flag when invoking
 ### Building Linux container images under Windows
 
 By default, Windows container images are built when running the build script under Windows. To build Linux container images instead, simply specify the `--linux` flag when invoking the build script.
+
+### Building GPU-enabled Linux container images for use with NVIDIA Docker
+
+[NVIDIA Docker](https://github.com/NVIDIA/nvidia-docker) provides a container runtime for Docker that allows Linux containers to access NVIDIA GPU devices present on the host system. This facilitates hardware acceleration for applications that use OpenGL or NVIDIA CUDA, and can be useful for Unreal projects that need to perform offscreen rendering from within a container. To build Linux container images that support hardware-accelerated OpenGL when run via NVIDIA Docker, simply specify the `--nvidia` flag when invoking the build script.
+
+Note that **NVIDIA Docker version 2.x is required** to run the built images (version 1.x is not supported) and that the images can only be run under a Linux host system with one or more NVIDIA GPUs.
 
 ### Performing a dry run
 
