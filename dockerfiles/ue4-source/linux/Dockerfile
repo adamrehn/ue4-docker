@@ -18,6 +18,7 @@ RUN chmod +x /tmp/git-credential-helper.sh
 
 # Since UE4 refuses to build as the root user under Linux, create a non-root user
 RUN useradd --create-home --home /home/ue4 --shell /bin/bash ue4
+RUN usermod -a -G audio,video ue4
 USER ue4
 
 # Clone the UE4 git repository using the host-supplied credentials
