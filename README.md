@@ -38,7 +38,7 @@ The common requirements for both Windows and Linux containers are:
 
 - A minimum of 200GB of available disk space
 - A minimum of 8GB of available memory
-- [Python](https://www.python.org/) 3.x with `pip`
+- [Python](https://www.python.org/) 3.6 or newer with `pip`
 - The dependency packages listed in [requirements.txt](./requirements.txt), which can be installed by running `pip3 install -r requirements.txt`
 
 Building **Windows containers** also requires:
