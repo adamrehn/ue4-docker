@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	cmake \
 	curl \
 	git \
+	libasound2 \
 	python3 \
 	python3-pip \
 	shared-mime-info \
