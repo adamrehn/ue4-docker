@@ -20,6 +20,7 @@ if __name__ == '__main__':
 	parser.add_argument('--dry-run', action='store_true', help='Print `docker build` commands instead of running them')
 	parser.add_argument('--no-ue4cli', action='store_true', help='Don\'t build the conan-ue4cli image')
 	parser.add_argument('--no-package', action='store_true', help='Don\'t build the ue4-package image')
+	parser.add_argument('--no-capture', action='store_true', help='Don\'t build the ue4-capture image')
 	parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
 	parser.add_argument('--nvidia', action='store_true', help='Build GPU-enabled images for NVIDIA Docker under Linux')
 	parser.add_argument('-isolation', default=None, help='Set the isolation mode to use for Windows containers (process or hyperv)')
@@ -127,10 +128,17 @@ if __name__ == '__main__':
 			logger.info('UE4 version less than 4.19.0 or user specified `--no-ue4cli`, skipping conan-ue4cli image build.')
 		
 		# Build the UE4 packaging image (for packaging Shipping builds of projects), unless requested otherwise by the user
-		if buildUe4Cli == True and args.no_package == False:
+		buildUe4Package = buildUe4Cli == True and args.no_package == False
+		if buildUe4Package == True:
 			builder.build('ue4-package', ue4VersionStr, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
 		else:
 			logger.info('Not building conan-ue4cli or user specified `--no-package`, skipping ue4-package image build.')
+		
+		# Build the UE4Capture image (for capturing gameplay footage), unless requested otherwise by the user
+		if buildUe4Package == True and args.no_capture == False and containerPlatform == 'linux' and args.nvidia == True:
+			builder.build('ue4-capture', ue4VersionStr, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
+		else:
+			logger.info('Not building NVIDIA Docker ue4-package or user specified `--no-capture`, skipping ue4-capture image build.')
 		
 		# Stop the HTTP server
 		endpoint.stop()
