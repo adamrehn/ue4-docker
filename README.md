@@ -111,9 +111,9 @@ By default, Windows container images are built when running the build script und
 
 ### Building GPU-enabled Linux container images for use with NVIDIA Docker
 
-[NVIDIA Docker](https://github.com/NVIDIA/nvidia-docker) provides a container runtime for Docker that allows Linux containers to access NVIDIA GPU devices present on the host system. This facilitates hardware acceleration for applications that use OpenGL or NVIDIA CUDA, and can be useful for Unreal projects that need to perform offscreen rendering from within a container. To build Linux container images that support hardware-accelerated OpenGL when run via NVIDIA Docker, simply specify the `--nvidia` flag when invoking the build script.
+[NVIDIA Docker](https://github.com/NVIDIA/nvidia-docker) provides a container runtime for Docker that allows Linux containers to access NVIDIA GPU devices present on the host system. This facilitates hardware acceleration for applications that use OpenGL or NVIDIA CUDA, and can be useful for Unreal projects that need to perform offscreen rendering from within a container. To build Linux container images that support hardware-accelerated OpenGL when run via NVIDIA Docker, simply specify the `--nvidia` flag when invoking the build script. If you would like CUDA support in addition to OpenGL support, also specify the `--cuda` flag.
 
-Note that **NVIDIA Docker version 2.x is required** to run the built images (version 1.x is not supported) and that the images can only be run under a Linux host system with one or more NVIDIA GPUs.
+Note that **NVIDIA Docker version 2.x is required** to run the built images (version 1.x is not supported) and that the images can only be run under a Linux host system with one or more NVIDIA GPUs. Images with CUDA support also have [additional requirements](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA#requirements) on top of the requirements for OpenGL support.
 
 ### Performing a dry run
 

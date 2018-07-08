@@ -10,6 +10,10 @@ semver = PackageUtils.importFile('semver', os.path.join(PackageUtils.getPackageL
 # (See <https://hub.docker.com/r/microsoft/windowsservercore/> for a list of valid tags)
 DEFAULT_WINDOWS_BASETAG = '1803'
 
+# The base NVIDIA Docker images for OpenGL and CUDA+OpenGL
+NVIDIA_BASE_IMAGE_OPENGL = 'nvidia/opengl:1.0-glvnd-devel-ubuntu18.04'
+NVIDIA_BASE_IMAGE_CUDAGL = 'nvidia/cudagl:9.2-devel-ubuntu18.04'
+
 if __name__ == '__main__':
 	
 	# Create our logger to generate coloured output on stderr
@@ -26,6 +30,7 @@ if __name__ == '__main__':
 	parser.add_argument('--no-capture', action='store_true', help='Don\'t build the ue4-capture image')
 	parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
 	parser.add_argument('--nvidia', action='store_true', help='Build GPU-enabled images for NVIDIA Docker under Linux')
+	parser.add_argument('--cuda', action='store_true', help='Add CUDA support as well as OpenGL support when building NVIDIA Docker images')
 	parser.add_argument('-isolation', default=None, help='Set the isolation mode to use for Windows containers (process or hyperv)')
 	parser.add_argument('-basetag', default=DEFAULT_WINDOWS_BASETAG, help='Windows Server Core base image tag to use for Windows containers (default is ' + DEFAULT_WINDOWS_BASETAG + ')')
 	
@@ -69,9 +74,10 @@ if __name__ == '__main__':
 		
 		# Determine if we are building GPU-enabled container images
 		linuxBaseImage = 'ubuntu:18.04'
-		if args.nvidia == True:
-			logger.info('Building GPU-enabled images for use with NVIDIA Docker.\n', False)
-			linuxBaseImage = 'nvidia/opengl:1.0-glvnd-devel-ubuntu18.04'
+		if args.nvidia == True or args.cuda == True:
+			capabilities = 'CUDA + OpenGL' if args.cuda == True else 'OpenGL'
+			logger.info('Building GPU-enabled images for use with NVIDIA Docker ({} support).\n'.format(capabilities), False)
+			linuxBaseImage = NVIDIA_BASE_IMAGE_CUDAGL if args.cuda == True else NVIDIA_BASE_IMAGE_OPENGL
 	
 	# If we are building Windows containers, ensure the Docker daemon is configured correctly
 	if containerPlatform == 'windows' and DockerUtils.maxsize() < 200.0:
