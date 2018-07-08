@@ -1,5 +1,6 @@
 # escape=`
-FROM adamrehn/ue4-build-prerequisites:latest
+ARG PREREQS_TAG
+FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
 
 # The git tag that we will checkout
 ARG GIT_TAG=""

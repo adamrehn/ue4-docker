@@ -33,6 +33,7 @@ if __name__ == '__main__':
 	parser.add_argument('--cuda', action='store_true', help='Add CUDA support as well as OpenGL support when building NVIDIA Docker images')
 	parser.add_argument('-isolation', default=None, help='Set the isolation mode to use for Windows containers (process or hyperv)')
 	parser.add_argument('-basetag', default=DEFAULT_WINDOWS_BASETAG, help='Windows Server Core base image tag to use for Windows containers (default is ' + DEFAULT_WINDOWS_BASETAG + ')')
+	parser.add_argument('-suffix', default='', help='Add a suffix to the tags of the built images')
 	
 	# If no command-line arguments were supplied, display the help message and exit
 	if len(sys.argv) < 2:
@@ -118,34 +119,36 @@ if __name__ == '__main__':
 	try:
 		
 		# Build the UE4 build prerequisites image
+		prereqsTag = 'latest' + args.suffix
 		prereqsArgs = ['--build-arg', 'BASETAG=' + args.basetag] if containerPlatform == 'windows' else ['--build-arg', 'BASEIMAGE=' + linuxBaseImage]
-		builder.build('ue4-build-prerequisites', 'latest', platformArgs + prereqsArgs, args.rebuild, args.dry_run)
+		builder.build('ue4-build-prerequisites', prereqsTag, platformArgs + prereqsArgs, args.rebuild, args.dry_run)
 		
 		# Build the UE4 source image
-		ue4SourceArgs = ['--build-arg', 'GIT_TAG={}-release'.format(ue4VersionStr)]
-		builder.build('ue4-source', ue4VersionStr, platformArgs + ue4SourceArgs + endpoint.args(), args.rebuild, args.dry_run)
+		mainTag = ue4VersionStr + args.suffix
+		ue4SourceArgs = ['--build-arg', 'PREREQS_TAG={}'.format(prereqsTag), '--build-arg', 'GIT_TAG={}-release'.format(ue4VersionStr)]
+		builder.build('ue4-source', mainTag, platformArgs + ue4SourceArgs + endpoint.args(), args.rebuild, args.dry_run)
 		
 		# Build the UE4 build image
-		ue4BuildArgs = ['--build-arg', 'TAG={}'.format(ue4VersionStr)]
-		builder.build('ue4-build', ue4VersionStr, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
+		ue4BuildArgs = ['--build-arg', 'TAG={}'.format(mainTag)]
+		builder.build('ue4-build', mainTag, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
 		
 		# Build the conan-ue4cli image for 4.19.0 or newer, unless requested otherwise by the user
 		buildUe4Cli = ue4Version['minor'] >= 19 and args.no_ue4cli == False
 		if buildUe4Cli == True:
-			builder.build('conan-ue4cli', ue4VersionStr, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
+			builder.build('conan-ue4cli', mainTag, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
 		else:
 			logger.info('UE4 version less than 4.19.0 or user specified `--no-ue4cli`, skipping conan-ue4cli image build.')
 		
 		# Build the UE4 packaging image (for packaging Shipping builds of projects), unless requested otherwise by the user
 		buildUe4Package = buildUe4Cli == True and args.no_package == False
 		if buildUe4Package == True:
-			builder.build('ue4-package', ue4VersionStr, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
+			builder.build('ue4-package', mainTag, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
 		else:
 			logger.info('Not building conan-ue4cli or user specified `--no-package`, skipping ue4-package image build.')
 		
 		# Build the UE4Capture image (for capturing gameplay footage), unless requested otherwise by the user
 		if buildUe4Package == True and args.no_capture == False and containerPlatform == 'linux' and args.nvidia == True:
-			builder.build('ue4-capture', ue4VersionStr, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
+			builder.build('ue4-capture', mainTag, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
 		else:
 			logger.info('Not building NVIDIA Docker ue4-package or user specified `--no-capture`, skipping ue4-capture image build.')
 		
