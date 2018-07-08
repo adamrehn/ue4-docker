@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
-import argparse, getpass, os, platform, random, re, semver, shutil, sys
+import argparse, getpass, os, platform, random, re, shutil, sys
 from os.path import join
 from utils import *
+
+# Import the `semver` package even when the conflicting `node-semver` package is present
+semver = PackageUtils.importFile('semver', os.path.join(PackageUtils.getPackageLocation('semver'), 'semver.py'))
 
 # The default Windows Server Core base image tag
 # (See <https://hub.docker.com/r/microsoft/windowsservercore/> for a list of valid tags)

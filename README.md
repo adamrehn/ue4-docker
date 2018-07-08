@@ -166,10 +166,6 @@ The following resources document the use of these Docker images with the [Jenkin
 
 ## Troubleshooting common issues
 
-- **The build script refuses to accept valid Engine version numbers (i.e. it fails with a message such as `Error: invalid UE4 release number "4.19.2", full semver format required (e.g. "4.19.0")`):**
-  
-  This is caused by the package [node-semver](https://pypi.org/project/node-semver/) being present on the system, which conflicts with the [semver](https://pypi.org/project/semver/) package upon which the build script depends. The conflicting package will need to be removed using the command `pip3 uninstall node-semver` (may require `sudo` under macOS and Linux.)
-
 - **Building Windows containers fails with the message `hcsshim: timeout waiting for notification extra info`:**
   
   This is a known issue when using Windows containers in Hyper-V isolation mode. See the [Windows `hcsshim` timeout issues](#windows-hcsshim-timeout-issues) section below for a detailed discussion of this problem and the available workarounds.
