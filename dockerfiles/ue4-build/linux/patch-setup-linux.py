@@ -13,6 +13,7 @@ def writeFile(filename, data):
 setupScript = sys.argv[1]
 code = readFile(setupScript)
 code = code.replace('sudo ', '')
+code = code.replace('./UnrealVersionSelector-Linux-Shipping -register', 'echo "Skipping registration when running as root."')
 writeFile(setupScript, code)
 
 # Print the patched code to stderr for debug purposes
