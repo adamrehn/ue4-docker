@@ -55,6 +55,7 @@ Building **Windows containers** also requires:
     - `dsound.dll`
     - `opengl32.dll`
     - `glu32.dll`
+- Note that the three DLL files listed above must be copied from the **same version of Windows** as the Windows Server Core host system (e.g. Windows Server 1709 needs DLLs from Windows 10 1709, Windows Server 1803 needs DLLs from Windows 10 1803, etc.) Although DLLs from an older system version may potentially work, Windows will refuse to load these DLL files if they have been copied from a version of Windows that is newer than the host.
 
 Building **Linux containers** also requires:
 
