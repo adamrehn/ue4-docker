@@ -18,5 +18,6 @@ COPY git-credential-helper.bat C:\git-credential-helper.bat
 ENV GIT_ASKPASS=C:\git-credential-helper.bat
 
 # Clone the UE4 git repository using the host-supplied credentials
+ARG GIT_REPOSITORY=https://github.com/EpicGames/UnrealEngine.git
 WORKDIR C:\
-RUN git clone --progress --depth=1 -b %GIT_TAG% https://github.com/EpicGames/UnrealEngine.git
+RUN git clone --progress --depth=1 -b %GIT_TAG% %GIT_REPOSITORY%

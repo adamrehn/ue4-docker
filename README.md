@@ -102,6 +102,14 @@ python3 build.py 4.19.2 -basetag=ltsc2016  # Uses Windows Server 2016 (Long Term
 
 For a list of supported base image tags, see the [Windows Server Core base image on Docker Hub](https://hub.docker.com/r/microsoft/windowsservercore/).
 
+### Working with a Custom Engine
+
+If you have your own Custom Engine on your git repository, you can use the `--git-repository` to specify your own repository.
+
+```python
+python3 build.py my-branch-name --git-repository=https://github.com/MyUser/MyUnrealEngineRepo.git
+```
+
 ### Specifying the isolation mode under Windows
 
 The isolation mode can be specified via the `-isolation=MODE` flag when invoking the build script. Valid values are `process` (supported under Windows Server only) or `hyperv` (supported under both Windows 10 or Windows Server.)
