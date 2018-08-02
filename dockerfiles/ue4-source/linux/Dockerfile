@@ -23,5 +23,6 @@ RUN usermod -a -G audio,video ue4
 USER ue4
 
 # Clone the UE4 git repository using the host-supplied credentials
+ARG GIT_REPOSITORY="https://github.com/EpicGames/UnrealEngine.git"
 WORKDIR /home/ue4
-RUN git clone --progress --depth=1 -b $GIT_TAG "https://github.com/EpicGames/UnrealEngine.git"
+RUN git clone --progress --depth=1 -b $GIT_TAG $GIT_REPOSITORY

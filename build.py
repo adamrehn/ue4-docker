@@ -14,6 +14,8 @@ DEFAULT_WINDOWS_BASETAG = '1803'
 NVIDIA_BASE_IMAGE_OPENGL = 'nvidia/opengl:1.0-glvnd-devel-ubuntu18.04'
 NVIDIA_BASE_IMAGE_CUDAGL = 'nvidia/cudagl:9.2-devel-ubuntu18.04'
 
+GIT_DEFAULT_REPOSITORY = 'https://github.com/EpicGames/UnrealEngine.git'
+
 if __name__ == '__main__':
 	
 	# Create our logger to generate coloured output on stderr
@@ -22,6 +24,7 @@ if __name__ == '__main__':
 	# Our supported command-line arguments
 	parser = argparse.ArgumentParser()
 	parser.add_argument('release', help='UE4 release to build, in semver format (e.g. 4.19.0)')
+	parser.add_argument('--git-repository', default=GIT_DEFAULT_REPOSITORY, help='Custom address of a repository')
 	parser.add_argument('--linux', action='store_true', help='Build Linux container images under Windows')
 	parser.add_argument('--rebuild', action='store_true', help='Rebuild images even if they already exist')
 	parser.add_argument('--dry-run', action='store_true', help='Print `docker build` commands instead of running them')
@@ -42,14 +45,19 @@ if __name__ == '__main__':
 	
 	# Parse the supplied command-line arguments and validate the specified version string
 	args = parser.parse_args()
-	try:
-		ue4Version = semver.parse(args.release)
-		ue4VersionStr = semver.format_version(ue4Version['major'], ue4Version['minor'], ue4Version['patch'])
-		if ue4Version['major'] != 4 or ue4Version['prerelease'] != None:
-			raise Exception()
-	except:
-		logger.error('Error: invalid UE4 release number "{}", full semver format required (e.g. "4.19.0")'.format(args.release))
-		sys.exit(1)
+	is_custom_repo = not args.git_repository == GIT_DEFAULT_REPOSITORY
+	if not is_custom_repo:
+		try:
+			ue4Version = semver.parse(args.release)
+			ue4VersionStr = semver.format_version(ue4Version['major'], ue4Version['minor'], ue4Version['patch'])
+			if ue4Version['major'] != 4 or ue4Version['prerelease'] != None:
+				raise Exception()
+		except:
+			logger.error('Error: invalid UE4 release number "{}", full semver format required (e.g. "4.19.0")'.format(args.release))
+			sys.exit(1)
+	else:
+		ue4Version = semver.parse('0.0.0')
+		ue4VersionStr = args.release
 	
 	# Determine if we are building Windows or Linux containers
 	containerPlatform = 'windows' if platform.system() == 'Windows' and args.linux == False else 'linux'
@@ -125,7 +133,11 @@ if __name__ == '__main__':
 		
 		# Build the UE4 source image
 		mainTag = ue4VersionStr + args.suffix
-		ue4SourceArgs = ['--build-arg', 'PREREQS_TAG={}'.format(prereqsTag), '--build-arg', 'GIT_TAG={}-release'.format(ue4VersionStr)]
+		ue4SourceArgs = [
+			'--build-arg', 'PREREQS_TAG={}'.format(prereqsTag), '--build-arg',
+			'GIT_TAG={}{}'.format(ue4VersionStr, '' if is_custom_repo else '-release'),
+			'GIT_REPOSITORY={}'.format(args.git_repository)
+		]
 		builder.build('ue4-source', mainTag, platformArgs + ue4SourceArgs + endpoint.args(), args.rebuild, args.dry_run)
 		
 		# Build the UE4 build image
