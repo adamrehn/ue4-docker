@@ -22,6 +22,9 @@ RUN choco install -y cmake --installargs "ADD_CMAKE_TO_PATH=System"
 # Install Python 3.x
 RUN choco install -y python
 
+# Install our Python dependencies
+RUN pip install setuptools wheel
+
 # Install all available versions of the Visual C++ runtime libraries
 RUN choco install -y vcredist-all
 

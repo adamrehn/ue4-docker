@@ -132,19 +132,21 @@ if __name__ == '__main__':
 		ue4BuildArgs = ['--build-arg', 'TAG={}'.format(mainTag)]
 		builder.build('ue4-build', mainTag, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
 		
+		'''
 		# Build the conan-ue4cli image for 4.19.0 or newer, unless requested otherwise by the user
 		buildUe4Cli = ue4Version['minor'] >= 19 and args.no_ue4cli == False
 		if buildUe4Cli == True:
 			builder.build('conan-ue4cli', mainTag, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
 		else:
 			logger.info('UE4 version less than 4.19.0 or user specified `--no-ue4cli`, skipping conan-ue4cli image build.')
+		'''
 		
 		# Build the UE4 packaging image (for packaging Shipping builds of projects), unless requested otherwise by the user
-		buildUe4Package = buildUe4Cli == True and args.no_package == False
+		buildUe4Package = args.no_package == False
 		if buildUe4Package == True:
 			builder.build('ue4-package', mainTag, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
 		else:
-			logger.info('Not building conan-ue4cli or user specified `--no-package`, skipping ue4-package image build.')
+			logger.info('User specified `--no-package`, skipping ue4-package image build.')
 		
 		# Build the UE4Capture image (for capturing gameplay footage), unless requested otherwise by the user
 		if buildUe4Package == True and args.no_capture == False and containerPlatform == 'linux' and args.nvidia == True:

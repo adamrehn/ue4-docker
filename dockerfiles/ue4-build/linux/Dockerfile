@@ -126,3 +126,15 @@ COPY --from=sdl-builder ${SDL_LIBDIR} ${SDL_LIBDIR}
 
 # Build UBT and build the Engine
 RUN ./Engine/Build/BatchFiles/Linux/Build.sh UE4Editor Linux Development -WaitMutex
+
+# Install ue4cli and the prerequisites for conan-ue4cli
+RUN git clone "https://github.com/adamrehn/conan-ue4cli.git" /home/ue4/conan-ue4cli
+USER root
+RUN pip3 install -r /home/ue4/conan-ue4cli/requirements.txt
+USER ue4
+
+# Point ue4cli to the root of the built Engine
+RUN ue4 setroot /home/ue4/UnrealEngine
+
+# Install conan-ue4cli (4.19.0 and newer only, this call is a no-op for older Engine versions)
+RUN python3 /home/ue4/conan-ue4cli/generate.py

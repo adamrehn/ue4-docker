@@ -1,5 +1,5 @@
 ARG TAG
-FROM adamrehn/conan-ue4cli:${TAG}
+FROM adamrehn/ue4-build:${TAG}
 
 # Create an Installed Build of the Engine and direct ue4cli to use it
 WORKDIR /home/ue4/UnrealEngine
