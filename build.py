@@ -25,7 +25,6 @@ if __name__ == '__main__':
 	parser.add_argument('--linux', action='store_true', help='Build Linux container images under Windows')
 	parser.add_argument('--rebuild', action='store_true', help='Rebuild images even if they already exist')
 	parser.add_argument('--dry-run', action='store_true', help='Print `docker build` commands instead of running them')
-	parser.add_argument('--no-ue4cli', action='store_true', help='Don\'t build the conan-ue4cli image')
 	parser.add_argument('--no-package', action='store_true', help='Don\'t build the ue4-package image')
 	parser.add_argument('--no-capture', action='store_true', help='Don\'t build the ue4-capture image')
 	parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
@@ -131,15 +130,6 @@ if __name__ == '__main__':
 		# Build the UE4 build image
 		ue4BuildArgs = ['--build-arg', 'TAG={}'.format(mainTag)]
 		builder.build('ue4-build', mainTag, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
-		
-		'''
-		# Build the conan-ue4cli image for 4.19.0 or newer, unless requested otherwise by the user
-		buildUe4Cli = ue4Version['minor'] >= 19 and args.no_ue4cli == False
-		if buildUe4Cli == True:
-			builder.build('conan-ue4cli', mainTag, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
-		else:
-			logger.info('UE4 version less than 4.19.0 or user specified `--no-ue4cli`, skipping conan-ue4cli image build.')
-		'''
 		
 		# Build the UE4 packaging image (for packaging Shipping builds of projects), unless requested otherwise by the user
 		buildUe4Package = args.no_package == False
