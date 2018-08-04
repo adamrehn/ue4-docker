@@ -97,7 +97,7 @@ if __name__ == '__main__':
 		
 		# Build the UE4 build prerequisites image
 		prereqsTag = 'latest' + config.suffix
-		prereqsArgs = ['--build-arg', 'BASETAG=' + config.basetag] if config.containerPlatform == 'windows' else ['--build-arg', 'BASEIMAGE=' + config.linuxBaseImage]
+		prereqsArgs = ['--build-arg', 'BASEIMAGE=' + config.baseImage]
 		builder.build('ue4-build-prerequisites', prereqsTag, config.platformArgs + prereqsArgs, config.rebuild, config.dryRun)
 		
 		# Build the UE4 source image

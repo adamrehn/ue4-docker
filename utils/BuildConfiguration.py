@@ -35,6 +35,7 @@ class BuildConfiguration(object):
 		self.noCapture = args.no_capture
 		self.suffix = args.suffix
 		self.platformArgs = []
+		self.baseImage = None
 		
 		# If we're building Windows containers, generate our Windows-specific configuration settings
 		if self.containerPlatform == 'windows':
@@ -48,6 +49,7 @@ class BuildConfiguration(object):
 		
 		# Store the tag for the base Windows Server Core image
 		self.basetag = args.basetag
+		self.baseImage = 'microsoft/dotnet-framework:4.7.2-sdk-windowsservercore-' + self.basetag
 		
 		# Set the memory limit Docker flags
 		self.memLimit = 8.0 if args.random_memory == False else random.uniform(8.0, 10.0)
@@ -66,8 +68,8 @@ class BuildConfiguration(object):
 		
 		# Determine if we are building GPU-enabled container images
 		if self.nvidia == True and self.cuda == True:
-			self.linuxBaseImage = LINUX_BASE_IMAGES['cudagl']
+			self.baseImage = LINUX_BASE_IMAGES['cudagl']
 		elif self.nvidia == True:
-			self.linuxBaseImage = LINUX_BASE_IMAGES['opengl']
+			self.baseImage = LINUX_BASE_IMAGES['opengl']
 		else:
-			self.linuxBaseImage = LINUX_BASE_IMAGES['default']
+			self.baseImage = LINUX_BASE_IMAGES['default']
