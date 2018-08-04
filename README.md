@@ -91,9 +91,9 @@ Once the build process is complete, you will have five or six new Docker images 
 
 ### Specifying the Windows Server Core base image tag
 
-By default, Windows container images are based on the latest Windows Server Core release from the [Semi-Annual Channel](https://docs.microsoft.com/en-us/windows-server/get-started/semi-annual-channel-overview) release track (currently **Windows Server, version 1803**.) However, Windows containers cannot run a newer kernel version than that of the host operating system, rendering the latest images unusable under older versions of Windows 10 and Windows Server. (See the [Windows Container Version Compatibility](https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/version-compatibility) page for a table detailing which configurations are supported.)
+By default, Windows container images are based on the Windows Server Core release that best matches the version of the host operating system. However, Windows containers cannot run a newer kernel version than that of the host operating system, rendering the latest images unusable under older versions of Windows 10 and Windows Server. (See the [Windows Container Version Compatibility](https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/version-compatibility) page for a table detailing which configurations are supported.)
 
-If you are building or running images under an older version of Windows 10 or Windows Server, you will need to build images based on the same kernel version as the host system or older. The kernel version can be specified by providing the appropriate base OS image tag via the `-basetag=TAG` flag when invoking the build script:
+If you are building images with the intention of subsequently running them under an older version of Windows 10 or Windows Server, you will need to build images based on the same kernel version as the target system (or older.) The kernel version can be specified by providing the appropriate base OS image tag via the `-basetag=TAG` flag when invoking the build script:
 
 ```
 python3 build.py 4.19.2 -basetag=ltsc2016  # Uses Windows Server 2016 (Long Term Support Channel)

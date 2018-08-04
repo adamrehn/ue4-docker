@@ -3,10 +3,6 @@ import argparse, getpass, os, shutil, sys
 from os.path import join
 from utils import *
 
-# The default Windows Server Core base image tag
-# (See <https://hub.docker.com/r/microsoft/windowsservercore/> for a list of valid tags)
-DEFAULT_WINDOWS_BASETAG = '1803'
-
 if __name__ == '__main__':
 	
 	# Create our logger to generate coloured output on stderr
@@ -24,7 +20,7 @@ if __name__ == '__main__':
 	parser.add_argument('--nvidia', action='store_true', help='Build GPU-enabled images for NVIDIA Docker under Linux')
 	parser.add_argument('--cuda', action='store_true', help='Add CUDA support as well as OpenGL support when building NVIDIA Docker images')
 	parser.add_argument('-isolation', default=None, help='Set the isolation mode to use for Windows containers (process or hyperv)')
-	parser.add_argument('-basetag', default=DEFAULT_WINDOWS_BASETAG, help='Windows Server Core base image tag to use for Windows containers (default is ' + DEFAULT_WINDOWS_BASETAG + ')')
+	parser.add_argument('-basetag', default=None, help='Windows Server Core base image tag to use for Windows containers (default is the host OS version)')
 	parser.add_argument('-suffix', default='', help='Add a suffix to the tags of the built images')
 	
 	# If no command-line arguments were supplied, display the help message and exit

@@ -1,4 +1,5 @@
 from .PackageUtils import PackageUtils
+from .WindowsUtils import WindowsUtils
 import os, platform, random
 
 # Import the `semver` package even when the conflicting `node-semver` package is present
@@ -47,8 +48,12 @@ class BuildConfiguration(object):
 	
 	def _generateWindowsConfig(self, args):
 		
+		# Determine default base tag for the Windows release of the host system
+		hostRelease = WindowsUtils.getWindowsRelease()
+		defaultBaseTag = WindowsUtils.getReleaseBaseTag(hostRelease)
+		
 		# Store the tag for the base Windows Server Core image
-		self.basetag = args.basetag
+		self.basetag = args.basetag if args.basetag is not None else defaultBaseTag
 		self.baseImage = 'microsoft/dotnet-framework:4.7.2-sdk-windowsservercore-' + self.basetag
 		
 		# Set the memory limit Docker flags
@@ -56,7 +61,7 @@ class BuildConfiguration(object):
 		self.platformArgs = ['-m', '{:.2f}GB'.format(self.memLimit)]
 		
 		# Set the isolation mode Docker flags
-		self.isolation = args.isolation if args.isolation != None else 'default'
+		self.isolation = args.isolation if args.isolation is not None else 'default'
 		if self.isolation != 'default':
 			self.platformArgs.append('-isolation=' + self.isolation)
 	
