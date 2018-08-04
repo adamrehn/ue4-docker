@@ -1,18 +1,11 @@
 #!/usr/bin/env python3
-import argparse, getpass, os, platform, random, re, shutil, sys
+import argparse, getpass, os, shutil, sys
 from os.path import join
 from utils import *
-
-# Import the `semver` package even when the conflicting `node-semver` package is present
-semver = PackageUtils.importFile('semver', os.path.join(PackageUtils.getPackageLocation('semver'), 'semver.py'))
 
 # The default Windows Server Core base image tag
 # (See <https://hub.docker.com/r/microsoft/windowsservercore/> for a list of valid tags)
 DEFAULT_WINDOWS_BASETAG = '1803'
-
-# The base NVIDIA Docker images for OpenGL and CUDA+OpenGL
-NVIDIA_BASE_IMAGE_OPENGL = 'nvidia/opengl:1.0-glvnd-devel-ubuntu18.04'
-NVIDIA_BASE_IMAGE_CUDAGL = 'nvidia/cudagl:9.2-devel-ubuntu18.04'
 
 if __name__ == '__main__':
 	
@@ -39,48 +32,33 @@ if __name__ == '__main__':
 		parser.print_help()
 		sys.exit(0)
 	
-	# Parse the supplied command-line arguments and validate the specified version string
+	# Parse the supplied command-line arguments
 	args = parser.parse_args()
 	try:
-		ue4Version = semver.parse(args.release)
-		ue4VersionStr = semver.format_version(ue4Version['major'], ue4Version['minor'], ue4Version['patch'])
-		if ue4Version['major'] != 4 or ue4Version['prerelease'] != None:
-			raise Exception()
-	except:
-		logger.error('Error: invalid UE4 release number "{}", full semver format required (e.g. "4.19.0")'.format(args.release))
+		config = BuildConfiguration(args)
+	except RuntimeError as e:
+		logger.error('Error: {}'.format(e))
 		sys.exit(1)
 	
 	# Determine if we are building Windows or Linux containers
-	containerPlatform = 'windows' if platform.system() == 'Windows' and args.linux == False else 'linux'
-	platformArgs = []
-	if containerPlatform == 'windows':
-		
-		# Set the memory limit Docker flags
-		limit = 8.0 if args.random_memory == False else random.uniform(8.0, 10.0)
-		platformArgs = ['-m', '{:.2f}GB'.format(limit)]
-		
-		# Set the isolation mode Docker flags
-		if args.isolation != None:
-			platformArgs.append('-isolation=' + args.isolation)
+	if config.containerPlatform == 'windows':
 		
 		# Provide the user with feedback so they are aware of the Windows-specific values being used
 		logger.info('WINDOWS CONTAINER SETTINGS', False)
-		logger.info('Isolation mode:           {}'.format(args.isolation if args.isolation != None else 'default'), False)
-		logger.info('Base OS image tag:        ' + args.basetag, False)
-		logger.info('Memory limit:             {:.2f}GB'.format(limit), False)
+		logger.info('Isolation mode:           {}'.format(config.isolation), False)
+		logger.info('Base OS image tag:        ' + config.basetag, False)
+		logger.info('Memory limit:             {:.2f}GB'.format(config.memLimit), False)
 		logger.info('Detected max image size:  {:.0f}GB\n'.format(DockerUtils.maxsize()), False)
 		
-	elif containerPlatform == 'linux':
+	elif config.containerPlatform == 'linux':
 		
 		# Determine if we are building GPU-enabled container images
-		linuxBaseImage = 'ubuntu:18.04'
-		if args.nvidia == True or args.cuda == True:
-			capabilities = 'CUDA + OpenGL' if args.cuda == True else 'OpenGL'
+		if config.nvidia == True or config.cuda == True:
+			capabilities = 'CUDA + OpenGL' if config.cuda == True else 'OpenGL'
 			logger.info('Building GPU-enabled images for use with NVIDIA Docker ({} support).\n'.format(capabilities), False)
-			linuxBaseImage = NVIDIA_BASE_IMAGE_CUDAGL if args.cuda == True else NVIDIA_BASE_IMAGE_OPENGL
 	
 	# If we are building Windows containers, ensure the Docker daemon is configured correctly
-	if containerPlatform == 'windows' and DockerUtils.maxsize() < 200.0:
+	if config.containerPlatform == 'windows' and DockerUtils.maxsize() < 200.0:
 		logger.error('SETUP REQUIRED:')
 		logger.error('The max image size for Windows containers must be set to at least 200GB.')
 		logger.error('See the Microsoft documentation for configuration instructions:')
@@ -88,7 +66,7 @@ if __name__ == '__main__':
 		sys.exit(1)
 	
 	# Determine if we are performing a dry run
-	if args.dry_run == True:
+	if config.dryRun == True:
 		
 		# Don't bother prompting the user for any credentials
 		logger.info('Performing a dry run, `docker build` commands will be printed and not executed.', False)
@@ -108,39 +86,39 @@ if __name__ == '__main__':
 	
 	# Create the builder instance to build the Docker images
 	contextRoot = join(os.path.dirname(os.path.abspath(__file__)), 'dockerfiles')
-	builder = ImageBuilder(contextRoot, 'adamrehn/', containerPlatform, logger)
+	builder = ImageBuilder(contextRoot, 'adamrehn/', config.containerPlatform, logger)
 	
 	# If we are building Windows containers, copy the required DirectSound and OpenGL DLL files from the host system
-	if containerPlatform == 'windows':
+	if config.containerPlatform == 'windows':
 		for dll in ['dsound.dll', 'opengl32.dll', 'glu32.dll']:
 			shutil.copy2(join(os.environ['SystemRoot'], 'System32', dll), join(builder.context('ue4-build-prerequisites'), dll))
 	
 	try:
 		
 		# Build the UE4 build prerequisites image
-		prereqsTag = 'latest' + args.suffix
-		prereqsArgs = ['--build-arg', 'BASETAG=' + args.basetag] if containerPlatform == 'windows' else ['--build-arg', 'BASEIMAGE=' + linuxBaseImage]
-		builder.build('ue4-build-prerequisites', prereqsTag, platformArgs + prereqsArgs, args.rebuild, args.dry_run)
+		prereqsTag = 'latest' + config.suffix
+		prereqsArgs = ['--build-arg', 'BASETAG=' + config.basetag] if config.containerPlatform == 'windows' else ['--build-arg', 'BASEIMAGE=' + config.linuxBaseImage]
+		builder.build('ue4-build-prerequisites', prereqsTag, config.platformArgs + prereqsArgs, config.rebuild, config.dryRun)
 		
 		# Build the UE4 source image
-		mainTag = ue4VersionStr + args.suffix
-		ue4SourceArgs = ['--build-arg', 'PREREQS_TAG={}'.format(prereqsTag), '--build-arg', 'GIT_TAG={}-release'.format(ue4VersionStr)]
-		builder.build('ue4-source', mainTag, platformArgs + ue4SourceArgs + endpoint.args(), args.rebuild, args.dry_run)
+		mainTag = config.release + config.suffix
+		ue4SourceArgs = ['--build-arg', 'PREREQS_TAG={}'.format(prereqsTag), '--build-arg', 'GIT_TAG={}-release'.format(config.release)]
+		builder.build('ue4-source', mainTag, config.platformArgs + ue4SourceArgs + endpoint.args(), config.rebuild, config.dryRun)
 		
 		# Build the UE4 build image
 		ue4BuildArgs = ['--build-arg', 'TAG={}'.format(mainTag)]
-		builder.build('ue4-build', mainTag, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
+		builder.build('ue4-build', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
 		
 		# Build the UE4 packaging image (for packaging Shipping builds of projects), unless requested otherwise by the user
-		buildUe4Package = args.no_package == False
+		buildUe4Package = config.noPackage == False
 		if buildUe4Package == True:
-			builder.build('ue4-package', mainTag, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
+			builder.build('ue4-package', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
 		else:
 			logger.info('User specified `--no-package`, skipping ue4-package image build.')
 		
 		# Build the UE4Capture image (for capturing gameplay footage), unless requested otherwise by the user
-		if buildUe4Package == True and args.no_capture == False and containerPlatform == 'linux' and args.nvidia == True:
-			builder.build('ue4-capture', mainTag, platformArgs + ue4BuildArgs, args.rebuild, args.dry_run)
+		if buildUe4Package == True and config.noCapture == False and config.containerPlatform == 'linux' and config.nvidia == True:
+			builder.build('ue4-capture', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
 		else:
 			logger.info('Not building NVIDIA Docker ue4-package or user specified `--no-capture`, skipping ue4-capture image build.')
 		

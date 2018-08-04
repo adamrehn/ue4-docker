@@ -1,3 +1,4 @@
+from .BuildConfiguration import BuildConfiguration
 from .CredentialEndpoint import CredentialEndpoint
 from .DockerUtils import DockerUtils
 from .ImageBuilder import ImageBuilder
