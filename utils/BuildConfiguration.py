@@ -53,8 +53,8 @@ class BuildConfiguration(object):
 		self.dlldir = args.dlldir if args.dlldir is not None else self.defaultDllDir
 		
 		# Determine base tag for the Windows release of the host system
-		hostRelease = WindowsUtils.getWindowsRelease()
-		self.hostBasetag = WindowsUtils.getReleaseBaseTag(hostRelease)
+		self.hostRelease = WindowsUtils.getWindowsRelease()
+		self.hostBasetag = WindowsUtils.getReleaseBaseTag(self.hostRelease)
 		
 		# Store the tag for the base Windows Server Core image
 		self.basetag = args.basetag if args.basetag is not None else self.hostBasetag

@@ -47,7 +47,7 @@ if __name__ == '__main__':
 		# Provide the user with feedback so they are aware of the Windows-specific values being used
 		logger.info('WINDOWS CONTAINER SETTINGS', False)
 		logger.info('Isolation mode:               {}'.format(config.isolation), False)
-		logger.info('Base OS image tag:            {} (host OS is {})'.format(config.basetag, config.hostBasetag), False)
+		logger.info('Base OS image tag:            {} (host OS is {})'.format(config.basetag, config.hostRelease), False)
 		logger.info('Memory limit:                 {:.2f}GB'.format(config.memLimit), False)
 		logger.info('Detected max image size:      {:.0f}GB'.format(DockerUtils.maxsize()), False)
 		logger.info('Directory to copy DLLs from:  {}\n'.format(config.dlldir), False)
@@ -58,7 +58,8 @@ if __name__ == '__main__':
 			sys.exit(1)
 		
 		# Check if the user is building a different kernel version to the host OS but is still copying DLLs from System32
-		if config.basetag != config.hostBasetag and config.dlldir == config.defaultDllDir:
+		differentKernels = WindowsUtils.isInsiderPreview(config.hostRelease) or config.basetag != config.hostBasetag
+		if differentKernels == True and config.dlldir == config.defaultDllDir:
 			logger.error('Error: building images with a different kernel version than the host,', False)
 			logger.error('but a custom DLL directory has not specified via the `-dlldir=DIR` arg.', False)
 			logger.error('The DLL files will be the incorrect version and the container OS will', False)

@@ -6,6 +6,9 @@ semver = PackageUtils.importFile('semver', os.path.join(PackageUtils.getPackageL
 
 class WindowsUtils(object):
 	
+	# Sentinel value indicating a Windows Insider preview build
+	_insiderSentinel = 'Windows Insider Preview'
+	
 	# The list of Windows Server Core base image tags that we support
 	_validTags = ['ltsc2016', '1709', '1803']
 	
@@ -20,17 +23,19 @@ class WindowsUtils(object):
 		# and
 		#  <https://docs.microsoft.com/en-us/windows-server/get-started/windows-server-release-info>)
 		releases = {
-			10240: 1507,
-			14393: 1607,
-			15063: 1703,
-			16299: 1709,
-			17134: 1803
+			10240: '1507',
+			14393: '1607',
+			15063: '1703',
+			16299: '1709',
+			17134: '1803'
 		}
 		
 		# Determine which Windows release the OS build number corresponds to
 		osBuild = semver.parse(platform.win32_ver()[1])
 		if osBuild['patch'] in releases:
 			return releases[osBuild['patch']]
+		elif osBuild['patch'] > 17134:
+			return WindowsUtils._insiderSentinel
 		else:
 			raise RuntimeError('unrecognised Windows build "{}"'.format(semver.format_version(osBuild['major'], osBuild['minor'], osBuild['patch'])))
 	
@@ -42,12 +47,22 @@ class WindowsUtils(object):
 		
 		# This lookup table is based on the list of valid tags from <https://hub.docker.com/r/microsoft/windowsservercore/>
 		return {
-			1507: 'ltsc2016',
-			1607: 'ltsc2016',
-			1703: 'ltsc2016',
-			1709: '1709',
-			1803: '1803'
+			'1507': 'ltsc2016',
+			'1607': 'ltsc2016',
+			'1703': 'ltsc2016',
+			'1709': '1709',
+			'1803': '1803',
+			
+			# For Windows Insider preview builds, build the latest release tag
+			WindowsUtils._insiderSentinel: '1803'
 		}.get(release, 'ltsc2016')
+	
+	@staticmethod
+	def isInsiderPreview(release):
+		'''
+		Determines if the specified Windows 10 / Windows Server release is a Windows Insider preview build
+		'''
+		return release == WindowsUtils._insiderSentinel
 	
 	@staticmethod
 	def getValidBaseTags():
