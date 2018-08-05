@@ -43,8 +43,7 @@ class ImageBuilder(object):
 				humanfriendly.format_timespan(endTime - startTime)
 			), newline=False)
 		else:
-			self.logger.error('Error: failed to build image "{}".'.format(fullName))
-			raise Exception()
+			raise RuntimeError('failed to build image "{}".'.format(fullName))
 	
 	def context(self, name):
 		'''

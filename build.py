@@ -134,8 +134,9 @@ if __name__ == '__main__':
 		# Stop the HTTP server
 		endpoint.stop()
 	
-	except:
+	except Exception as e:
 		
 		# One of the images failed to build
+		logger.error('Error: {}'.format(e))
 		endpoint.stop()
 		sys.exit(1)
