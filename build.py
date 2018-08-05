@@ -21,6 +21,7 @@ if __name__ == '__main__':
 	parser.add_argument('--cuda', action='store_true', help='Add CUDA support as well as OpenGL support when building NVIDIA Docker images')
 	parser.add_argument('-isolation', default=None, help='Set the isolation mode to use for Windows containers (process or hyperv)')
 	parser.add_argument('-basetag', default=None, help='Windows Server Core base image tag to use for Windows containers (default is the host OS version)')
+	parser.add_argument('-dlldir', default=None, help='Set the directory to copy required Windows DLLs from (default is the host System32 directory)')
 	parser.add_argument('-suffix', default='', help='Add a suffix to the tags of the built images')
 	
 	# If no command-line arguments were supplied, display the help message and exit
@@ -36,19 +37,43 @@ if __name__ == '__main__':
 		logger.error('Error: {}'.format(e))
 		sys.exit(1)
 	
+	# Create the builder instance to build the Docker images
+	contextRoot = join(os.path.dirname(os.path.abspath(__file__)), 'dockerfiles')
+	builder = ImageBuilder(contextRoot, 'adamrehn/', config.containerPlatform, logger)
+	
 	# Determine if we are building Windows or Linux containers
 	if config.containerPlatform == 'windows':
 		
 		# Provide the user with feedback so they are aware of the Windows-specific values being used
 		logger.info('WINDOWS CONTAINER SETTINGS', False)
-		logger.info('Isolation mode:           {}'.format(config.isolation), False)
-		logger.info('Base OS image tag:        {} (host OS is {})'.format(config.basetag, config.hostBasetag), False)
-		logger.info('Memory limit:             {:.2f}GB'.format(config.memLimit), False)
-		logger.info('Detected max image size:  {:.0f}GB\n'.format(DockerUtils.maxsize()), False)
+		logger.info('Isolation mode:               {}'.format(config.isolation), False)
+		logger.info('Base OS image tag:            {} (host OS is {})'.format(config.basetag, config.hostBasetag), False)
+		logger.info('Memory limit:                 {:.2f}GB'.format(config.memLimit), False)
+		logger.info('Detected max image size:      {:.0f}GB'.format(DockerUtils.maxsize()), False)
+		logger.info('Directory to copy DLLs from:  {}\n'.format(config.dlldir), False)
 		
 		# Verify that the user is not attempting to build images with a newer kernel version than the host OS
 		if WindowsUtils.isNewerBaseTag(config.hostBasetag, config.basetag):
 			logger.error('Error: cannot build container images with a newer kernel version than that of the host OS!')
+			sys.exit(1)
+		
+		# Check if the user is building a different kernel version to the host OS but is still copying DLLs from System32
+		if config.basetag != config.hostBasetag and config.dlldir == config.defaultDllDir:
+			logger.info('Warning: building images with a different kernel version than the host,', False)
+			logger.info('but a custom DLL directory has not specified via the `-dlldir=DIR` arg.', False)
+			logger.info('The DLL files will be the incorrect version and the container OS will', False)
+			logger.info('refuse to load them, preventing the built Engine from running correctly.\n', False)
+		
+		# Attempt to copy the required DirectSound and OpenGL DLL files from the host system
+		for dll in ['dsound.dll', 'opengl32.dll', 'glu32.dll']:
+			shutil.copy2(join(config.dlldir, dll), join(builder.context('ue4-build-prerequisites'), dll))
+		
+		# Ensure the Docker daemon is configured correctly
+		if DockerUtils.maxsize() < 200.0:
+			logger.error('SETUP REQUIRED:')
+			logger.error('The max image size for Windows containers must be set to at least 200GB.')
+			logger.error('See the Microsoft documentation for configuration instructions:')
+			logger.error('https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container#step-4-expand-maximum-container-disk-size')
 			sys.exit(1)
 		
 	elif config.containerPlatform == 'linux':
@@ -57,14 +82,6 @@ if __name__ == '__main__':
 		if config.nvidia == True or config.cuda == True:
 			capabilities = 'CUDA + OpenGL' if config.cuda == True else 'OpenGL'
 			logger.info('Building GPU-enabled images for use with NVIDIA Docker ({} support).\n'.format(capabilities), False)
-	
-	# If we are building Windows containers, ensure the Docker daemon is configured correctly
-	if config.containerPlatform == 'windows' and DockerUtils.maxsize() < 200.0:
-		logger.error('SETUP REQUIRED:')
-		logger.error('The max image size for Windows containers must be set to at least 200GB.')
-		logger.error('See the Microsoft documentation for configuration instructions:')
-		logger.error('https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container#step-4-expand-maximum-container-disk-size')
-		sys.exit(1)
 	
 	# Determine if we are performing a dry run
 	if config.dryRun == True:
@@ -84,15 +101,6 @@ if __name__ == '__main__':
 	# Start the HTTP credential endpoint as a child process and wait for it to start
 	endpoint = CredentialEndpoint(username, password)
 	endpoint.start()
-	
-	# Create the builder instance to build the Docker images
-	contextRoot = join(os.path.dirname(os.path.abspath(__file__)), 'dockerfiles')
-	builder = ImageBuilder(contextRoot, 'adamrehn/', config.containerPlatform, logger)
-	
-	# If we are building Windows containers, copy the required DirectSound and OpenGL DLL files from the host system
-	if config.containerPlatform == 'windows':
-		for dll in ['dsound.dll', 'opengl32.dll', 'glu32.dll']:
-			shutil.copy2(join(os.environ['SystemRoot'], 'System32', dll), join(builder.context('ue4-build-prerequisites'), dll))
 	
 	try:
 		

@@ -22,6 +22,7 @@ For a detailed discussion on how the build process works, see [the accompanying 
     - [Building images](#building-images)
     - [Specifying the Windows Server Core base image tag](#specifying-the-windows-server-core-base-image-tag)
     - [Specifying the isolation mode under Windows](#specifying-the-isolation-mode-under-windows)
+    - [Specifying the directory from which to copy required Windows DLL files](#specifying-the-directory-from-which-to-copy-required-Windows-dll-files)
     - [Building Linux container images under Windows](#building-linux-container-images-under-windows)
     - [Building GPU-enabled Linux container images for use with NVIDIA Docker](#building-gpu-enabled-linux-container-images-for-use-with-nvidia-docker)
     - [Performing a dry run](#performing-a-dry-run)
@@ -104,6 +105,10 @@ For a list of supported base image tags, see the [Windows Server Core base image
 ### Specifying the isolation mode under Windows
 
 The isolation mode can be specified via the `-isolation=MODE` flag when invoking the build script. Valid values are `process` (supported under Windows Server only) or `hyperv` (supported under both Windows 10 or Windows Server.)
+
+### Specifying the directory from which to copy required Windows DLL files
+
+By default, DLL files are copied from `%SystemRoot%\System32`. However, when building container images with an older kernel version than the host, the copied DLL files will be too new and the container OS will refuse to load them. A custom directory containing the correct DLL files for the container kernel version can be specified via the `-dlldir=DIR` flag when invoking the build script. 
 
 ### Building Linux container images under Windows
 

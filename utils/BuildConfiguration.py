@@ -48,6 +48,10 @@ class BuildConfiguration(object):
 	
 	def _generateWindowsConfig(self, args):
 		
+		# Store the path to the directory containing our required Windows DLL files
+		self.defaultDllDir = os.path.join(os.environ['SystemRoot'], 'System32')
+		self.dlldir = args.dlldir if args.dlldir is not None else self.defaultDllDir
+		
 		# Determine base tag for the Windows release of the host system
 		hostRelease = WindowsUtils.getWindowsRelease()
 		self.hostBasetag = WindowsUtils.getReleaseBaseTag(hostRelease)
