@@ -6,6 +6,9 @@ semver = PackageUtils.importFile('semver', os.path.join(PackageUtils.getPackageL
 
 class WindowsUtils(object):
 	
+	# The list of Windows Server Core base image tags that we support
+	_validTags = ['ltsc2016', '1709', '1803']
+	
 	@staticmethod
 	def getWindowsRelease():
 		'''
@@ -45,3 +48,24 @@ class WindowsUtils(object):
 			1709: '1709',
 			1803: '1803'
 		}.get(release, 'ltsc2016')
+	
+	@staticmethod
+	def getValidBaseTags():
+		'''
+		Returns the list of valid tags for the Windows Server Core base image, in ascending chronological release order
+		'''
+		return WindowsUtils._validTags
+	
+	@staticmethod
+	def isValidBaseTag(tag):
+		'''
+		Determines if the specified tag is a valid Windows Server Core base image tag
+		'''
+		return tag in WindowsUtils._validTags
+	
+	@staticmethod
+	def isNewerBaseTag(older, newer):
+		'''
+		Determines if the base tag `newer` is actually newer than the base tag `older`
+		'''
+		return WindowsUtils._validTags.index(newer) > WindowsUtils._validTags.index(older)

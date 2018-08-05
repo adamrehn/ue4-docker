@@ -42,9 +42,14 @@ if __name__ == '__main__':
 		# Provide the user with feedback so they are aware of the Windows-specific values being used
 		logger.info('WINDOWS CONTAINER SETTINGS', False)
 		logger.info('Isolation mode:           {}'.format(config.isolation), False)
-		logger.info('Base OS image tag:        ' + config.basetag, False)
+		logger.info('Base OS image tag:        {} (host OS is {})'.format(config.basetag, config.hostBasetag), False)
 		logger.info('Memory limit:             {:.2f}GB'.format(config.memLimit), False)
 		logger.info('Detected max image size:  {:.0f}GB\n'.format(DockerUtils.maxsize()), False)
+		
+		# Verify that the user is not attempting to build images with a newer kernel version than the host OS
+		if WindowsUtils.isNewerBaseTag(config.hostBasetag, config.basetag):
+			logger.error('Error: cannot build container images with a newer kernel version than that of the host OS!')
+			sys.exit(1)
 		
 	elif config.containerPlatform == 'linux':
 		

@@ -48,13 +48,17 @@ class BuildConfiguration(object):
 	
 	def _generateWindowsConfig(self, args):
 		
-		# Determine default base tag for the Windows release of the host system
+		# Determine base tag for the Windows release of the host system
 		hostRelease = WindowsUtils.getWindowsRelease()
-		defaultBaseTag = WindowsUtils.getReleaseBaseTag(hostRelease)
+		self.hostBasetag = WindowsUtils.getReleaseBaseTag(hostRelease)
 		
 		# Store the tag for the base Windows Server Core image
-		self.basetag = args.basetag if args.basetag is not None else defaultBaseTag
+		self.basetag = args.basetag if args.basetag is not None else self.hostBasetag
 		self.baseImage = 'microsoft/dotnet-framework:4.7.2-sdk-windowsservercore-' + self.basetag
+		
+		# Verify that any user-specified base tag is valid
+		if WindowsUtils.isValidBaseTag(self.basetag) == False:
+			raise RuntimeError('unrecognised Windows Server Core base image tag "{}", supported tags are {}'.format(self.basetag, WindowsUtils.getValidBaseTags()))
 		
 		# Set the memory limit Docker flags
 		self.memLimit = 8.0 if args.random_memory == False else random.uniform(8.0, 10.0)
