@@ -1,8 +1,11 @@
 ARG PREREQS_TAG
 FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
 
-# The git tag that we will checkout
-ARG GIT_TAG=""
+# The git repository that we will clone
+ARG GIT_REPO=""
+
+# The git branch/tag that we will checkout
+ARG GIT_BRANCH=""
 
 # Retrieve the address for the host that will supply git credentials
 ARG HOST_ADDRESS_ARG=""
@@ -24,4 +27,4 @@ USER ue4
 
 # Clone the UE4 git repository using the host-supplied credentials
 WORKDIR /home/ue4
-RUN git clone --progress --depth=1 -b $GIT_TAG "https://github.com/EpicGames/UnrealEngine.git"
+RUN git clone --progress --depth=1 -b $GIT_BRANCH $GIT_REPO /home/ue4/UnrealEngine

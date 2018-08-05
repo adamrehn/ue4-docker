@@ -5,6 +5,9 @@ import os, platform, random
 # Import the `semver` package even when the conflicting `node-semver` package is present
 semver = PackageUtils.importFile('semver', os.path.join(PackageUtils.getPackageLocation('semver'), 'semver.py'))
 
+# The default Unreal Engine git repository
+DEFAULT_GIT_REPO = 'https://github.com/EpicGames/UnrealEngine.git'
+
 # The base images for Linux containers
 LINUX_BASE_IMAGES = {
 	'default': 'ubuntu:18.04',
@@ -19,14 +22,32 @@ class BuildConfiguration(object):
 		Creates a new build configuration based on the supplied arguments object
 		'''
 		
-		# Validate the specified version string
-		try:
-			ue4Version = semver.parse(args.release)
-			if ue4Version['major'] != 4 or ue4Version['prerelease'] != None:
-				raise Exception()
-			self.release = semver.format_version(ue4Version['major'], ue4Version['minor'], ue4Version['patch'])
-		except:
-			raise RuntimeError('invalid UE4 release number "{}", full semver format required (e.g. "4.19.0")'.format(args.release))
+		# Determine if we are building a custom version of UE4 rather than an official release
+		if args.release.lower() == 'custom':
+			
+			# Both a custom repository and a custom branch/tag must be specified
+			if args.repo is None or args.branch is None:
+				raise RuntimeError('both a repository and branch/tag must be specified when building a custom version of the Engine')
+			
+			# Use the specified repository and branch/tag
+			self.release = 'custom'
+			self.repository = args.repo
+			self.branch = args.branch
+			
+		else:
+			
+			# Validate the specified version string
+			try:
+				ue4Version = semver.parse(args.release)
+				if ue4Version['major'] != 4 or ue4Version['prerelease'] != None:
+					raise Exception()
+				self.release = semver.format_version(ue4Version['major'], ue4Version['minor'], ue4Version['patch'])
+			except:
+				raise RuntimeError('invalid UE4 release number "{}", full semver format required (e.g. "4.19.0")'.format(args.release))
+			
+			# Use the default repository and the release tag for the specified version
+			self.repository = DEFAULT_GIT_REPO
+			self.branch = '{}-release'.format(self.release)
 		
 		# Store our common configuration settings
 		self.containerPlatform = 'windows' if platform.system() == 'Windows' and args.linux == False else 'linux'

@@ -10,7 +10,7 @@ if __name__ == '__main__':
 	
 	# Our supported command-line arguments
 	parser = argparse.ArgumentParser()
-	parser.add_argument('release', help='UE4 release to build, in semver format (e.g. 4.19.0)')
+	parser.add_argument('release', help='UE4 release to build, in semver format (e.g. 4.19.0) or "custom" for a custom repo and branch')
 	parser.add_argument('--linux', action='store_true', help='Build Linux container images under Windows')
 	parser.add_argument('--rebuild', action='store_true', help='Rebuild images even if they already exist')
 	parser.add_argument('--dry-run', action='store_true', help='Print `docker build` commands instead of running them')
@@ -19,6 +19,8 @@ if __name__ == '__main__':
 	parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
 	parser.add_argument('--nvidia', action='store_true', help='Build GPU-enabled images for NVIDIA Docker under Linux')
 	parser.add_argument('--cuda', action='store_true', help='Add CUDA support as well as OpenGL support when building NVIDIA Docker images')
+	parser.add_argument('-repo', default=None, help='Set the custom git repository to clone when "custom" is specified as the release value')
+	parser.add_argument('-branch', default=None, help='Set the custom branch/tag to clone when "custom" is specified as the release value')
 	parser.add_argument('-isolation', default=None, help='Set the isolation mode to use for Windows containers (process or hyperv)')
 	parser.add_argument('-basetag', default=None, help='Windows Server Core base image tag to use for Windows containers (default is the host OS version)')
 	parser.add_argument('-dlldir', default=None, help='Set the directory to copy required Windows DLLs from (default is the host System32 directory)')
@@ -40,6 +42,12 @@ if __name__ == '__main__':
 	# Create the builder instance to build the Docker images
 	contextRoot = join(os.path.dirname(os.path.abspath(__file__)), 'dockerfiles')
 	builder = ImageBuilder(contextRoot, 'adamrehn/', config.containerPlatform, logger)
+	
+	# Determine if we are building a custom version of UE4
+	if config.release == 'custom':
+		logger.info('CUSTOM ENGINE BUILD:', False)
+		logger.info('Repository:  ' + config.repository, False)
+		logger.info('Branch/tag:  ' + config.branch + '\n', False)
 	
 	# Determine if we are building Windows or Linux containers
 	if config.containerPlatform == 'windows':
@@ -113,7 +121,11 @@ if __name__ == '__main__':
 		
 		# Build the UE4 source image
 		mainTag = config.release + config.suffix
-		ue4SourceArgs = ['--build-arg', 'PREREQS_TAG={}'.format(prereqsTag), '--build-arg', 'GIT_TAG={}-release'.format(config.release)]
+		ue4SourceArgs = [
+			'--build-arg', 'PREREQS_TAG={}'.format(prereqsTag),
+			'--build-arg', 'GIT_REPO={}'.format(config.repository),
+			'--build-arg', 'GIT_BRANCH={}'.format(config.branch)
+		]
 		builder.build('ue4-source', mainTag, config.platformArgs + ue4SourceArgs + endpoint.args(), config.rebuild, config.dryRun)
 		
 		# Build the UE4 build image

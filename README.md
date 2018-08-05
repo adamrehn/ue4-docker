@@ -20,6 +20,7 @@ For a detailed discussion on how the build process works, see [the accompanying 
 - [Requirements](#requirements)
 - [Build script usage](#build-script-usage)
     - [Building images](#building-images)
+    - [Building a custom version of the Unreal Engine](#building-a-custom-version-of-the-unreal-engine)
     - [Specifying the Windows Server Core base image tag](#specifying-the-windows-server-core-base-image-tag)
     - [Specifying the isolation mode under Windows](#specifying-the-isolation-mode-under-windows)
     - [Specifying the directory from which to copy required Windows DLL files](#specifying-the-directory-from-which-to-copy-required-Windows-dll-files)
@@ -89,6 +90,22 @@ Once the build process is complete, you will have five or six new Docker images 
 - `adamrehn/ue4-build:RELEASE` - this contains the source build for UE4, and includes [conan-ue4cli](https://github.com/adamrehn/conan-ue4cli) support for building Conan packages that are compatible with UE4 when building version 4.19.0 of the Engine or newer.
 - `adamrehn/ue4-package:RELEASE` - this extends the `ue4-build` image and is designed for packaging Shipping builds of UE4 projects. Note that the image simply creates an Installed Build of the Engine in order to speed up subsequent build time, and is not required in order to package projects (the `ue4-build` image can be used to package projects, albeit with longer build times.) You can disable the build for this image by specifying `--no-package` when you run the build script.
 - `adamrehn/ue4-capture:RELEASE` - this extends the `ue4-package` image with support for the [UE4Capture](https://github.com/adamrehn/UE4Capture) plugin and is designed for capturing gameplay footage from inside NVIDIA Docker containers. This image will only be built when the `ue4-package` image is built with NVIDIA Docker compatibility. You can disable the build for this image by specifying `--no-capture` when you run the build script.
+
+### Building a custom version of the Unreal Engine
+
+If you would like to build a custom version of UE4 rather than one of the official releases from Epic, you can specify "custom" as the release string and specify the Git repository and branch/tag that should be cloned:
+
+```
+python3 build.py custom -repo=https://github.com/MyUser/UnrealEngine.git -branch=MyBranch
+```
+
+When building a custom Engine version, both the repository URL and branch/tag must be specified. If you are performing multiple custom builds and wish to differentiate between them, it is recommended to add a custom suffix to the Docker tag of the built images:
+
+```
+python3 build.py custom -repo=https://github.com/MyUser/UnrealEngine.git -branch=MyBranch -suffix=-MySuffix
+```
+
+This will produce images tagged `adamrehn/ue4-source:custom-MySuffix`, `adamrehn/ue4-build:custom-MySuffix`, etc.
 
 ### Specifying the Windows Server Core base image tag
 
