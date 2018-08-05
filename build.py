@@ -59,10 +59,11 @@ if __name__ == '__main__':
 		
 		# Check if the user is building a different kernel version to the host OS but is still copying DLLs from System32
 		if config.basetag != config.hostBasetag and config.dlldir == config.defaultDllDir:
-			logger.info('Warning: building images with a different kernel version than the host,', False)
-			logger.info('but a custom DLL directory has not specified via the `-dlldir=DIR` arg.', False)
-			logger.info('The DLL files will be the incorrect version and the container OS will', False)
-			logger.info('refuse to load them, preventing the built Engine from running correctly.\n', False)
+			logger.error('Error: building images with a different kernel version than the host,', False)
+			logger.error('but a custom DLL directory has not specified via the `-dlldir=DIR` arg.', False)
+			logger.error('The DLL files will be the incorrect version and the container OS will', False)
+			logger.error('refuse to load them, preventing the built Engine from running correctly.', False)
+			sys.exit(1)
 		
 		# Attempt to copy the required DirectSound and OpenGL DLL files from the host system
 		for dll in ['dsound.dll', 'opengl32.dll', 'glu32.dll']:
