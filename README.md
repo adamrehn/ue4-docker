@@ -91,6 +91,10 @@ Once the build process is complete, you will have five or six new Docker images 
 - `adamrehn/ue4-package:RELEASE` - this extends the `ue4-build` image and is designed for packaging Shipping builds of UE4 projects. Note that the image simply creates an Installed Build of the Engine in order to speed up subsequent build time, and is not required in order to package projects (the `ue4-build` image can be used to package projects, albeit with longer build times.) You can disable the build for this image by specifying `--no-package` when you run the build script.
 - `adamrehn/ue4-capture:RELEASE` - this extends the `ue4-package` image with support for the [UE4Capture](https://github.com/adamrehn/UE4Capture) plugin and is designed for capturing gameplay footage from inside NVIDIA Docker containers. This image will only be built when the `ue4-package` image is built with NVIDIA Docker compatibility. You can disable the build for this image by specifying `--no-capture` when you run the build script.
 
+Each image extends its immediate predecessor, as depicted in the diagram below:
+
+![Diagram depicting image dependency sequence](./docs/images/images_sequence.svg)
+
 ### Building a custom version of the Unreal Engine
 
 If you would like to build a custom version of UE4 rather than one of the official releases from Epic, you can specify "custom" as the release string and specify the Git repository and branch/tag that should be cloned:
