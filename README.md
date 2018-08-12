@@ -83,7 +83,7 @@ python3 build.py 4.19.1
 
 You will be prompted for the Git credentials to be used when cloning the UE4 GitHub repository (this will be the GitHub username and password you normally use when cloning <https://github.com/EpicGames/UnrealEngine>.) The build process will then start automatically, displaying progress output from each of the `docker build` commands that are being run.
 
-Once the build process is complete, you will have five or six new Docker images on your system (where `RELEASE` is the release that you specified when invoking the build script):
+Once the build process is complete, you will have up to five new Docker images on your system (where `RELEASE` is the release that you specified when invoking the build script):
 
 - `adamrehn/ue4-build-prerequisites:latest` - this contains the build prerequisites common to all Engine versions and should be kept in order to speed up subsequent builds of additional Engine versions.
 - `adamrehn/ue4-source:RELEASE` - this contains the cloned source code for UE4. This image is separated from the `ue4-build` image to isolate the effects of changing environment variables related to git credentials, so that they don't interfere with the build cache for the subsequent steps.
