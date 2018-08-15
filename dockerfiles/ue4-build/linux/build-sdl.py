@@ -14,7 +14,7 @@ def run(command):
 # We only need to rebuild SDL2 for 4.20.0 and newer
 if versionMinor < 20:
 	print('Detected UE4 version {}, skipping rebuild of SDL2.'.format(ue4.getEngineVersion()), file=sys.stderr)
-	run('mkdir /tmp/sdl')
+	run(['mkdir', '/tmp/sdl'])
 	sys.exit(0)
 
 # Retrieve the dependency files for SDL and Vulkan
