@@ -192,7 +192,7 @@ The following resources document the use of these Docker images with the [Jenkin
 
 ## Troubleshooting common issues
 
-- **Building Windows containers fails with the message `hcsshim: timeout waiting for notification extra info`:**
+- **Building Windows containers fails with the message `hcsshim: timeout waiting for notification extra info` or the message `This operation ended because the timeout has expired`:**
   
   This is a known issue when using Windows containers in Hyper-V isolation mode. See the [Windows `hcsshim` timeout issues](#windows-hcsshim-timeout-issues) section below for a detailed discussion of this problem and the available workarounds.
 
