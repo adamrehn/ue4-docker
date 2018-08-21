@@ -42,7 +42,7 @@ For a detailed discussion on how the build process works, see [the accompanying 
 The common requirements for both Windows and Linux containers are:
 
 - A minimum of 200GB of available disk space
-- A minimum of 8GB of available memory
+- A minimum of 8GB of available memory (10GB under Windows)
 - [Python](https://www.python.org/) 3.6 or newer with `pip`
 - The dependency packages listed in [requirements.txt](./requirements.txt), which can be installed by running `pip3 install -r requirements.txt`
 
@@ -218,6 +218,10 @@ The following resources document the use of these Docker images with the [Jenkin
   
   This typically indicates that the firewall on the host system is blocking connections from the Docker container, preventing it from retrieving the Git credentials supplied by the build script. (This is particularly noticeable under a clean installation of Windows Server, which blocks connections from other subnets by default.) The firewall will need to be configured appropriately to allow the connection, or else temporarily disabled. (Use the command `netsh advfirewall set allprofiles state off` under Windows Server.)
 
+- **Building the Engine in a Windows container fails with the message `The process cannot access the file because it is being used by another process`:**
+  
+  This is a known bug in some older versions of UnrealBuildTool when using a memory limit that is not a multiple of 4GB. To alleviate this issue, specify an appropriate memory limit override (e.g. `-m 8GB` or `-m 12GB`.) For more details on this issue, see the last paragraph of the [Windows `hcsshim` timeout issues](#windows-hcsshim-timeout-issues) section below.
+
 
 ## Windows `hcsshim` timeout issues
 
@@ -225,6 +229,6 @@ Recent versions of Docker under Windows may sometimes encounter the error [hcssh
 
 As a workaround until a proper fix is issued, it seems that altering the memory limit for containers between subsequent invocations of the `docker` command can reduce the frequency with which this error occurs. (Changing the memory limit when using Hyper-V isolation likely forces Docker to provision a new Hyper-V VM, preventing it from re-using an existing one that has become unresponsive.) Please note that this workaround has been devised based on my own testing under Windows 10 and may not hold true when using Hyper-V isolation under Windows Server.
 
-To enable the workaround, specify the `--random-memory` flag when invoking the build script. This will set the container memory limit to a random value between 8GB and 10GB when the build script starts. If a build fails with the `hcsshim` timeout error, simply re-run the build script and in most cases the build will continue successfully, even if only for a short while. Restarting the Docker daemon may also help.
+To enable the workaround, specify the `--random-memory` flag when invoking the build script. This will set the container memory limit to a random value between 10GB and 12GB when the build script starts. If a build fails with the `hcsshim` timeout error, simply re-run the build script and in most cases the build will continue successfully, even if only for a short while. Restarting the Docker daemon may also help.
 
-Note that in some cases, using a memory limit that is not a multiple of 4GB can cause UnrealBuildTool to crash with an error stating *"The process cannot access the file because it is being used by another process."* If this happens, simply run the build script again without the `--random-memory` flag. If the access error occurs when using the default memory limit, this likely indicates that Windows is unable to allocate the full 8GB to the container. Rebooting the host system may help to alleviate this issue.
+Note that some older versions of UnrealBuildTool will crash with an error stating *"The process cannot access the file because it is being used by another process"* when using a memory limit that is not a multiple of 4GB. If this happens, simply run the build script again with an appropriate memory limit (e.g. `-m 8GB` or `-m 12GB`.) If the access error occurs even when using an appropriate memory limit, this likely indicates that Windows is unable to allocate the full amount of memory to the container. Rebooting the host system may help to alleviate this issue.
