@@ -10,23 +10,14 @@ RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object Sys
 RUN choco install -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'"
 RUN git config --system credential.helper ""
 
-# Install curl and wget
-RUN choco install -y curl wget
-
-# Install 7-Zip
-RUN choco install -y 7zip
+# Install 7-Zip, curl, wget, Python 3.x, and the Visual C++ runtime libraries
+RUN choco install -y 7zip curl wget python vcredist-all
 
 # Install CMake and add it to the system PATH
 RUN choco install -y cmake --installargs "ADD_CMAKE_TO_PATH=System"
 
-# Install Python 3.x
-RUN choco install -y python
-
 # Install our Python dependencies
 RUN pip install setuptools wheel
-
-# Install all available versions of the Visual C++ runtime libraries
-RUN choco install -y vcredist-all
 
 # Download the Visual Studio 2017 Build Tools bootstrapper
 RUN curl --progress -L "https://aka.ms/vs/15/release/vs_buildtools.exe" --output %TEMP%\vs_buildtools.exe
