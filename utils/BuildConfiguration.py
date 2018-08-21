@@ -15,6 +15,9 @@ LINUX_BASE_IMAGES = {
 	'cudagl':  'nvidia/cudagl:9.2-devel-ubuntu18.04'
 }
 
+# The default memory limit (in GB) under Windows
+DEFAULT_MEMORY_LIMIT = 10.0
+
 class BuildConfiguration(object):
 	
 	def __init__(self, args):
@@ -86,7 +89,7 @@ class BuildConfiguration(object):
 			raise RuntimeError('unrecognised Windows Server Core base image tag "{}", supported tags are {}'.format(self.basetag, WindowsUtils.getValidBaseTags()))
 		
 		# Set the memory limit Docker flags
-		self.memLimit = 8.0 if args.random_memory == False else random.uniform(8.0, 10.0)
+		self.memLimit = DEFAULT_MEMORY_LIMIT if args.random_memory == False else random.uniform(DEFAULT_MEMORY_LIMIT, DEFAULT_MEMORY_LIMIT + 2.0)
 		self.platformArgs = ['-m', '{:.2f}GB'.format(self.memLimit)]
 		
 		# Set the isolation mode Docker flags
