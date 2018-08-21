@@ -31,15 +31,19 @@ RUN choco install -y vcredist-all
 # Download the Visual Studio 2017 Build Tools bootstrapper
 RUN curl --progress -L "https://aka.ms/vs/15/release/vs_buildtools.exe" --output %TEMP%\vs_buildtools.exe
 
-# Install the Build Tools, excluding the web tools and those components with known issues in containers
+# Install the Build Tools workloads and components we need, excluding components with known issues in containers
 RUN %TEMP%\vs_buildtools.exe --quiet --wait --norestart --nocache `
 	--installPath C:\BuildTools `
-	--all `
+	--add Microsoft.VisualStudio.Workload.VCTools;includeRecommended;includeOptional `
+	--add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools;includeRecommended;includeOptional `
+	--add Microsoft.VisualStudio.Workload.UniversalBuildTools `
+	--add Microsoft.VisualStudio.Workload.NetCoreBuildTools `
+	--add Microsoft.VisualStudio.Workload.MSBuildTools `
+	--add Microsoft.VisualStudio.Component.NuGet `
 	--remove Microsoft.VisualStudio.Component.Windows10SDK.10240 `
 	--remove Microsoft.VisualStudio.Component.Windows10SDK.10586 `
 	--remove Microsoft.VisualStudio.Component.Windows10SDK.14393 `
 	--remove Microsoft.VisualStudio.Component.Windows81SDK `
-	--remove Microsoft.VisualStudio.Workload.WebBuildTools `
  || IF "%ERRORLEVEL%"=="3010" EXIT 0
 
 # Install WinDbg, which contains pdbcopy.exe (needed for creating an Installed Build of the Engine)
