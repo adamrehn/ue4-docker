@@ -25,6 +25,7 @@ if __name__ == '__main__':
 	parser.add_argument('-basetag', default=None, help='Windows Server Core base image tag to use for Windows containers (default is the host OS version)')
 	parser.add_argument('-dlldir', default=None, help='Set the directory to copy required Windows DLLs from (default is the host System32 directory)')
 	parser.add_argument('-suffix', default='', help='Add a suffix to the tags of the built images')
+	parser.add_argument('-m', default=None, help='Override the default memory limit under Windows (also overrides --random-memory)')
 	
 	# If no command-line arguments were supplied, display the help message and exit
 	if len(sys.argv) < 2:

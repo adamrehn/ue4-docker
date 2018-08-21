@@ -1,6 +1,6 @@
 from .PackageUtils import PackageUtils
 from .WindowsUtils import WindowsUtils
-import os, platform, random
+import humanfriendly, os, platform, random
 
 # Import the `semver` package even when the conflicting `node-semver` package is present
 semver = PackageUtils.importFile('semver', os.path.join(PackageUtils.getPackageLocation('semver'), 'semver.py'))
@@ -89,7 +89,13 @@ class BuildConfiguration(object):
 			raise RuntimeError('unrecognised Windows Server Core base image tag "{}", supported tags are {}'.format(self.basetag, WindowsUtils.getValidBaseTags()))
 		
 		# Set the memory limit Docker flags
-		self.memLimit = DEFAULT_MEMORY_LIMIT if args.random_memory == False else random.uniform(DEFAULT_MEMORY_LIMIT, DEFAULT_MEMORY_LIMIT + 2.0)
+		if args.m is not None:
+			try:
+				self.memLimit = humanfriendly.parse_size(args.m) / (1000*1000*1000)
+			except:
+				raise RuntimeError('invalid memory limit "{}"'.format(args.m))
+		else:
+			self.memLimit = DEFAULT_MEMORY_LIMIT if args.random_memory == False else random.uniform(DEFAULT_MEMORY_LIMIT, DEFAULT_MEMORY_LIMIT + 2.0)
 		self.platformArgs = ['-m', '{:.2f}GB'.format(self.memLimit)]
 		
 		# Set the isolation mode Docker flags
