@@ -222,6 +222,10 @@ The following resources document the use of these Docker images with the [Jenkin
   
   This is a known bug in some older versions of UnrealBuildTool when using a memory limit that is not a multiple of 4GB. To alleviate this issue, specify an appropriate memory limit override (e.g. `-m 8GB` or `-m 12GB`.) For more details on this issue, see the last paragraph of the [Windows `hcsshim` timeout issues](#windows-hcsshim-timeout-issues) section below.
 
+- **Building the Engine in a Windows container fails with the message `fatal error LNK1318: Unexpected PDB error; OK (0)`:**
+  
+  This is a known bug in some versions of Visual Studio, which only appears to occur intermittently. The simplest fix is to simply reboot the host system and then re-run the build script. Insufficient available memory may also contribute to triggering this bug.
+
 
 ## Windows `hcsshim` timeout issues
 
