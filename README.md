@@ -226,6 +226,14 @@ The following resources document the use of these Docker images with the [Jenkin
   
   This is a known bug in some versions of Visual Studio, which only appears to occur intermittently. The simplest fix is to simply reboot the host system and then re-run the build script. Insufficient available memory may also contribute to triggering this bug.
 
+- **Building an Unreal project in a Windows container fails when the project files are located in a directory that is bind-mounted from the host operating system:**
+  
+  Evidently the paths associated with Windows bind-mounted directories can cause issues for certain build tools, including UnrealBuildTool and CMake. As a result, building Unreal projects located in Windows bind-mounted directories is not advised. The solution is to copy the Unreal project to a temporary directory within the container's filesystem and build it there, copying any produced build artifacts back to the host system via the bind-mounted directory as necessary.
+  
+  ***Note 1:** This problem has currently only been observed when running containers under Hyper-V isolation mode and has not yet been observed to affect containers running under process isolation mode. However, it is still recommended that you implement the copy-based workaround in your own CI pipelines to ensure compatibility with both isolation modes.*
+  
+  ***Note 2:** This problem does not apply to Linux containers.*
+
 
 ## Windows `hcsshim` timeout issues
 
