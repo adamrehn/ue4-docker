@@ -14,6 +14,8 @@ RUN Setup.bat
 # Build UBT and build the Engine
 RUN GenerateProjectFiles.bat
 RUN .\Engine\Build\BatchFiles\Build.bat UE4Editor Win64 Development -WaitMutex
+RUN .\Engine\Build\BatchFiles\Build.bat ShaderCompileWorker Win64 Development -WaitMutex
+RUN .\Engine\Build\BatchFiles\Build.bat UnrealPak Win64 Development -WaitMutex
 
 # Install ue4cli and the prerequisites for conan-ue4cli
 RUN git clone "https://github.com/adamrehn/conan-ue4cli.git" C:\conan-ue4cli

@@ -53,6 +53,8 @@ RUN python3 /tmp/copy-sdl.py /tmp/sdl ${SDL_LIBDIR}
 
 # Build UBT and build the Engine
 RUN ./Engine/Build/BatchFiles/Linux/Build.sh UE4Editor Linux Development -WaitMutex
+RUN ./Engine/Build/BatchFiles/Linux/Build.sh ShaderCompileWorker Linux Development -WaitMutex
+RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealPak Linux Development -WaitMutex
 
 # Install conan-ue4cli (4.19.0 and newer only, this call is a no-op for older Engine versions)
 RUN python3 /home/ue4/conan-ue4cli/generate.py
