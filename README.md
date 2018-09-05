@@ -33,6 +33,9 @@ For a detailed discussion on how the build process works, see [the accompanying 
   - [Container limitations](#container-limitations)
 - [Usage with Continuous Integration systems](#usage-with-continuous-integration-systems)
   - [Jenkins](#jenkins)
+- [Performing cloud rendering using the NVIDIA Docker images](#performing-cloud-rendering-using-the-nvidia-docker-images)
+  - [Basic usage](#basic-usage)
+  - [Audio support](#audio-support)
 - [Troubleshooting common issues](#troubleshooting-common-issues)
 - [Windows `hcsshim` timeout issues](#windows-hcsshim-timeout-issues)
 
@@ -188,6 +191,23 @@ Irrespective of the invocation approach utilised, the following limitations appl
 The following resources document the use of these Docker images with the [Jenkins](https://jenkins.io/) Continuous Integration system:
 
 - <https://github.com/adamrehn/ue4-opencv-demo> - provides an example of using Jenkins to build a UE4 project that consumes a third-party library package via [conan-ue4cli](https://github.com/adamrehn/conan-ue4cli).
+
+
+## Performing cloud rendering using the NVIDIA Docker images
+
+### Basic usage
+
+The `ue4-capture` image is built when NVIDIA Docker support is enabled and the `ue4-package` image has also been built. The `ue4-capture` image can be used to either run Unreal projects directly or to build and package them for use inside any Docker container that is based on the [nvidia/opengl](https://hub.docker.com/r/nvidia/opengl/) or [nvidia/cudagl](https://hub.docker.com/r/nvidia/cudagl/) base images. For more details on using NVIDIA Docker images, see the [official documentation](https://github.com/NVIDIA/nvidia-docker).
+
+When running inside an OpenGL-enabled NVIDIA Docker container, the Unreal Engine will automatically default to offscreen rendering. You can capture the contents of the framebuffer using the [UE4Capture](https://github.com/adamrehn/UE4Capture) plugin in exactly the same way as when running outside of a container.
+
+### Audio support
+
+To enable audio support inside an NVIDIA Docker container, you will need to provide access to the sound devices from the host system by specifying the arguments `--device /dev/snd` when invoking the `docker run` command.
+
+If you are running containers inside a virtual machine that does not have access to any physical audio devices, you will need to utilise an alternative such as an [ALSA loopback device](https://www.alsa-project.org/main/index.php/Matrix:Module-aloop), which can be enabled on most Linux distributions by using the command `sudo modprobe snd_aloop`. Note that this module is not available in the AWS-tuned Linux kernel that is used by default for AWS virtual machines, so you will need to [switch to a vanilla Linux kernel](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/UserProvidedKernels.html) in order to make use of an ALSA loopback.
+
+If you are using the [UE4Capture](https://github.com/adamrehn/UE4Capture) plugin to capture audio, you will need to ensure that you specify the argument `-AudioMixer` when running the Unreal project from which audio will be captured. Note that under some circumstances, packaged builds of Unreal projects will fail to open the default audio device, resulting in no audio output. To fix this, override the default device by specifying a value for the `AUDIODEV` environment variable. For example, to use the audio device called "front", you would issue the command `export AUDIODEV='front'`. (You can view the list of available ALSA audio devices using the `aplay` command from the [alsa-utils](https://packages.ubuntu.com/bionic/alsa-utils) package.) This issue does not appear to occur when running non-packaged projects from the Editor.
 
 
 ## Troubleshooting common issues
