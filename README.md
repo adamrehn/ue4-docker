@@ -39,6 +39,7 @@ For a detailed discussion on how the build process works, see [the accompanying 
   - [WebRTC streaming demo](#webrtc-streaming-demo)
 - [Troubleshooting common issues](#troubleshooting-common-issues)
 - [Windows `hcsshim` timeout issues](#windows-hcsshim-timeout-issues)
+- [Frequently Asked Questions](#frequently-asked-questions)
 
 
 ## Requirements
@@ -269,3 +270,22 @@ As a workaround until a proper fix is issued, it seems that altering the memory 
 To enable the workaround, specify the `--random-memory` flag when invoking the build script. This will set the container memory limit to a random value between 10GB and 12GB when the build script starts. If a build fails with the `hcsshim` timeout error, simply re-run the build script and in most cases the build will continue successfully, even if only for a short while. Restarting the Docker daemon may also help.
 
 Note that some older versions of UnrealBuildTool will crash with an error stating *"The process cannot access the file because it is being used by another process"* when using a memory limit that is not a multiple of 4GB. If this happens, simply run the build script again with an appropriate memory limit (e.g. `-m 8GB` or `-m 12GB`.) If the access error occurs even when using an appropriate memory limit, this likely indicates that Windows is unable to allocate the full amount of memory to the container. Rebooting the host system may help to alleviate this issue.
+
+
+## Frequently Asked Questions
+
+- **Why are the Dockerfiles written in such an inefficient manner? There are a large number of `RUN` directives that could be combined to improve both build efficiency and overall image size.**
+  
+  The Dockerfiles have been deliberately written in an inefficient way because doing so serves two very important purposes.
+  
+  The first purpose is self-documentation. These Docker images are the first publicly-available Windows and Linux images to provide comprehensive build capabilities for Unreal Engine 4. Along with the supporting documentation and [articles on adamrehn.com](https://adamrehn.com/articles/tag/Unreal%20Engine/), the code in this repository represents an important source of information regarding the steps that must be taken to get UE4 working correctly inside a container. The readability of the Dockerfiles is key, which is why they contain so many individual `RUN` directives with explanatory comments. Combining `RUN` directives would reduce readability and potentially obfuscate the significance of critical steps.
+  
+  The second purpose is debuggability. Updating the Dockerfiles to ensure compatibility with new Unreal Engine releases is an extremely involved process that typically requires building the Engine many times over. By breaking the Dockerfiles into many fine-grained `RUN` directives, the Docker build cache can be leveraged to ensure only the failing steps need to be repeated when rebuilding the images during debugging. Combining `RUN` directives would increase the amount of processing that needs to be redone each time one of the commands in a given directive fails, significantly increasing overall debugging times.
+
+- **Can the Windows containers be used to perform cloud rendering in the same manner as the Linux NVIDIA Docker containers?**
+  
+  Unfortunately not. [NVIDIA Docker only supports Linux at this time](https://github.com/NVIDIA/nvidia-docker/wiki/Frequently-Asked-Questions#platform-support) and I am aware of no available equivalent for Windows containers. It is possible that this situation may change in the future as Windows containers mature and become more widely adopted.
+
+- **Is it possible to build Unreal projects for macOS or iOS using the Docker containers?**
+  
+  Building projects for macOS or iOS requires a copy of macOS and Xcode. Since macOS cannot run inside a Docker container, there is unfortunately no way to perform macOS or iOS builds using Docker containers.
