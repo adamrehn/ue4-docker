@@ -36,6 +36,7 @@ For a detailed discussion on how the build process works, see [the accompanying 
 - [Performing cloud rendering using the NVIDIA Docker images](#performing-cloud-rendering-using-the-nvidia-docker-images)
   - [Basic usage](#basic-usage)
   - [Audio support](#audio-support)
+  - [WebRTC streaming demo](#webrtc-streaming-demo)
 - [Troubleshooting common issues](#troubleshooting-common-issues)
 - [Windows `hcsshim` timeout issues](#windows-hcsshim-timeout-issues)
 
@@ -208,6 +209,10 @@ To enable audio support inside an NVIDIA Docker container, you will need to prov
 If you are running containers inside a virtual machine that does not have access to any physical audio devices, you will need to utilise an alternative such as an [ALSA loopback device](https://www.alsa-project.org/main/index.php/Matrix:Module-aloop), which can be enabled on most Linux distributions by using the command `sudo modprobe snd_aloop`. Note that this module is not available in the AWS-tuned Linux kernel that is used by default for AWS virtual machines, so you will need to [switch to a vanilla Linux kernel](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/UserProvidedKernels.html) in order to make use of an ALSA loopback.
 
 If you are using the [UE4Capture](https://github.com/adamrehn/UE4Capture) plugin to capture audio, you will need to ensure that you specify the argument `-AudioMixer` when running the Unreal project from which audio will be captured. Note that under some circumstances, packaged builds of Unreal projects will fail to open the default audio device, resulting in no audio output. To fix this, override the default device by specifying a value for the `AUDIODEV` environment variable. For example, to use the audio device called "front", you would issue the command `export AUDIODEV='front'`. (You can view the list of available ALSA audio devices using the `aplay` command from the [alsa-utils](https://packages.ubuntu.com/bionic/alsa-utils) package.) This issue does not appear to occur when running non-packaged projects from the Editor.
+
+### WebRTC streaming demo
+
+For an example that demonstrates performing cloud rendering in the `ue4-capture` NVIDIA Docker image and then streaming the video to a web browser via WebRTC, see the **[ue4-cloud-rendering-demo](https://github.com/adamrehn/ue4-cloud-rendering-demo)** repository.
 
 
 ## Troubleshooting common issues
