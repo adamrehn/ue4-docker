@@ -3,6 +3,24 @@ import docker, humanfriendly, json, os
 class DockerUtils(object):
 	
 	@staticmethod
+	def installed():
+		'''
+		Determines if Docker is installed
+		'''
+		try:
+			return DockerUtils.version() is not None
+		except:
+			return False
+	
+	@staticmethod
+	def version():
+		'''
+		Retrieves the version string for the Docker daemon
+		'''
+		client = docker.from_env()
+		return client.version()
+	
+	@staticmethod
 	def exists(name):
 		'''
 		Determines if the specified image exists

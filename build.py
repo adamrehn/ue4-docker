@@ -40,6 +40,11 @@ if __name__ == '__main__':
 		logger.error('Error: {}'.format(e))
 		sys.exit(1)
 	
+	# Verify that Docker is installed
+	if DockerUtils.installed() == False:
+		logger.error('Error: could not detect Docker version. Please ensure Docker is installed.')
+		sys.exit(1)
+	
 	# Create the builder instance to build the Docker images
 	contextRoot = join(os.path.dirname(os.path.abspath(__file__)), 'dockerfiles')
 	builder = ImageBuilder(contextRoot, 'adamrehn/', config.containerPlatform, logger)
