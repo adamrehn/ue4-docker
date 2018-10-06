@@ -66,7 +66,7 @@ Building **Windows containers** also requires:
 
 Building **Linux containers** also requires:
 
-- Windows 10 Pro/Enterprise, Linux or macOS
+- Windows 10 Pro/Enterprise, Linux or macOS (only Linux is supported for running GPU-enabled images with NVIDIA Docker)
 - [Docker For Windows](https://www.docker.com/docker-windows) (under Windows 10), [Docker CE](https://www.docker.com/community-edition) (under Linux) or [Docker For Mac](https://www.docker.com/docker-mac) (under macOS)
 - Under Windows 10, the Docker daemon must be configured to use Linux containers instead of Windows containers
 - Under Windows 10 and macOS, Docker must be configured in the "Advanced" settings pane to allocate 8GB of memory and a maximum disk image size of 200GB
@@ -130,7 +130,7 @@ For a list of supported base image tags, see the [Windows Server Core base image
 
 ### Specifying the isolation mode under Windows
 
-The isolation mode can be specified via the `-isolation=MODE` flag when invoking the build script. Valid values are `process` (supported under Windows Server only) or `hyperv` (supported under both Windows 10 or Windows Server.)
+The isolation mode can be specified via the `-isolation=MODE` flag when invoking the build script. Valid values are `process` (supported under Windows Server only) or `hyperv` (supported under both Windows 10 and Windows Server.)
 
 ### Specifying the directory from which to copy required Windows DLL files
 
