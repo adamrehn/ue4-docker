@@ -32,12 +32,15 @@ COPY patch-setup-linux.py /tmp/patch-setup-linux.py
 RUN python3 /tmp/patch-setup-linux.py /home/ue4/UnrealEngine/Setup.sh
 RUN python3 /tmp/patch-setup-linux.py /home/ue4/UnrealEngine/Engine/Build/BatchFiles/Linux/Setup.sh
 
-# Run post-clone setup as root (so any apt-get commands will work) and then set the
-# non-root user as the owner of all generated files to prevent any permission issues
+# Extract the list of post-clone setup commands that require root and run them as root,
+# running everything else as the non-root user to avoid creating files owned by root
 WORKDIR /home/ue4/UnrealEngine
-USER root
+RUN echo "#!/usr/bin/env bash" >> ./root_commands.sh
+RUN echo "set -x" >> ./root_commands.sh
+RUN chmod a+x ./root_commands.sh
 RUN ./Setup.sh
-RUN chown -hR ue4 /home/ue4/UnrealEngine
+USER root
+RUN ./root_commands.sh
 USER ue4
 
 # The linker bundled with UE4.20.0 onwards chokes on system libraries built with newer compilers,
