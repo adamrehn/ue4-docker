@@ -57,6 +57,7 @@ class BuildConfiguration(object):
 		self.dryRun = args.dry_run
 		self.rebuild = args.rebuild
 		self.noPackage = args.no_package
+		self.noSlim = args.no_slim
 		self.noCapture = args.no_capture
 		self.suffix = args.suffix
 		self.platformArgs = []

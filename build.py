@@ -15,6 +15,7 @@ if __name__ == '__main__':
 	parser.add_argument('--rebuild', action='store_true', help='Rebuild images even if they already exist')
 	parser.add_argument('--dry-run', action='store_true', help='Print `docker build` commands instead of running them')
 	parser.add_argument('--no-package', action='store_true', help='Don\'t build the ue4-package image')
+	parser.add_argument('--no-slim', action='store_true', help='Don\'t build the ue4-slim image')
 	parser.add_argument('--no-capture', action='store_true', help='Don\'t build the ue4-capture image')
 	parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
 	parser.add_argument('--nvidia', action='store_true', help='Build GPU-enabled images for NVIDIA Docker under Linux')
@@ -144,6 +145,12 @@ if __name__ == '__main__':
 			builder.build('ue4-package', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
 		else:
 			logger.info('User specified `--no-package`, skipping ue4-package image build.')
+		
+		# Build the slim image (which strips out the UE4 source code), unless requested otherwise by the user
+		if buildUe4Package == True and config.noSlim == False:
+			builder.build('ue4-slim', mainTag, config.platformArgs + ue4BuildArgs + ue4SourceArgs, config.rebuild, config.dryRun)
+		else:
+			logger.info('Not building ue4-package or user specified `--no-slim`, skipping ue4-slim image build.')
 		
 		# Build the UE4Capture image (for capturing gameplay footage), unless requested otherwise by the user
 		if buildUe4Package == True and config.noCapture == False and config.containerPlatform == 'linux' and config.nvidia == True:
