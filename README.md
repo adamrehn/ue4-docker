@@ -88,12 +88,13 @@ python3 build.py 4.19.1
 
 You will be prompted for the Git credentials to be used when cloning the UE4 GitHub repository (this will be the GitHub username and password you normally use when cloning <https://github.com/EpicGames/UnrealEngine>.) The build process will then start automatically, displaying progress output from each of the `docker build` commands that are being run.
 
-Once the build process is complete, you will have up to five new Docker images on your system (where `RELEASE` is the release that you specified when invoking the build script):
+Once the build process is complete, you will have up to six new Docker images on your system (where `RELEASE` is the release that you specified when invoking the build script):
 
 - `adamrehn/ue4-build-prerequisites:latest` - this contains the build prerequisites common to all Engine versions and should be kept in order to speed up subsequent builds of additional Engine versions.
 - `adamrehn/ue4-source:RELEASE` - this contains the cloned source code for UE4. This image is separated from the `ue4-build` image to isolate the effects of changing environment variables related to git credentials, so that they don't interfere with the build cache for the subsequent steps.
 - `adamrehn/ue4-build:RELEASE` - this contains the source build for UE4, and includes [conan-ue4cli](https://github.com/adamrehn/conan-ue4cli) support for building Conan packages that are compatible with UE4 when building version 4.19.0 of the Engine or newer.
 - `adamrehn/ue4-package:RELEASE` - this extends the `ue4-build` image and is designed for packaging Shipping builds of UE4 projects. Note that the image simply creates an Installed Build of the Engine in order to speed up subsequent build time, and is not required in order to package projects (the `ue4-build` image can be used to package projects, albeit with longer build times.) You can disable the build for this image by specifying `--no-package` when you run the build script.
+- `adamrehn/ue4-slim:RELEASE` - this isolates the Installed Build from the `ue4-package` image and strips away the Engine source code, resulting in a significantly smaller image size. This image will only be built when the `ue4-package` image is built. You can disable the build for this image by specifying `--no-slim` when you run the build script.
 - `adamrehn/ue4-capture:RELEASE` - this extends the `ue4-package` image with support for the [UE4Capture](https://github.com/adamrehn/UE4Capture) plugin and is designed for capturing gameplay footage from inside NVIDIA Docker containers. This image will only be built when the `ue4-package` image is built with NVIDIA Docker compatibility. You can disable the build for this image by specifying `--no-capture` when you run the build script.
 
 Each image extends its immediate predecessor, as depicted in the diagram below:
