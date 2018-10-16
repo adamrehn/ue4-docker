@@ -10,7 +10,7 @@ This repository contains a set of Dockerfiles and an accompanying Python build s
 - Running automation tests is supported.
 - [conan-ue4cli](https://github.com/adamrehn/conan-ue4cli) support is included when building UE4 version 4.19.0 or newer.
 - An image containing an [Installed Build](https://docs.unrealengine.com/en-us/Programming/Deployment/Using-an-Installed-Build) of the Engine is also created for use when packaging Shipping builds of projects, although this behaviour can be disabled by using the `--no-package` flag when invoking the build script.
-- When building GPU-enabled Linux images for NVIDIA Docker and also building the `ue4-package` image, [UE4Capture](https://github.com/adamrehn/UE4Capture) support is also built by default, although this behaviour can be disabled by using the `--no-capture` flag when invoking the build script.
+- When building GPU-enabled Linux images and also building the `ue4-package` image, [UE4Capture](https://github.com/adamrehn/UE4Capture) support is also built by default, although this behaviour can be disabled by using the `--no-capture` flag when invoking the build script.
 
 For a detailed discussion on how the build process works, see [the accompanying article on my website](http://adamrehn.com/articles/building-docker-images-for-unreal-engine-4).
 
@@ -25,7 +25,7 @@ For a detailed discussion on how the build process works, see [the accompanying 
     - [Specifying the isolation mode under Windows](#specifying-the-isolation-mode-under-windows)
     - [Specifying the directory from which to copy required Windows DLL files](#specifying-the-directory-from-which-to-copy-required-Windows-dll-files)
     - [Building Linux container images under Windows](#building-linux-container-images-under-windows)
-    - [Building GPU-enabled Linux container images for use with NVIDIA Docker](#building-gpu-enabled-linux-container-images-for-use-with-nvidia-docker)
+    - [Using GPU-enabled Linux container images with NVIDIA Docker](#using-gpu-enabled-linux-container-images-with-nvidia-docker)
     - [Performing a dry run](#performing-a-dry-run)
     - [Upgrading from a previous version](#upgrading-from-a-previous-version)
 - [Running automation tests](#running-automation-tests)
@@ -95,7 +95,7 @@ Once the build process is complete, you will have up to six new Docker images on
 - `adamrehn/ue4-build:RELEASE` - this contains the source build for UE4, and includes [conan-ue4cli](https://github.com/adamrehn/conan-ue4cli) support for building Conan packages that are compatible with UE4 when building version 4.19.0 of the Engine or newer.
 - `adamrehn/ue4-package:RELEASE` - this extends the `ue4-build` image and is designed for packaging Shipping builds of UE4 projects. Note that the image simply creates an Installed Build of the Engine in order to speed up subsequent build time, and is not required in order to package projects (the `ue4-build` image can be used to package projects, albeit with longer build times.) You can disable the build for this image by specifying `--no-package` when you run the build script.
 - `adamrehn/ue4-slim:RELEASE` - this isolates the Installed Build from the `ue4-package` image and strips away the Engine source code, resulting in a significantly smaller image size. This image will only be built when the `ue4-package` image is built. You can disable the build for this image by specifying `--no-slim` when you run the build script.
-- `adamrehn/ue4-capture:RELEASE` - this extends the `ue4-package` image with support for the [UE4Capture](https://github.com/adamrehn/UE4Capture) plugin and is designed for capturing gameplay footage from inside NVIDIA Docker containers. This image will only be built when the `ue4-package` image is built with NVIDIA Docker compatibility. You can disable the build for this image by specifying `--no-capture` when you run the build script.
+- `adamrehn/ue4-capture:RELEASE` - this extends the `ue4-package` image with support for the [UE4Capture](https://github.com/adamrehn/UE4Capture) plugin and is designed for capturing gameplay footage from inside NVIDIA Docker containers. This image will only be built under Linux when the `ue4-package` image is also built. You can disable the build for this image by specifying `--no-capture` when you run the build script.
 
 Each image extends its immediate predecessor, as depicted in the diagram below:
 
@@ -141,11 +141,17 @@ By default, DLL files are copied from `%SystemRoot%\System32`. However, when bui
 
 By default, Windows container images are built when running the build script under Windows. To build Linux container images instead, simply specify the `--linux` flag when invoking the build script.
 
-### Building GPU-enabled Linux container images for use with NVIDIA Docker
+### Using GPU-enabled Linux container images with NVIDIA Docker
 
-[NVIDIA Docker](https://github.com/NVIDIA/nvidia-docker) provides a container runtime for Docker that allows Linux containers to access NVIDIA GPU devices present on the host system. This facilitates hardware acceleration for applications that use OpenGL or NVIDIA CUDA, and can be useful for Unreal projects that need to perform offscreen rendering from within a container. To build Linux container images that support hardware-accelerated OpenGL when run via NVIDIA Docker, simply specify the `--nvidia` flag when invoking the build script. If you would like CUDA support in addition to OpenGL support, also specify the `--cuda` flag.
+[NVIDIA Docker](https://github.com/NVIDIA/nvidia-docker) provides a container runtime for Docker that allows Linux containers to access NVIDIA GPU devices present on the host system. This facilitates hardware acceleration for applications that use OpenGL or NVIDIA CUDA, and can be useful for Unreal projects that need to perform offscreen rendering from within a container or utilise plugins that rely on CUDA functionality.
 
-Note that **NVIDIA Docker version 2.x is required** to run the built images (version 1.x is not supported) and that the images can only be run under a Linux host system with one or more NVIDIA GPUs. Images with CUDA support also have [additional requirements](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA#requirements) on top of the requirements for OpenGL support.
+All Linux container images built by the build script support both the regular Docker runtime and NVIDIA Docker, allowing them to be used for CPU-only workloads (such as CI/CD) as well as GPU-enabled workloads (such as cloud rendering.) By default, the images support hardware-accelerated OpenGL when run via NVIDIA Docker. If you would like CUDA support in addition to OpenGL support, simply specify the `--cuda` flag when invoking the build script.
+
+Key things to note:
+
+- NVIDIA Docker is not required in order to build the images, or to run the built images for CPU-only workloads.
+- NVIDIA Docker version 2.x is required to run the built images with GPU support. **NVIDIA Docker version 1.x is not supported.**
+- The images can only be run via NVIDIA Docker under a Linux host system with one or more NVIDIA GPUs. Images with CUDA support also have [additional requirements](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA#requirements) on top of the requirements for OpenGL support.
 
 ### Performing a dry run
 
@@ -200,7 +206,7 @@ The following resources document the use of these Docker images with the [Jenkin
 
 ### Basic usage
 
-The `ue4-capture` image is built when NVIDIA Docker support is enabled and the `ue4-package` image has also been built. The `ue4-capture` image can be used to either run Unreal projects directly or to build and package them for use inside any Docker container that is based on the [nvidia/opengl](https://hub.docker.com/r/nvidia/opengl/) or [nvidia/cudagl](https://hub.docker.com/r/nvidia/cudagl/) base images. For more details on using NVIDIA Docker images, see the [official documentation](https://github.com/NVIDIA/nvidia-docker).
+The `ue4-capture` image is built under Linux when the `ue4-package` image has also been built. The `ue4-capture` image can be used to either run Unreal projects directly or to build and package them for use inside any Docker container that is based on the [nvidia/opengl](https://hub.docker.com/r/nvidia/opengl/) or [nvidia/cudagl](https://hub.docker.com/r/nvidia/cudagl/) base images. For more details on using NVIDIA Docker images, see the [official documentation](https://github.com/NVIDIA/nvidia-docker).
 
 When running inside an OpenGL-enabled NVIDIA Docker container, the Unreal Engine will automatically default to offscreen rendering. You can capture the contents of the framebuffer using the [UE4Capture](https://github.com/adamrehn/UE4Capture) plugin in exactly the same way as when running outside of a container.
 
