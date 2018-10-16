@@ -10,9 +10,8 @@ DEFAULT_GIT_REPO = 'https://github.com/EpicGames/UnrealEngine.git'
 
 # The base images for Linux containers
 LINUX_BASE_IMAGES = {
-	'default': 'ubuntu:18.04',
-	'opengl':  'nvidia/opengl:1.0-glvnd-devel-ubuntu18.04',
-	'cudagl':  'nvidia/cudagl:9.2-devel-ubuntu18.04'
+	'opengl': 'nvidia/opengl:1.0-glvnd-devel-ubuntu18.04',
+	'cudagl': 'nvidia/cudagl:9.2-devel-ubuntu18.04'
 }
 
 # The default memory limit (in GB) under Windows
@@ -106,14 +105,9 @@ class BuildConfiguration(object):
 	
 	def _generateLinuxConfig(self, args):
 		
-		# Store our NVIDIA Docker-related settings
-		self.nvidia = args.nvidia
+		# Determine if we are building CUDA-enabled container images
 		self.cuda = args.cuda
-		
-		# Determine if we are building GPU-enabled container images
-		if self.nvidia == True and self.cuda == True:
+		if self.cuda == True:
 			self.baseImage = LINUX_BASE_IMAGES['cudagl']
-		elif self.nvidia == True:
-			self.baseImage = LINUX_BASE_IMAGES['opengl']
 		else:
-			self.baseImage = LINUX_BASE_IMAGES['default']
+			self.baseImage = LINUX_BASE_IMAGES['opengl']

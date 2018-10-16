@@ -18,8 +18,7 @@ if __name__ == '__main__':
 	parser.add_argument('--no-slim', action='store_true', help='Don\'t build the ue4-slim image')
 	parser.add_argument('--no-capture', action='store_true', help='Don\'t build the ue4-capture image')
 	parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
-	parser.add_argument('--nvidia', action='store_true', help='Build GPU-enabled images for NVIDIA Docker under Linux')
-	parser.add_argument('--cuda', action='store_true', help='Add CUDA support as well as OpenGL support when building NVIDIA Docker images')
+	parser.add_argument('--cuda', action='store_true', help='Add CUDA support as well as OpenGL support when building GPU-enabled images')
 	parser.add_argument('-repo', default=None, help='Set the custom git repository to clone when "custom" is specified as the release value')
 	parser.add_argument('-branch', default=None, help='Set the custom branch/tag to clone when "custom" is specified as the release value')
 	parser.add_argument('-isolation', default=None, help='Set the isolation mode to use for Windows containers (process or hyperv)')
@@ -95,10 +94,9 @@ if __name__ == '__main__':
 		
 	elif config.containerPlatform == 'linux':
 		
-		# Determine if we are building GPU-enabled container images
-		if config.nvidia == True or config.cuda == True:
-			capabilities = 'CUDA + OpenGL' if config.cuda == True else 'OpenGL'
-			logger.info('Building GPU-enabled images for use with NVIDIA Docker ({} support).\n'.format(capabilities), False)
+		# Determine if we are building CUDA-enabled container images
+		capabilities = 'CUDA + OpenGL' if config.cuda == True else 'OpenGL'
+		logger.info('Building GPU-enabled images compatible with NVIDIA Docker ({} support).\n'.format(capabilities), False)
 	
 	# Determine if we are performing a dry run
 	if config.dryRun == True:
@@ -153,10 +151,10 @@ if __name__ == '__main__':
 			logger.info('Not building ue4-package or user specified `--no-slim`, skipping ue4-slim image build.')
 		
 		# Build the UE4Capture image (for capturing gameplay footage), unless requested otherwise by the user
-		if buildUe4Package == True and config.noCapture == False and config.containerPlatform == 'linux' and config.nvidia == True:
+		if buildUe4Package == True and config.noCapture == False and config.containerPlatform == 'linux':
 			builder.build('ue4-capture', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
 		else:
-			logger.info('Not building NVIDIA Docker ue4-package or user specified `--no-capture`, skipping ue4-capture image build.')
+			logger.info('Not building ue4-package or user specified `--no-capture`, skipping ue4-capture image build.')
 		
 		# Stop the HTTP server
 		endpoint.stop()
