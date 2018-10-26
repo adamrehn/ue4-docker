@@ -10,6 +10,7 @@ USER ue4
 
 # Copy the Installed Build of the Engine from the builder image
 COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux /home/ue4/UnrealEngine
+COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Engine/Source/ThirdParty /home/ue4/UnrealEngine/Engine/Source/ThirdParty
 COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/root_commands.sh /tmp/root_commands.sh
 
 # Run the post-setup commands that were previously extracted from `Setup.sh`
@@ -24,6 +25,7 @@ RUN pip3 install -r /home/ue4/conan-ue4cli/requirements.txt
 USER ue4
 
 # Point ue4cli to the root of the Installed Build
+ENV UE4CLI_SENTINEL_RENAME=1
 RUN ue4 setroot /home/ue4/UnrealEngine
 
 # Install conan-ue4cli (4.19.0 and newer only, this call is a no-op for older Engine versions)
