@@ -7,12 +7,12 @@
 
 This repository contains a set of Dockerfiles and an accompanying Python build script that allow you to build Docker images for Epic Games' [Unreal Engine 4](https://www.unrealengine.com/). Key features include:
 
-- The images contain a full source build of the Engine and are suitable for use in a Continuous Integration (CI) pipeline.
 - Both Windows containers and Linux containers are supported.
+- The `ue4-engine` image contains a full source build of the Engine and is suitable for developing Engine patches.
+- The `ue4-minimal` and `ue4-full` images contain an [Installed Build](https://docs.unrealengine.com/en-us/Programming/Deployment/Using-an-Installed-Build) of the Engine and are suitable for use in Continuous Integration (CI) pipelines.
 - Running automation tests is supported.
 - [conan-ue4cli](https://github.com/adamrehn/conan-ue4cli) support is included when building UE4 version 4.19.0 or newer.
-- An image containing an [Installed Build](https://docs.unrealengine.com/en-us/Programming/Deployment/Using-an-Installed-Build) of the Engine is also created for use when packaging Shipping builds of projects, although this behaviour can be disabled by using the `--no-package` flag when invoking the build script.
-- When building GPU-enabled Linux images and also building the `ue4-package` image, [UE4Capture](https://github.com/adamrehn/UE4Capture) support is also built by default, although this behaviour can be disabled by using the `--no-capture` flag when invoking the build script.
+- When building GPU-enabled Linux images and also building the `ue4-full` image, [UE4Capture](https://github.com/adamrehn/UE4Capture) support is also included.
 
 For a detailed discussion on how the build process works, see [the accompanying article on my website](http://adamrehn.com/articles/building-docker-images-for-unreal-engine-4).
 
@@ -97,18 +97,15 @@ python3 build.py 4.19.1
 
 You will be prompted for the Git credentials to be used when cloning the UE4 GitHub repository (this will be the GitHub username and password you normally use when cloning <https://github.com/EpicGames/UnrealEngine>.) The build process will then start automatically, displaying progress output from each of the `docker build` commands that are being run.
 
-Once the build process is complete, you will have up to six new Docker images on your system (where `RELEASE` is the release that you specified when invoking the build script):
+Once the build process is complete, you will have up to five new Docker images on your system (where `RELEASE` is the release that you specified when invoking the build script):
 
-- `adamrehn/ue4-build-prerequisites:latest` - this contains the build prerequisites common to all Engine versions and should be kept in order to speed up subsequent builds of additional Engine versions.
-- `adamrehn/ue4-source:RELEASE` - this contains the cloned source code for UE4. This image is separated from the `ue4-build` image to isolate the effects of changing environment variables related to git credentials, so that they don't interfere with the build cache for the subsequent steps.
-- `adamrehn/ue4-build:RELEASE` - this contains the source build for UE4, and includes [conan-ue4cli](https://github.com/adamrehn/conan-ue4cli) support for building Conan packages that are compatible with UE4 when building version 4.19.0 of the Engine or newer.
-- `adamrehn/ue4-package:RELEASE` - this extends the `ue4-build` image and is designed for packaging Shipping builds of UE4 projects. Note that the image simply creates an Installed Build of the Engine in order to speed up subsequent build time, and is not required in order to package projects (the `ue4-build` image can be used to package projects, albeit with longer build times.) You can disable the build for this image by specifying `--no-package` when you run the build script.
-- `adamrehn/ue4-slim:RELEASE` - this isolates the Installed Build from the `ue4-package` image and strips away the Engine source code, resulting in a significantly smaller image size. This image will only be built when the `ue4-package` image is built. You can disable the build for this image by specifying `--no-slim` when you run the build script.
-- `adamrehn/ue4-capture:RELEASE` - this extends the `ue4-package` image with support for the [UE4Capture](https://github.com/adamrehn/UE4Capture) plugin and is designed for capturing gameplay footage from inside NVIDIA Docker containers. This image will only be built under Linux when the `ue4-package` image is also built. You can disable the build for this image by specifying `--no-capture` when you run the build script.
-
-Each image extends its immediate predecessor, as depicted in the diagram below:
-
-![Diagram depicting image dependency sequence](./docs/images/images_sequence.svg)
+|Image                                     |Description |
+|------------------------------------------|------------|
+|`adamrehn/ue4-build-prerequisites:latest` |Contains the build prerequisites common to all Engine versions and should be kept in order to speed up subsequent builds of additional Engine versions.|
+|`adamrehn/ue4-source:RELEASE`             |Contains the cloned source code for UE4. This image is separated from the `ue4-engine` image to isolate the effects of changing environment variables related to git credentials, so that they don't interfere with the build cache for the subsequent steps.|
+|`adamrehn/ue4-engine:RELEASE`             |Contains a source build of the Engine.<br><br>**Use this image for developing changes to the Engine itself.**|
+|`adamrehn/ue4-minimal:RELEASE`            |Contains the absolute minimum set of functionality required for use in a Continuous Integration (CI) pipeline, consisting of only the build prerequisites and an Installed Build of the Engine. You can disable the build for this image by specifying `--no-minimal` when you run the build script.<br><br>**Use this image for CI pipelines that do not require ue4cli or conan-ue4cli.**|
+|`adamrehn/ue4-full:RELEASE`               |Contains everything from the `ue4-minimal` image, and adds the following:<ul><li>ue4cli</li><li>conan-ue4cli</li><li>UE4Capture (Linux image only)</li></ul>You can disable the build for this image by specifying `--no-full` when you run the build script.<br><br>**Use this image for any of the following:**<ul><li><strong>CI pipelines that require ue4cli or conan-ue4cli</strong></li><li><strong>Packaging or running cloud rendering projects that utilise UE4Capture under Linux</strong></li><li><strong>Packaging UE4-powered server applications</strong></li></ul>|
 
 ### Building a custom version of the Unreal Engine
 
@@ -124,7 +121,7 @@ When building a custom Engine version, both the repository URL and branch/tag mu
 python3 build.py custom -repo=https://github.com/MyUser/UnrealEngine.git -branch=MyBranch -suffix=-MySuffix
 ```
 
-This will produce images tagged `adamrehn/ue4-source:custom-MySuffix`, `adamrehn/ue4-build:custom-MySuffix`, etc.
+This will produce images tagged `adamrehn/ue4-source:custom-MySuffix`, `adamrehn/ue4-engine:custom-MySuffix`, etc.
 
 ### Specifying the Windows Server Core base image tag
 
@@ -189,9 +186,9 @@ Each of these approaches has its own benefits and limitations:
 
 |Approach |Supported Docker images |Benefits |Limitations |
 |---------|------------------------|---------|------------|
-|Editor   |<ul><li>`ue4-build`</li><li>`ue4-package`</li><li>`ue4-capture`</li></ul>|<ul><li>Maximum control and flexibility</li></ul>|<ul><li>Extremely verbose syntax</li><li>Requires the full path to the platform-specific `UE4Editor` binary (must be `UE4Editor-Cmd.exe` under Windows)</li><li>Project must already be built, as the Editor will not prompt to build missing modules and will instead simply crash</li><li>Exit code is always non-zero, so log output must be parsed to detect failures</li><li>[Exact placement of quotes matters under Windows.](https://adamrehn.com/articles/idiosyncratic-argument-parsing-behaviour-in-unreal-engine-4/)</li></ul>|
-|UAT      |<ul><li>`ue4-build`</li><li>`ue4-package`</li><li>`ue4-capture`</li></ul>|<ul><li>Supports advanced functionality (e.g. running both client and server)</li></ul>|<ul><li>Restricts which arguments can be passed to the Editor (although most are supported)</li><li>Requires the full path to the platform-specific `RunUAT` batch file or shell script</li><li>Project must already be built, or else the relevant arguments must be included to perform the build</li><li>Exit code will be zero so long as the Editor didn't crash, test failures are merely reported in the log output</li><li>If the Editor crashes then UAT will wait for a 30 second grace period before reporting the error</li></ul> |
-|ue4cli   |<ul><li>`ue4-build`</li><li>`ue4-package`</li><li>`ue4-capture`</li></ul>|<p>When using `ue4 test`:</p><ul><li>Concise syntax</li><li>Determines the path to the Editor automatically</li><li>Automatically builds the project if not already built</li><li>Exit code actually reflects test success or failure (in addition to being non-zero for errors or crashes)</li><li>Reports Editor crashes immediately</li></ul><p>When using `ue4 uat`:</p><ul><li>Determines the path to `RunUAT` automatically</li><li>All the benefits of using UAT listed above</li></ul>|<p>Irrespective of subcommand:</p><ul><li>Must be run from the directory containing the `.uproject` file</li></ul><p>When using `ue4 test`:</p><ul><li>Restricts which arguments can be passed to the Editor (although I've included all the arguments I believe are necessary)</li></ul><p>When using `ue4 uat`:</p><ul><li>All the limitations of using UAT listed above (with the exception of requiring the full path to `RunUAT`)</li></ul>|
+|Editor   |<ul><li>`ue4-engine`</li><li>`ue4-minimal`</li><li>`ue4-full`</li></ul>|<ul><li>Maximum control and flexibility</li></ul>|<ul><li>Extremely verbose syntax</li><li>Requires the full path to the platform-specific `UE4Editor` binary (must be `UE4Editor-Cmd.exe` under Windows)</li><li>Project must already be built, as the Editor will not prompt to build missing modules and will instead simply crash</li><li>Exit code is always non-zero, so log output must be parsed to detect failures</li><li>[Exact placement of quotes matters under Windows.](https://adamrehn.com/articles/idiosyncratic-argument-parsing-behaviour-in-unreal-engine-4/)</li></ul>|
+|UAT      |<ul><li>`ue4-engine`</li><li>`ue4-minimal`</li><li>`ue4-full`</li></ul>|<ul><li>Supports advanced functionality (e.g. running both client and server)</li></ul>|<ul><li>Restricts which arguments can be passed to the Editor (although most are supported)</li><li>Requires the full path to the platform-specific `RunUAT` batch file or shell script</li><li>Project must already be built, or else the relevant arguments must be included to perform the build</li><li>Exit code will be zero so long as the Editor didn't crash, test failures are merely reported in the log output</li><li>If the Editor crashes then UAT will wait for a 30 second grace period before reporting the error</li></ul> |
+|ue4cli   |<ul><li>`ue4-full`</li></ul>|<p>When using `ue4 test`:</p><ul><li>Concise syntax</li><li>Determines the path to the Editor automatically</li><li>Automatically builds the project if not already built</li><li>Exit code actually reflects test success or failure (in addition to being non-zero for errors or crashes)</li><li>Reports Editor crashes immediately</li></ul><p>When using `ue4 uat`:</p><ul><li>Determines the path to `RunUAT` automatically</li><li>All the benefits of using UAT listed above</li></ul>|<p>Irrespective of subcommand:</p><ul><li>Must be run from the directory containing the `.uproject` file</li></ul><p>When using `ue4 test`:</p><ul><li>Restricts which arguments can be passed to the Editor (although I've included all the arguments I believe are necessary)</li></ul><p>When using `ue4 uat`:</p><ul><li>All the limitations of using UAT listed above (with the exception of requiring the full path to `RunUAT`)</li></ul>|
 
 ### Container limitations
 
@@ -215,7 +212,7 @@ The following resources document the use of these Docker images with the [Jenkin
 
 ### Basic usage
 
-The `ue4-capture` image is built under Linux when the `ue4-package` image has also been built. The `ue4-capture` image can be used to either run Unreal projects directly or to build and package them for use inside any Docker container that is based on the [nvidia/opengl](https://hub.docker.com/r/nvidia/opengl/) or [nvidia/cudagl](https://hub.docker.com/r/nvidia/cudagl/) base images. For more details on using NVIDIA Docker images, see the [official documentation](https://github.com/NVIDIA/nvidia-docker).
+The `ue4-full` image can be used with NVIDIA Docker to either run Unreal projects directly or to build and package them for use inside any Docker container that is based on the [nvidia/opengl](https://hub.docker.com/r/nvidia/opengl/) or [nvidia/cudagl](https://hub.docker.com/r/nvidia/cudagl/) base images. For more details on using NVIDIA Docker images, see the [official documentation](https://github.com/NVIDIA/nvidia-docker).
 
 When running inside an OpenGL-enabled NVIDIA Docker container, the Unreal Engine will automatically default to offscreen rendering. You can capture the contents of the framebuffer using the [UE4Capture](https://github.com/adamrehn/UE4Capture) plugin in exactly the same way as when running outside of a container.
 
@@ -229,7 +226,7 @@ If you are using the [UE4Capture](https://github.com/adamrehn/UE4Capture) plugin
 
 ### WebRTC streaming demo
 
-For an example that demonstrates performing cloud rendering in the `ue4-capture` NVIDIA Docker image and then streaming the video to a web browser via WebRTC, see the **[ue4-cloud-rendering-demo](https://github.com/adamrehn/ue4-cloud-rendering-demo)** repository.
+For an example that demonstrates performing cloud rendering in the `ue4-full` NVIDIA Docker image and then streaming the video to a web browser via WebRTC, see the **[ue4-cloud-rendering-demo](https://github.com/adamrehn/ue4-cloud-rendering-demo)** repository.
 
 
 ## Troubleshooting common issues
