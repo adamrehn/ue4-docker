@@ -144,11 +144,13 @@ if __name__ == '__main__':
 		else:
 			logger.info('User specified `--no-package`, skipping ue4-package image build.')
 		
+		'''
 		# Build the slim image (which strips out the UE4 source code), unless requested otherwise by the user
 		if buildUe4Package == True and config.noSlim == False:
 			builder.build('ue4-slim', mainTag, config.platformArgs + ue4BuildArgs + ue4SourceArgs, config.rebuild, config.dryRun)
 		else:
 			logger.info('Not building ue4-package or user specified `--no-slim`, skipping ue4-slim image build.')
+		'''
 		
 		# Build the UE4Capture image (for capturing gameplay footage), unless requested otherwise by the user
 		if buildUe4Package == True and config.noCapture == False and config.containerPlatform == 'linux':
