@@ -1,6 +1,6 @@
 # escape=`
 ARG TAG
-FROM adamrehn/ue4-build:${TAG} AS builder
+FROM adamrehn/ue4-engine:${TAG} AS builder
 
 # Patch out problematic entries in InstalledEngineFilters.xml introduced in UE4.20.0
 COPY patch-filters-xml.py C:\patch-filters-xml.py

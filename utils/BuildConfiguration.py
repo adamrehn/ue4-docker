@@ -55,9 +55,8 @@ class BuildConfiguration(object):
 		self.containerPlatform = 'windows' if platform.system() == 'Windows' and args.linux == False else 'linux'
 		self.dryRun = args.dry_run
 		self.rebuild = args.rebuild
-		self.noPackage = args.no_package
-		self.noSlim = args.no_slim
-		self.noCapture = args.no_capture
+		self.noMinimal = args.no_minimal
+		self.noFull = args.no_full
 		self.suffix = args.suffix
 		self.platformArgs = []
 		self.baseImage = None

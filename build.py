@@ -14,11 +14,10 @@ if __name__ == '__main__':
 	parser.add_argument('--linux', action='store_true', help='Build Linux container images under Windows')
 	parser.add_argument('--rebuild', action='store_true', help='Rebuild images even if they already exist')
 	parser.add_argument('--dry-run', action='store_true', help='Print `docker build` commands instead of running them')
-	parser.add_argument('--no-package', action='store_true', help='Don\'t build the ue4-package image')
-	parser.add_argument('--no-slim', action='store_true', help='Don\'t build the ue4-slim image')
-	parser.add_argument('--no-capture', action='store_true', help='Don\'t build the ue4-capture image')
+	parser.add_argument('--no-minimal', action='store_true', help='Don\'t build the ue4-minimal image')
+	parser.add_argument('--no-full', action='store_true', help='Don\'t build the ue4-full image')
 	parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
-	parser.add_argument('--cuda', action='store_true', help='Add CUDA support as well as OpenGL support when building GPU-enabled images')
+	parser.add_argument('--cuda', action='store_true', help='Add CUDA support as well as OpenGL support when building Linux containers')
 	parser.add_argument('-repo', default=None, help='Set the custom git repository to clone when "custom" is specified as the release value')
 	parser.add_argument('-branch', default=None, help='Set the custom branch/tag to clone when "custom" is specified as the release value')
 	parser.add_argument('-isolation', default=None, help='Set the isolation mode to use for Windows containers (process or hyperv)')
@@ -133,30 +132,23 @@ if __name__ == '__main__':
 		]
 		builder.build('ue4-source', mainTag, config.platformArgs + ue4SourceArgs + endpoint.args(), config.rebuild, config.dryRun)
 		
-		# Build the UE4 build image
+		# Build the UE4 Engine source build image
 		ue4BuildArgs = ['--build-arg', 'TAG={}'.format(mainTag)]
-		builder.build('ue4-build', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
+		builder.build('ue4-engine', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
 		
-		# Build the UE4 packaging image (for packaging Shipping builds of projects), unless requested otherwise by the user
-		buildUe4Package = config.noPackage == False
+		# Build the minimal UE4 CI image, unless requested otherwise by the user
+		buildUe4Minimal = config.noMinimal == False
 		if buildUe4Package == True:
-			builder.build('ue4-package', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
+			builder.build('ue4-minimal', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
 		else:
-			logger.info('User specified `--no-package`, skipping ue4-package image build.')
+			logger.info('User specified `--no-minimal`, skipping ue4-minimal image build.')
 		
-		'''
-		# Build the slim image (which strips out the UE4 source code), unless requested otherwise by the user
-		if buildUe4Package == True and config.noSlim == False:
-			builder.build('ue4-slim', mainTag, config.platformArgs + ue4BuildArgs + ue4SourceArgs, config.rebuild, config.dryRun)
+		# Build the full UE4 CI image, unless requested otherwise by the user
+		buildUe4Full = buildUe4Minimal == True and config.noFull == False
+		if buildUe4Full == True:
+			builder.build('ue4-full', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
 		else:
-			logger.info('Not building ue4-package or user specified `--no-slim`, skipping ue4-slim image build.')
-		'''
-		
-		# Build the UE4Capture image (for capturing gameplay footage), unless requested otherwise by the user
-		if buildUe4Package == True and config.noCapture == False and config.containerPlatform == 'linux':
-			builder.build('ue4-capture', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
-		else:
-			logger.info('Not building ue4-package or user specified `--no-capture`, skipping ue4-capture image build.')
+			logger.info('Not building ue4-minimal or user specified `--no-full`, skipping ue4-full image build.')
 		
 		# Stop the HTTP server
 		endpoint.stop()

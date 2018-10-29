@@ -1,5 +1,5 @@
 ARG TAG
-FROM adamrehn/ue4-build:${TAG} AS builder
+FROM adamrehn/ue4-engine:${TAG} AS builder
 
 # Create an Installed Build of the Engine
 WORKDIR /home/ue4/UnrealEngine
