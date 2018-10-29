@@ -138,7 +138,7 @@ if __name__ == '__main__':
 		
 		# Build the minimal UE4 CI image, unless requested otherwise by the user
 		buildUe4Minimal = config.noMinimal == False
-		if buildUe4Package == True:
+		if buildUe4Minimal == True:
 			builder.build('ue4-minimal', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
 		else:
 			logger.info('User specified `--no-minimal`, skipping ue4-minimal image build.')
