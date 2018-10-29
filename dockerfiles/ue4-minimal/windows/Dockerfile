@@ -1,5 +1,6 @@
 # escape=`
 ARG TAG
+ARG PREREQS_TAG
 FROM adamrehn/ue4-engine:${TAG} AS builder
 
 # Patch out problematic entries in InstalledEngineFilters.xml introduced in UE4.20.0

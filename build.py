@@ -125,8 +125,8 @@ if __name__ == '__main__':
 		
 		# Build the UE4 source image
 		mainTag = config.release + config.suffix
-		ue4SourceArgs = [
-			'--build-arg', 'PREREQS_TAG={}'.format(prereqsTag),
+		prereqConsumerArgs = ['--build-arg', 'PREREQS_TAG={}'.format(prereqsTag)]
+		ue4SourceArgs = prereqConsumerArgs + [
 			'--build-arg', 'GIT_REPO={}'.format(config.repository),
 			'--build-arg', 'GIT_BRANCH={}'.format(config.branch)
 		]
@@ -139,7 +139,7 @@ if __name__ == '__main__':
 		# Build the minimal UE4 CI image, unless requested otherwise by the user
 		buildUe4Minimal = config.noMinimal == False
 		if buildUe4Minimal == True:
-			builder.build('ue4-minimal', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
+			builder.build('ue4-minimal', mainTag, config.platformArgs + ue4BuildArgs + prereqConsumerArgs, config.rebuild, config.dryRun)
 		else:
 			logger.info('User specified `--no-minimal`, skipping ue4-minimal image build.')
 		
