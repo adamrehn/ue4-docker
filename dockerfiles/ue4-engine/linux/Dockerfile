@@ -18,15 +18,6 @@ RUN python3 /tmp/build-sdl.py
 # Isolate the SDL build dependencies in a separate stage to avoid polluting our main image
 FROM adamrehn/ue4-source:${TAG}
 
-# Install ue4cli and the prerequisites for conan-ue4cli
-RUN git clone "https://github.com/adamrehn/conan-ue4cli.git" /home/ue4/conan-ue4cli
-USER root
-RUN pip3 install -r /home/ue4/conan-ue4cli/requirements.txt
-USER ue4
-
-# Point ue4cli to the root of the Engine source tree
-RUN ue4 setroot /home/ue4/UnrealEngine
-
 # Patch out all instances of `sudo` in Setup.sh, plus any commands that refuse to run as root
 COPY patch-setup-linux.py /tmp/patch-setup-linux.py
 RUN python3 /tmp/patch-setup-linux.py /home/ue4/UnrealEngine/Setup.sh
@@ -58,6 +49,3 @@ RUN python3 /tmp/copy-sdl.py /tmp/sdl ${SDL_LIBDIR}
 RUN ./Engine/Build/BatchFiles/Linux/Build.sh UE4Editor Linux Development -WaitMutex
 RUN ./Engine/Build/BatchFiles/Linux/Build.sh ShaderCompileWorker Linux Development -WaitMutex
 RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealPak Linux Development -WaitMutex
-
-# Install conan-ue4cli (4.19.0 and newer only, this call is a no-op for older Engine versions)
-RUN python3 /home/ue4/conan-ue4cli/generate.py

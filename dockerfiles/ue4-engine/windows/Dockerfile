@@ -16,13 +16,3 @@ RUN GenerateProjectFiles.bat
 RUN .\Engine\Build\BatchFiles\Build.bat UE4Editor Win64 Development -WaitMutex
 RUN .\Engine\Build\BatchFiles\Build.bat ShaderCompileWorker Win64 Development -WaitMutex
 RUN .\Engine\Build\BatchFiles\Build.bat UnrealPak Win64 Development -WaitMutex
-
-# Install ue4cli and the prerequisites for conan-ue4cli
-RUN git clone "https://github.com/adamrehn/conan-ue4cli.git" C:\conan-ue4cli
-RUN pip install -r C:\conan-ue4cli\requirements.txt
-
-# Point ue4cli to the root of the built Engine
-RUN ue4 setroot C:\UnrealEngine
-
-# Install conan-ue4cli (4.19.0 and newer only, this call is a no-op for older Engine versions)
-RUN python C:\conan-ue4cli\generate.py
