@@ -1,12 +1,14 @@
-Dockerfiles for Unreal Engine 4
-===============================
+<p align="center"><img src="./docs/images/banner.svg" alt="Unreal Engine and Docker Logos" height="100"></p>
+<h1 align="center"><strong>Unreal Engine 4 Docker Containers</strong></h1>
+<h3 align="center">Continuous Integration &bull; Cloud Rendering &bull; UE4-Powered Server Apps</h3>
+<p>&nbsp;</p>
 
-**IMPORTANT LEGAL NOTICE: the Docker images produced by the code in this repository contain the UE4 Engine Tools in both source code and object code form. As per Section 1A of the [Unreal Engine EULA](https://www.unrealengine.com/eula), Engine Licensees are prohibited from public distribution of the Engine Tools unless such distribution takes place via the Unreal Marketplace or a fork of the Epic Games UE4 GitHub repository. [Public distribution of the built images via an openly accessible Docker Registry (e.g. Docker Hub) is a direct violation of the license terms.](https://www.unrealengine.com/eula) It is your responsibility to ensure that any private distribution to other Engine Licensees (such as via an organisation's internal Docker Registry) complies with the terms of the Unreal Engine EULA.**
+**Looking for a place to start? Interactive documentation is coming soon with step-by-step instructions.**
 
 This repository contains a set of Dockerfiles and an accompanying Python build script that allow you to build Docker images for Epic Games' [Unreal Engine 4](https://www.unrealengine.com/). Key features include:
 
 - The images contain a full source build of the Engine and are suitable for use in a Continuous Integration (CI) pipeline.
-- **Both Windows containers and Linux containers are supported.**
+- Both Windows containers and Linux containers are supported.
 - Running automation tests is supported.
 - [conan-ue4cli](https://github.com/adamrehn/conan-ue4cli) support is included when building UE4 version 4.19.0 or newer.
 - An image containing an [Installed Build](https://docs.unrealengine.com/en-us/Programming/Deployment/Using-an-Installed-Build) of the Engine is also created for use when packaging Shipping builds of projects, although this behaviour can be disabled by using the `--no-package` flag when invoking the build script.
@@ -17,6 +19,7 @@ For a detailed discussion on how the build process works, see [the accompanying 
 
 ## Contents
 
+- [Important legal notice](#important-legal-notice)
 - [Requirements](#requirements)
 - [Build script usage](#build-script-usage)
     - [Building images](#building-images)
@@ -40,6 +43,12 @@ For a detailed discussion on how the build process works, see [the accompanying 
 - [Troubleshooting common issues](#troubleshooting-common-issues)
 - [Windows `hcsshim` timeout issues](#windows-hcsshim-timeout-issues)
 - [Frequently Asked Questions](#frequently-asked-questions)
+- [Legal](#legal)
+
+
+## Important legal notice
+
+**The Docker images produced by the code in this repository contain the UE4 Engine Tools in both source code and object code form. As per Section 1A of the [Unreal Engine EULA](https://www.unrealengine.com/eula), Engine Licensees are prohibited from public distribution of the Engine Tools unless such distribution takes place via the Unreal Marketplace or a fork of the Epic Games UE4 GitHub repository. [Public distribution of the built images via an openly accessible Docker Registry (e.g. Docker Hub) is a direct violation of the license terms.](https://www.unrealengine.com/eula) It is your responsibility to ensure that any private distribution to other Engine Licensees (such as via an organisation's internal Docker Registry) complies with the terms of the Unreal Engine EULA.**
 
 
 ## Requirements
@@ -296,3 +305,12 @@ Note that some older versions of UnrealBuildTool will crash with an error statin
 - **Is it possible to build Unreal projects for macOS or iOS using the Docker containers?**
   
   Building projects for macOS or iOS requires a copy of macOS and Xcode. Since macOS cannot run inside a Docker container, there is unfortunately no way to perform macOS or iOS builds using Docker containers.
+
+
+## Legal
+
+Copyright &copy; 2018, Adam Rehn. Licensed under the MIT License, see the file [LICENSE](./LICENSE) for details.
+
+Unreal and its logo are Epic Games' trademarks or registered trademarks in the US and elsewhere.
+
+Docker and the Docker logo are trademarks or registered trademarks of Docker in the United States and other countries.
