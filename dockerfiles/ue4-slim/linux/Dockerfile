@@ -25,8 +25,8 @@ RUN pip3 install -r /home/ue4/conan-ue4cli/requirements.txt
 USER ue4
 
 # Point ue4cli to the root of the Installed Build
-ENV UE4CLI_SENTINEL_RENAME=1
 RUN ue4 setroot /home/ue4/UnrealEngine
 
 # Install conan-ue4cli (4.19.0 and newer only, this call is a no-op for older Engine versions)
+ENV UE4CLI_SENTINEL_RENAME=1
 RUN python3 /home/ue4/conan-ue4cli/generate.py
