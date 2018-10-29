@@ -10,6 +10,7 @@ USER root
 RUN pip3 install ue4cli
 USER ue4
 ENV UE4CLI_SENTINEL_RENAME=1
+RUN ue4 setroot /home/ue4/UnrealEngine
 RUN ue4 libs
 
 # Isolate the final image from the modifications performed during UBT interrogation

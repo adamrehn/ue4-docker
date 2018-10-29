@@ -9,6 +9,7 @@ COPY --from=engine C:\UnrealEngine\Engine\Source\ThirdParty C:\UnrealEngine\Engi
 # Install ue4cli and extract the third-party library details from UBT
 RUN pip install ue4cli
 ENV UE4CLI_SENTINEL_RENAME=1
+RUN ue4 setroot C:\UnrealEngine
 RUN ue4 libs
 
 # Isolate the final image from the modifications performed during UBT interrogation
