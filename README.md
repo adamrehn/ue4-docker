@@ -1,4 +1,4 @@
-<p align="center"><img src="./docs/images/banner.svg" alt="Unreal Engine and Docker Logos" height="100"></p>
+<p align="center"><img src="./resources/images/banner.svg" alt="Unreal Engine and Docker Logos" height="100"></p>
 <h1 align="center"><strong>Unreal Engine 4 Docker Containers</strong></h1>
 <h3 align="center">Continuous Integration &bull; Cloud Rendering &bull; UE4-Powered Server Apps</h3>
 <p>&nbsp;</p>
