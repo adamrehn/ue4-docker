@@ -26,6 +26,8 @@ RUN pip3 install -r /home/ue4/conan-ue4cli/requirements.txt
 USER ue4
 
 # Copy the ue4cli configuration and cached third-party library details from the builder image
+# (Create the parent ~/.config directory first to ensure the ue4 user owns it)
+RUN mkdir /home/ue4/.config
 COPY --from=builder --chown=ue4:ue4 /home/ue4/.config/ue4cli /home/ue4/.config/ue4cli
 
 # Install conan-ue4cli (4.19.0 and newer only, this call is a no-op for older Engine versions)
