@@ -23,7 +23,7 @@ RUN git clone "https://github.com/adamrehn/conan-ue4cli.git" C:\conan-ue4cli
 RUN pip install -r C:\conan-ue4cli\requirements.txt
 
 # Copy the ue4cli configuration and cached third-party library details from the builder image
-COPY --from=builder C:\Users\Administrator\AppData\Roaming\ue4cli C:\Users\Administrator\AppData\Roaming\ue4cli
+COPY --from=builder C:\Users\ContainerAdministrator\AppData\Roaming\ue4cli C:\Users\ContainerAdministrator\AppData\Roaming\ue4cli
 
 # Install conan-ue4cli (4.19.0 and newer only, this call is a no-op for older Engine versions)
 RUN python C:\conan-ue4cli\generate.py
