@@ -58,7 +58,7 @@ class BuildConfiguration(object):
 		self.noMinimal = args.no_minimal
 		self.noFull = args.no_full
 		self.suffix = args.suffix
-		self.platformArgs = []
+		self.platformArgs = ['--no-cache'] if args.no_cache == True else []
 		self.baseImage = None
 		
 		# If we're building Windows containers, generate our Windows-specific configuration settings
@@ -95,7 +95,7 @@ class BuildConfiguration(object):
 				raise RuntimeError('invalid memory limit "{}"'.format(args.m))
 		else:
 			self.memLimit = DEFAULT_MEMORY_LIMIT if args.random_memory == False else random.uniform(DEFAULT_MEMORY_LIMIT, DEFAULT_MEMORY_LIMIT + 2.0)
-		self.platformArgs = ['-m', '{:.2f}GB'.format(self.memLimit)]
+		self.platformArgs.extend(['-m', '{:.2f}GB'.format(self.memLimit)])
 		
 		# Set the isolation mode Docker flags
 		self.isolation = args.isolation if args.isolation is not None else 'default'

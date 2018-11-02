@@ -16,6 +16,7 @@ if __name__ == '__main__':
 	parser.add_argument('--dry-run', action='store_true', help='Print `docker build` commands instead of running them')
 	parser.add_argument('--no-minimal', action='store_true', help='Don\'t build the ue4-minimal image')
 	parser.add_argument('--no-full', action='store_true', help='Don\'t build the ue4-full image')
+	parser.add_argument('--no-cache', action='store_true', help='Disable Docker build cache')
 	parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
 	parser.add_argument('--cuda', action='store_true', help='Add CUDA support as well as OpenGL support when building Linux containers')
 	parser.add_argument('-repo', default=None, help='Set the custom git repository to clone when "custom" is specified as the release value')
