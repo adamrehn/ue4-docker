@@ -1,18 +1,19 @@
 <p align="center"><img src="./resources/images/banner.svg" alt="Unreal Engine and Docker Logos" height="100"></p>
 <h1 align="center"><strong>Unreal Engine 4 Docker Containers</strong></h1>
-<h3 align="center">Continuous Integration &bull; Cloud Rendering &bull; UE4-Powered Server Apps</h3>
+<h3 align="center">Continuous Integration &bull; Cloud Rendering &bull; UE4-Powered Microservices</h3>
 <p>&nbsp;</p>
 
 **Looking for a place to start? Interactive documentation is coming soon with step-by-step instructions.**
 
 This repository contains a set of Dockerfiles and an accompanying Python build script that allow you to build Docker images for Epic Games' [Unreal Engine 4](https://www.unrealengine.com/). Key features include:
 
+- Unreal Engine 4.19.0 and newer is supported.
 - Both Windows containers and Linux containers are supported.
-- The `ue4-engine` image contains a full source build of the Engine and is suitable for developing Engine patches.
-- The `ue4-minimal` and `ue4-full` images contain an [Installed Build](https://docs.unrealengine.com/en-us/Programming/Deployment/Using-an-Installed-Build) of the Engine and are suitable for use in Continuous Integration (CI) pipelines.
+- Building and packaging UE4 projects is supported.
 - Running automation tests is supported.
-- [conan-ue4cli](https://github.com/adamrehn/conan-ue4cli) support is included when building UE4 version 4.19.0 or newer.
-- When building GPU-enabled Linux images and also building the `ue4-full` image, [UE4Capture](https://github.com/adamrehn/UE4Capture) support is also included.
+- The `ue4-engine` image contains a full source build of the Engine and is suitable for developing Engine patches.
+- The `ue4-minimal` and `ue4-full` images contain an [Installed Build](https://docs.unrealengine.com/en-us/Programming/Deployment/Using-an-Installed-Build) of the Engine suitable for use in Continuous Integration (CI) pipelines.
+- The `ue4-full` image includes support for integrating third-party libraries via [conan-ue4cli](https://github.com/adamrehn/conan-ue4cli), including [UE4Capture](https://github.com/adamrehn/UE4Capture) when building GPU-enabled Linux images.
 
 For a detailed discussion on how the build process works, see [the accompanying article on my website](http://adamrehn.com/articles/building-docker-images-for-unreal-engine-4).
 
