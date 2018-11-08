@@ -36,8 +36,8 @@ USER ue4
 
 # The linker bundled with UE4.20.0 onwards chokes on system libraries built with newer compilers,
 # so redirect the bundled clang to use the system linker instead
-ENV BUNDLED_LINKER /home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64/v11_clang-5.0.0-centos7/x86_64-unknown-linux-gnu/bin/x86_64-unknown-linux-gnu-ld
-RUN test -e "$BUNDLED_LINKER" && rm "$BUNDLED_LINKER" && ln -s `which ld` "$BUNDLED_LINKER"; exit 0
+COPY linker-fixup.py /tmp/linker-fixup.py
+RUN python3 /tmp/linker-fixup.py /home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64 `which ld`
 
 # Copy our ALSA-enabled SDL library files (4.20.0 and newer only, the Python call is a no-op for older Engine versions)
 ARG SDL_LIBDIR="/home/ue4/UnrealEngine/Engine/Source/ThirdParty/SDL2/SDL-gui-backend/lib/Linux/x86_64-unknown-linux-gnu"
