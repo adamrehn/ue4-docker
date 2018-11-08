@@ -5,7 +5,7 @@
 
 **Looking for a place to start? Interactive documentation is coming soon with step-by-step instructions.**
 
-This repository contains a set of Dockerfiles and an accompanying Python build script that allow you to build Docker images for Epic Games' [Unreal Engine 4](https://www.unrealengine.com/). Key features include:
+The ue4-docker Python package contains a set of Dockerfiles and accompanying build infrastructure that allows you to build Docker images for Epic Games' [Unreal Engine 4](https://www.unrealengine.com/). Key features include:
 
 - Unreal Engine 4.19.0 and newer is supported.
 - Both Windows containers and Linux containers are supported.
@@ -22,7 +22,7 @@ For a detailed discussion on how the build process works, see [the accompanying 
 
 - [Important legal notice](#important-legal-notice)
 - [Requirements](#requirements)
-- [Build script usage](#build-script-usage)
+- [Build command usage](#build-command-usage)
     - [Building images](#building-images)
     - [Building a custom version of the Unreal Engine](#building-a-custom-version-of-the-unreal-engine)
     - [Specifying the Windows Server Core base image tag](#specifying-the-windows-server-core-base-image-tag)
@@ -59,7 +59,7 @@ The common requirements for both Windows and Linux containers are:
 - A minimum of 200GB of available disk space
 - A minimum of 8GB of available memory (10GB under Windows)
 - [Python](https://www.python.org/) 3.6 or newer with `pip`
-- The dependency packages listed in [requirements.txt](./requirements.txt), which can be installed by running `pip3 install -r requirements.txt`
+- The ue4-docker package itself, which can be installed by running `pip3 install ue4-docker`
 
 Building **Windows containers** also requires:
 
@@ -82,44 +82,42 @@ Building **Linux containers** also requires:
 - Under Windows 10 and macOS, Docker must be configured in the "Advanced" settings pane to allocate 8GB of memory and a maximum disk image size of 200GB
 
 
-## Build script usage
+## Build command usage
 
 ### Building images
 
-First, ensure you have installed the dependencies of the Python build script by running `pip3 install -r requirements.txt`. (You may need to prefix this command with `sudo` under Linux and macOS.)
+First, install the ue4-docker package using `pip3 install ue4-docker`. (You may need to prefix this command with `sudo` under Linux and macOS.)
 
-Then, simply invoke the build script by specifying the UE4 release that you would like to build using full [semver](https://semver.org/) version syntax. For example, to build Unreal Engine 4.19.1:
+Then, simply invoke the build command by specifying the UE4 release that you would like to build using full [semver](https://semver.org/) version syntax. For example, to build Unreal Engine 4.19.1:
 
 ```
-python3 build.py 4.19.1
+ue4-docker build 4.19.1
 ```
-
-*(Note that you may need to replace the command `python3` with `python` under Windows.)*
 
 You will be prompted for the Git credentials to be used when cloning the UE4 GitHub repository (this will be the GitHub username and password you normally use when cloning <https://github.com/EpicGames/UnrealEngine>.) The build process will then start automatically, displaying progress output from each of the `docker build` commands that are being run.
 
-Once the build process is complete, you will have up to five new Docker images on your system (where `RELEASE` is the release that you specified when invoking the build script):
+Once the build process is complete, you will have up to five new Docker images on your system (where `RELEASE` is the release that you specified when invoking the build command):
 
 |Image                                     |Description |
 |------------------------------------------|------------|
 |`adamrehn/ue4-build-prerequisites:latest` |Contains the build prerequisites common to all Engine versions and should be kept in order to speed up subsequent builds of additional Engine versions.|
 |`adamrehn/ue4-source:RELEASE`             |Contains the cloned source code for UE4. This image is separated from the `ue4-engine` image to isolate the effects of changing environment variables related to git credentials, so that they don't interfere with the build cache for the subsequent steps.|
 |`adamrehn/ue4-engine:RELEASE`             |Contains a source build of the Engine.<br><br>**Use this image for developing changes to the Engine itself.**|
-|`adamrehn/ue4-minimal:RELEASE`            |Contains the absolute minimum set of functionality required for use in a Continuous Integration (CI) pipeline, consisting of only the build prerequisites and an Installed Build of the Engine. You can disable the build for this image by specifying `--no-minimal` when you run the build script.<br><br>**Use this image for CI pipelines that do not require ue4cli or conan-ue4cli.**|
-|`adamrehn/ue4-full:RELEASE`               |Contains everything from the `ue4-minimal` image, and adds the following:<ul><li>ue4cli</li><li>conan-ue4cli</li><li>UE4Capture (Linux image only)</li></ul>You can disable the build for this image by specifying `--no-full` when you run the build script.<br><br>**Use this image for any of the following:**<ul><li><strong>CI pipelines that require ue4cli or conan-ue4cli</strong></li><li><strong>Packaging or running cloud rendering projects that utilise UE4Capture under Linux</strong></li><li><strong>Packaging UE4-powered server applications</strong></li></ul>|
+|`adamrehn/ue4-minimal:RELEASE`            |Contains the absolute minimum set of functionality required for use in a Continuous Integration (CI) pipeline, consisting of only the build prerequisites and an Installed Build of the Engine. You can disable the build for this image by specifying `--no-minimal` when you run the build command.<br><br>**Use this image for CI pipelines that do not require ue4cli or conan-ue4cli.**|
+|`adamrehn/ue4-full:RELEASE`               |Contains everything from the `ue4-minimal` image, and adds the following:<ul><li>ue4cli</li><li>conan-ue4cli</li><li>UE4Capture (Linux image only)</li></ul>You can disable the build for this image by specifying `--no-full` when you run the build command.<br><br>**Use this image for any of the following:**<ul><li><strong>CI pipelines that require ue4cli or conan-ue4cli</strong></li><li><strong>Packaging or running cloud rendering projects that utilise UE4Capture under Linux</strong></li><li><strong>Packaging UE4-powered server applications</strong></li></ul>|
 
 ### Building a custom version of the Unreal Engine
 
 If you would like to build a custom version of UE4 rather than one of the official releases from Epic, you can specify "custom" as the release string and specify the Git repository and branch/tag that should be cloned:
 
 ```
-python3 build.py custom -repo=https://github.com/MyUser/UnrealEngine.git -branch=MyBranch
+ue4-docker build custom -repo=https://github.com/MyUser/UnrealEngine.git -branch=MyBranch
 ```
 
 When building a custom Engine version, both the repository URL and branch/tag must be specified. If you are performing multiple custom builds and wish to differentiate between them, it is recommended to add a custom suffix to the Docker tag of the built images:
 
 ```
-python3 build.py custom -repo=https://github.com/MyUser/UnrealEngine.git -branch=MyBranch -suffix=-MySuffix
+ue4-docker build custom -repo=https://github.com/MyUser/UnrealEngine.git -branch=MyBranch -suffix=-MySuffix
 ```
 
 This will produce images tagged `adamrehn/ue4-source:custom-MySuffix`, `adamrehn/ue4-engine:custom-MySuffix`, etc.
@@ -128,31 +126,31 @@ This will produce images tagged `adamrehn/ue4-source:custom-MySuffix`, `adamrehn
 
 By default, Windows container images are based on the Windows Server Core release that best matches the version of the host operating system. However, Windows containers cannot run a newer kernel version than that of the host operating system, rendering the latest images unusable under older versions of Windows 10 and Windows Server. (See the [Windows Container Version Compatibility](https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/version-compatibility) page for a table detailing which configurations are supported.)
 
-If you are building images with the intention of subsequently running them under an older version of Windows 10 or Windows Server, you will need to build images based on the same kernel version as the target system (or older.) The kernel version can be specified by providing the appropriate base OS image tag via the `-basetag=TAG` flag when invoking the build script:
+If you are building images with the intention of subsequently running them under an older version of Windows 10 or Windows Server, you will need to build images based on the same kernel version as the target system (or older.) The kernel version can be specified by providing the appropriate base OS image tag via the `-basetag=TAG` flag when invoking the build command:
 
 ```
-python3 build.py 4.19.2 -basetag=ltsc2016  # Uses Windows Server 2016 (Long Term Support Channel)
+ue4-docker build 4.19.2 -basetag=ltsc2016  # Uses Windows Server 2016 (Long Term Support Channel)
 ```
 
 For a list of supported base image tags, see the [Windows Server Core base image on Docker Hub](https://hub.docker.com/r/microsoft/windowsservercore/).
 
 ### Specifying the isolation mode under Windows
 
-The isolation mode can be specified via the `-isolation=MODE` flag when invoking the build script. Valid values are `process` (supported under Windows Server only) or `hyperv` (supported under both Windows 10 and Windows Server.)
+The isolation mode can be specified via the `-isolation=MODE` flag when invoking the build command. Valid values are `process` (supported under Windows Server only) or `hyperv` (supported under both Windows 10 and Windows Server.)
 
 ### Specifying the directory from which to copy required Windows DLL files
 
-By default, DLL files are copied from `%SystemRoot%\System32`. However, when building container images with an older kernel version than the host, the copied DLL files will be too new and the container OS will refuse to load them. A custom directory containing the correct DLL files for the container kernel version can be specified via the `-dlldir=DIR` flag when invoking the build script. 
+By default, DLL files are copied from `%SystemRoot%\System32`. However, when building container images with an older kernel version than the host, the copied DLL files will be too new and the container OS will refuse to load them. A custom directory containing the correct DLL files for the container kernel version can be specified via the `-dlldir=DIR` flag when invoking the build command. 
 
 ### Building Linux container images under Windows
 
-By default, Windows container images are built when running the build script under Windows. To build Linux container images instead, simply specify the `--linux` flag when invoking the build script.
+By default, Windows container images are built when running the build command under Windows. To build Linux container images instead, simply specify the `--linux` flag when invoking the build command.
 
 ### Using GPU-enabled Linux container images with NVIDIA Docker
 
 [NVIDIA Docker](https://github.com/NVIDIA/nvidia-docker) provides a container runtime for Docker that allows Linux containers to access NVIDIA GPU devices present on the host system. This facilitates hardware acceleration for applications that use OpenGL or NVIDIA CUDA, and can be useful for Unreal projects that need to perform offscreen rendering from within a container or utilise plugins that rely on CUDA functionality.
 
-All Linux container images built by the build script support both the regular Docker runtime and NVIDIA Docker, allowing them to be used for CPU-only workloads (such as CI/CD) as well as GPU-enabled workloads (such as cloud rendering.) By default, the images support hardware-accelerated OpenGL when run via NVIDIA Docker. If you would like CUDA support in addition to OpenGL support, simply specify the `--cuda` flag when invoking the build script.
+All Linux container images built by the build command support both the regular Docker runtime and NVIDIA Docker, allowing them to be used for CPU-only workloads (such as CI/CD) as well as GPU-enabled workloads (such as cloud rendering.) By default, the images support hardware-accelerated OpenGL when run via NVIDIA Docker. If you would like CUDA support in addition to OpenGL support, simply specify the `--cuda` flag when invoking the build command.
 
 Key things to note:
 
@@ -162,11 +160,11 @@ Key things to note:
 
 ### Performing a dry run
 
-If you would like to see what `docker build` commands will be run without actually building anything, you can specify the `--dry-run` flag when invoking the build script. Execution will proceed as normal, except that all `docker build` commands will be printed to standard output instead of being executed as child processes.
+If you would like to see what `docker build` commands will be run without actually building anything, you can specify the `--dry-run` flag when invoking the build command. Execution will proceed as normal, except that all `docker build` commands will be printed to standard output instead of being executed as child processes.
 
 ### Upgrading from a previous version
 
-When upgrading to a newer version of the code in this repository, be sure to specify the `--rebuild` flag when invoking the build script. This will ensure all images are rebuilt using the updated Dockerfiles.
+When upgrading to a newer version of the code in this repository, be sure to specify the `--rebuild` flag when invoking the build command. This will ensure all images are rebuilt using the updated Dockerfiles.
 
 
 ## Running automation tests
@@ -256,7 +254,7 @@ For an example that demonstrates performing cloud rendering in the `ue4-full` NV
 
 - **Cloning the UnrealEngine Git repository fails with the message `error: unable to read askpass response from 'C:\git-credential-helper.bat'` (for Windows containers) or `'/tmp/git-credential-helper.sh'` (for Linux containers):**
   
-  This typically indicates that the firewall on the host system is blocking connections from the Docker container, preventing it from retrieving the Git credentials supplied by the build script. (This is particularly noticeable under a clean installation of Windows Server, which blocks connections from other subnets by default.) The firewall will need to be configured appropriately to allow the connection, or else temporarily disabled. (Use the command `netsh advfirewall set allprofiles state off` under Windows Server.)
+  This typically indicates that the firewall on the host system is blocking connections from the Docker container, preventing it from retrieving the Git credentials supplied by the build command. (This is particularly noticeable under a clean installation of Windows Server, which blocks connections from other subnets by default.) The firewall will need to be configured appropriately to allow the connection, or else temporarily disabled. (Use the command `netsh advfirewall set allprofiles state off` under Windows Server.)
 
 - **Building the Engine in a Windows container fails with the message `The process cannot access the file because it is being used by another process`:**
   
@@ -264,7 +262,7 @@ For an example that demonstrates performing cloud rendering in the `ue4-full` NV
 
 - **Building the Engine in a Windows container fails with the message `fatal error LNK1318: Unexpected PDB error; OK (0)`:**
   
-  This is a known bug in some versions of Visual Studio, which only appears to occur intermittently. The simplest fix is to simply reboot the host system and then re-run the build script. Insufficient available memory may also contribute to triggering this bug.
+  This is a known bug in some versions of Visual Studio, which only appears to occur intermittently. The simplest fix is to simply reboot the host system and then re-run the build command. Insufficient available memory may also contribute to triggering this bug.
 
 - **Building an Unreal project in a Windows container fails when the project files are located in a directory that is bind-mounted from the host operating system:**
   
@@ -281,9 +279,9 @@ Recent versions of Docker under Windows may sometimes encounter the error [hcssh
 
 As a workaround until a proper fix is issued, it seems that altering the memory limit for containers between subsequent invocations of the `docker` command can reduce the frequency with which this error occurs. (Changing the memory limit when using Hyper-V isolation likely forces Docker to provision a new Hyper-V VM, preventing it from re-using an existing one that has become unresponsive.) Please note that this workaround has been devised based on my own testing under Windows 10 and may not hold true when using Hyper-V isolation under Windows Server.
 
-To enable the workaround, specify the `--random-memory` flag when invoking the build script. This will set the container memory limit to a random value between 10GB and 12GB when the build script starts. If a build fails with the `hcsshim` timeout error, simply re-run the build script and in most cases the build will continue successfully, even if only for a short while. Restarting the Docker daemon may also help.
+To enable the workaround, specify the `--random-memory` flag when invoking the build command. This will set the container memory limit to a random value between 10GB and 12GB when the build command starts. If a build fails with the `hcsshim` timeout error, simply re-run the build command and in most cases the build will continue successfully, even if only for a short while. Restarting the Docker daemon may also help.
 
-Note that some older versions of UnrealBuildTool will crash with an error stating *"The process cannot access the file because it is being used by another process"* when using a memory limit that is not a multiple of 4GB. If this happens, simply run the build script again with an appropriate memory limit (e.g. `-m 8GB` or `-m 12GB`.) If the access error occurs even when using an appropriate memory limit, this likely indicates that Windows is unable to allocate the full amount of memory to the container. Rebooting the host system may help to alleviate this issue.
+Note that some older versions of UnrealBuildTool will crash with an error stating *"The process cannot access the file because it is being used by another process"* when using a memory limit that is not a multiple of 4GB. If this happens, simply run the build command again with an appropriate memory limit (e.g. `-m 8GB` or `-m 12GB`.) If the access error occurs even when using an appropriate memory limit, this likely indicates that Windows is unable to allocate the full amount of memory to the container. Rebooting the host system may help to alleviate this issue.
 
 
 ## Frequently Asked Questions
