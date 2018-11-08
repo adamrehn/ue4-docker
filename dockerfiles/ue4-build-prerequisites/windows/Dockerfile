@@ -17,7 +17,7 @@ RUN choco install -y 7zip curl wget python vcredist-all
 RUN choco install -y cmake --installargs "ADD_CMAKE_TO_PATH=System"
 
 # Install our Python dependencies
-RUN pip install setuptools wheel
+RUN pip install setuptools wheel --no-warn-script-location
 
 # Download the Visual Studio 2017 Build Tools bootstrapper
 RUN curl --progress -L "https://aka.ms/vs/15/release/vs_buildtools.exe" --output %TEMP%\vs_buildtools.exe
