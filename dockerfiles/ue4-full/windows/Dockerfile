@@ -1,21 +1,16 @@
 # escape=`
 ARG TAG
-FROM adamrehn/ue4-engine:${TAG} AS engine
-FROM adamrehn/ue4-minimal:${TAG} AS builder
-
-# Copy the full set of third-party libraries from the source build of the Engine
-COPY --from=engine C:\UnrealEngine\Engine\Source\ThirdParty C:\UnrealEngine\Engine\Source\ThirdParty
+FROM adamrehn/ue4-engine:${TAG} AS builder
 
 # Install ue4cli and the prerequisites for conan-ue4cli
 RUN git clone "https://github.com/adamrehn/conan-ue4cli.git" C:\conan-ue4cli
 RUN pip install -r C:\conan-ue4cli\requirements.txt
 
 # Install conan-ue4cli and extract the third-party library details from UBT
-ENV UE4CLI_SENTINEL_RENAME=1
 RUN ue4 setroot C:\UnrealEngine
 RUN python C:\conan-ue4cli\generate.py
 
-# Isolate the final image from the modifications performed during UBT interrogation
+# Copy the generated Conan packages into a new image with our Installed Build
 FROM adamrehn/ue4-minimal:${TAG}
 
 # Install ue4cli and the prerequisites for conan-ue4cli
