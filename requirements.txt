@@ -1,7 +1,0 @@
-colorama
-docker
-flask
-humanfriendly
-semver>=2.7.9
-setuptools
-termcolor
