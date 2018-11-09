@@ -43,12 +43,15 @@ LABEL com.adamrehn.ue4-docker.sentinel="1"
 RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 RUN choco install -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'" && `
 	choco install -y curl python vcredist-all && `
-	choco install -y cmake --installargs "ADD_CMAKE_TO_PATH=System" && `
-	pip install setuptools wheel --no-warn-script-location
+	choco install -y cmake --installargs "ADD_CMAKE_TO_PATH=System"
 
 # Forcibly disable the git credential manager
 # (Note that this needs to be separate RUN directive for `git` to work)
 RUN git config --system credential.helper ""
+
+# Install our Python dependencies
+# (Note that this needs to be separate RUN directive for `pip` to work)
+RUN pip install setuptools wheel --no-warn-script-location
 
 # Install the Visual Studio 2017 Build Tools workloads and components we need, excluding components with known issues in containers
 RUN `
