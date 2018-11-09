@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
 	name='ue4-docker',
-	version='0.0.1',
+	version='0.0.2',
 	description='Windows and Linux containers for Unreal Engine 4',
 	classifiers=[
 		'License :: OSI Approved :: MIT License',
