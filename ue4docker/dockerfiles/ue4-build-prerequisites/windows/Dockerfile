@@ -39,13 +39,16 @@ LABEL com.adamrehn.ue4-docker.sentinel="1"
 
 # Install chocolatey and our dependencies
 # (Note that these need to be separate RUN directives for `choco` to work)
-# (Note also that we forcibly disable the git credential manager and ensure CMake is added to the path)
+# (Note also that we ensure CMake is added to the path)
 RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 RUN choco install -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'" && `
-	git config --system credential.helper "" && `
 	choco install -y curl python vcredist-all && `
 	choco install -y cmake --installargs "ADD_CMAKE_TO_PATH=System" && `
 	pip install setuptools wheel --no-warn-script-location
+
+# Forcibly disable the git credential manager
+# (Note that this needs to be separate RUN directive for `git` to work)
+RUN git config --system credential.helper ""
 
 # Install the Visual Studio 2017 Build Tools workloads and components we need, excluding components with known issues in containers
 RUN `
