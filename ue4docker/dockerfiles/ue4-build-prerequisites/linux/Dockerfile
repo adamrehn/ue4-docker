@@ -25,3 +25,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install our Python dependencies
 RUN pip3 install setuptools wheel
+
+# Since UE4 refuses to build or run as the root user under Linux, create a non-root user
+RUN useradd --create-home --home /home/ue4 --shell /bin/bash ue4
+RUN usermod -a -G audio,video ue4
+USER ue4

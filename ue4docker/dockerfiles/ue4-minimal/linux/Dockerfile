@@ -12,11 +12,6 @@ RUN cp ./Engine/Binaries/Linux/UnrealPak ./LocalBuilds/Engine/Linux/Engine/Binar
 # Copy the Installed Build into a clean image, discarding the source build
 FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
 
-# Re-create the non-root user
-RUN useradd --create-home --home /home/ue4 --shell /bin/bash ue4
-RUN usermod -a -G audio,video ue4
-USER ue4
-
 # Copy the Installed Build files from the builder image
 COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux /home/ue4/UnrealEngine
 COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/root_commands.sh /tmp/root_commands.sh
