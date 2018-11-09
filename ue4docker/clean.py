@@ -4,7 +4,8 @@ from .infrastructure import *
 
 def _isIntermediateImage(image):
 	sentinel = 'com.adamrehn.ue4-docker.sentinel'
-	return sentinel in image.attrs['ContainerConfig']['Labels']
+	labels = image.attrs['ContainerConfig']['Labels']
+	return labels is not None and sentinel in labels
 
 def _cleanMatching(cleaner, filter, tag, dryRun):
 	tagSuffix = ':{}'.format(tag) if tag is not None else '*'
