@@ -8,7 +8,7 @@ RUN mkdir C:\GatheredDlls
 
 # Install 7-Zip and curl using Chocolatey
 # (Note that these need to be separate RUN directives for `choco` to work)
-RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && `
+RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 RUN choco install -y 7zip curl
 
 # Gather the required DirectX runtime files, since Windows Server Core does not include them
@@ -40,7 +40,7 @@ LABEL com.adamrehn.ue4-docker.sentinel="1"
 # Install chocolatey and our dependencies
 # (Note that these need to be separate RUN directives for `choco` to work)
 # (Note also that we forcibly disable the git credential manager and ensure CMake is added to the path)
-RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && `
+RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 RUN choco install -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'" && `
 	git config --system credential.helper "" && `
 	choco install -y curl python vcredist-all && `
