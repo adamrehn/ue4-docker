@@ -6,6 +6,11 @@ SHELL ["cmd", "/S", "/C"]
 # Create a directory in which to gather the DLL files we need 
 RUN mkdir C:\GatheredDlls
 
+# Install 7-Zip and curl using Chocolatey
+RUN `
+	powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && `
+	choco install -y 7zip curl
+
 # Gather the required DirectX runtime files, since Windows Server Core does not include them
 RUN curl --progress -L "https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe" --output %TEMP%\directx_redist.exe
 RUN start /wait %TEMP%\directx_redist.exe /Q /T:%TEMP% && `
@@ -38,7 +43,7 @@ RUN `
 	powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && `
 	choco install -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'" && `
 	git config --system credential.helper "" && `
-	choco install -y 7zip curl wget python vcredist-all && `
+	choco install -y curl python vcredist-all && `
 	choco install -y cmake --installargs "ADD_CMAKE_TO_PATH=System" && `
 	pip install setuptools wheel --no-warn-script-location
 
