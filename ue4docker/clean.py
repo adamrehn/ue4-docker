@@ -3,7 +3,8 @@ import argparse, sys
 from .infrastructure import *
 
 def _isIntermediateImage(image):
-	return image.attrs['ContainerConfig']['User'] == 'ue4'
+	sentinel = 'com.adamrehn.ue4-docker.sentinel'
+	return sentinel in image.attrs['ContainerConfig']['Labels']
 
 def _cleanMatching(cleaner, filter, tag, dryRun):
 	tagSuffix = ':{}'.format(tag) if tag is not None else '*'

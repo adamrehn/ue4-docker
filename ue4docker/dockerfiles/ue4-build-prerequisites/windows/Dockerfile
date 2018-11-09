@@ -3,6 +3,9 @@ ARG BASEIMAGE
 FROM ${BASEIMAGE}
 SHELL ["cmd", "/S", "/C"]
 
+# Add a label so we can easily identify derived images
+LABEL com.adamrehn.ue4-docker.sentinel="1"
+
 # Install chocolatey
 RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 

@@ -1,6 +1,9 @@
 ARG BASEIMAGE
 FROM ${BASEIMAGE}
 
+# Add a label so we can easily identify derived images
+LABEL com.adamrehn.ue4-docker.sentinel="1"
+
 # Disable interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
