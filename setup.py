@@ -21,7 +21,7 @@ setup(
 	python_requires = '>=3.6',
 	install_requires = [
 		'colorama',
-		'docker',
+		'docker>=3.0.0',
 		'flask',
 		'humanfriendly',
 		'semver>=2.7.9',

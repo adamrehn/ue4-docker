@@ -1,4 +1,4 @@
-import docker, humanfriendly, json, os
+import docker, fnmatch, humanfriendly, json, os
 
 class DockerUtils(object):
 	
@@ -54,3 +54,19 @@ class DockerUtils(object):
 		# The default limit on image size is 20GB
 		# (https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container-issues)
 		return 20.0
+	
+	@staticmethod
+	def listImages(tagFilter = None, filters = {}):
+		'''
+		Retrieves the details for each image matching the specified filters
+		'''
+		
+		# Retrieve the list of images matching the specified filters
+		client = docker.from_env()
+		images = client.images.list(filters=filters)
+		
+		# Apply our tag filter if one was specified
+		if tagFilter is not None:
+			images = [i for i in images if len(i.tags) > 0 and len(fnmatch.filter(i.tags, tagFilter)) > 0]
+		
+		return images

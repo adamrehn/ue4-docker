@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from .build import build
+from .clean import clean
 import os, sys
 
 def main():
@@ -8,7 +9,11 @@ def main():
 	COMMANDS = {
 		'build': {
 			'function': build,
-			'description': 'Builds containers for a specific version of UE4'
+			'description': 'Builds container images for a specific version of UE4'
+		},
+		'clean': {
+			'function': clean,
+			'description': 'Cleans built container images'
 		}
 	}
 	
