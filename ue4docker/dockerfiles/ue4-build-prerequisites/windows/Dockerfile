@@ -7,9 +7,9 @@ SHELL ["cmd", "/S", "/C"]
 RUN mkdir C:\GatheredDlls
 
 # Install 7-Zip and curl using Chocolatey
-RUN `
-	powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && `
-	choco install -y 7zip curl
+# (Note that these need to be separate RUN directives for `choco` to work)
+RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && `
+RUN choco install -y 7zip curl
 
 # Gather the required DirectX runtime files, since Windows Server Core does not include them
 RUN curl --progress -L "https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe" --output %TEMP%\directx_redist.exe
@@ -38,10 +38,10 @@ COPY --from=dlls C:\GatheredDlls\*.dll C:\Windows\System32\
 LABEL com.adamrehn.ue4-docker.sentinel="1"
 
 # Install chocolatey and our dependencies
-# (Note that we forcibly disable the git credential manager)
-RUN `
-	powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && `
-	choco install -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'" && `
+# (Note that these need to be separate RUN directives for `choco` to work)
+# (Note also that we forcibly disable the git credential manager and ensure CMake is added to the path)
+RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && `
+RUN choco install -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'" && `
 	git config --system credential.helper "" && `
 	choco install -y curl python vcredist-all && `
 	choco install -y cmake --installargs "ADD_CMAKE_TO_PATH=System" && `
