@@ -32,7 +32,7 @@ COPY glu32.dll C:\GatheredDlls\glu32.dll
 # Copy our gathered DLLs into a clean image to reduce image size
 FROM ${BASEIMAGE}
 SHELL ["cmd", "/S", "/C"]
-COPY --from=dlls C:\GatheredDlls\*.dll C:\Windows\System32\
+COPY --from=dlls C:\GatheredDlls\ C:\Windows\System32\
 
 # Add a label so we can easily identify derived images
 LABEL com.adamrehn.ue4-docker.sentinel="1"
