@@ -3,6 +3,9 @@ ARG BASEIMAGE
 FROM ${BASEIMAGE} AS dlls
 SHELL ["cmd", "/S", "/C"]
 
+# Include our sentinel so `ue4-docker clean` can find this intermediate image
+LABEL com.adamrehn.ue4-docker.sentinel="1"
+
 # Create a directory in which to gather the DLL files we need 
 RUN mkdir C:\GatheredDlls
 
@@ -34,7 +37,7 @@ FROM ${BASEIMAGE}
 SHELL ["cmd", "/S", "/C"]
 COPY --from=dlls C:\GatheredDlls\ C:\Windows\System32\
 
-# Add a label so we can easily identify derived images
+# Add a sentinel label so we can easily identify all derived images, including intermediate images
 LABEL com.adamrehn.ue4-docker.sentinel="1"
 
 # Install chocolatey and our dependencies
