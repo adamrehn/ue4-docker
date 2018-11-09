@@ -288,7 +288,7 @@ Note that some older versions of UnrealBuildTool will crash with an error statin
 
 - **Why are the Dockerfiles written in such an inefficient manner? There are a large number of `RUN` directives that could be combined to improve both build efficiency and overall image size.**
   
-  The Dockerfiles have been deliberately written in an inefficient way because doing so serves two very important purposes.
+  With the exception of the `ue4-build-prerequisites` and `ue4-minimal` images, the Dockerfiles have been deliberately written in an inefficient way because doing so serves two very important purposes.
   
   The first purpose is self-documentation. These Docker images are the first publicly-available Windows and Linux images to provide comprehensive build capabilities for Unreal Engine 4. Along with the supporting documentation and [articles on adamrehn.com](https://adamrehn.com/articles/tag/Unreal%20Engine/), the code in this repository represents an important source of information regarding the steps that must be taken to get UE4 working correctly inside a container. The readability of the Dockerfiles is key, which is why they contain so many individual `RUN` directives with explanatory comments. Combining `RUN` directives would reduce readability and potentially obfuscate the significance of critical steps.
   
