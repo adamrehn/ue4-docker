@@ -24,6 +24,7 @@ For a detailed discussion on how the build process works, see [the accompanying 
 - [Requirements](#requirements)
 - [Build command usage](#build-command-usage)
     - [Building images](#building-images)
+    - [Specifying the Git credentials](#specifying-the-git-credentials)
     - [Building a custom version of the Unreal Engine](#building-a-custom-version-of-the-unreal-engine)
     - [Specifying the Windows Server Core base image tag](#specifying-the-windows-server-core-base-image-tag)
     - [Specifying the isolation mode under Windows](#specifying-the-isolation-mode-under-windows)
@@ -94,7 +95,7 @@ Then, simply invoke the build command by specifying the UE4 release that you wou
 ue4-docker build 4.19.1
 ```
 
-You will be prompted for the Git credentials to be used when cloning the UE4 GitHub repository (this will be the GitHub username and password you normally use when cloning <https://github.com/EpicGames/UnrealEngine>.) The build process will then start automatically, displaying progress output from each of the `docker build` commands that are being run.
+You will be prompted for the Git credentials to be used when cloning the UE4 GitHub repository (this will be the GitHub username and password you normally use when cloning <https://github.com/EpicGames/UnrealEngine>.) See the section [Specifying the Git credentials](#specifying-the-git-credentials) for details of the different methods by which credentials can be specified. The build process will then start automatically, displaying progress output from each of the `docker build` commands that are being run.
 
 Once the build process is complete, you will have up to five new Docker images on your system (where `RELEASE` is the release that you specified when invoking the build command):
 
@@ -105,6 +106,18 @@ Once the build process is complete, you will have up to five new Docker images o
 |`adamrehn/ue4-engine:RELEASE`             |Contains a source build of the Engine.<br><br>**Use this image for developing changes to the Engine itself.**|
 |`adamrehn/ue4-minimal:RELEASE`            |Contains the absolute minimum set of functionality required for use in a Continuous Integration (CI) pipeline, consisting of only the build prerequisites and an Installed Build of the Engine. You can disable the build for this image by specifying `--no-minimal` when you run the build command.<br><br>**Use this image for CI pipelines that do not require ue4cli or conan-ue4cli.**|
 |`adamrehn/ue4-full:RELEASE`               |Contains everything from the `ue4-minimal` image, and adds the following:<ul><li>ue4cli</li><li>conan-ue4cli</li><li>UE4Capture (Linux image only)</li></ul>You can disable the build for this image by specifying `--no-full` when you run the build command.<br><br>**Use this image for any of the following:**<ul><li><strong>CI pipelines that require ue4cli or conan-ue4cli</strong></li><li><strong>Packaging or running cloud rendering projects that utilise UE4Capture under Linux</strong></li><li><strong>Packaging UE4-powered server applications</strong></li></ul>|
+
+### Specifying the Git credentials
+
+The build command supports three methods for specifying the credentials that will be used to clone the UE4 Git repository:
+
+- **Command-line arguments**: the `-username` and `-password` command-line arguments can be used to specify the username and password, respectively.
+
+- **Environment variables**: the `UE4DOCKER_USERNAME` and `UE4DOCKER_PASSWORD` environment variables can be used to specify the username and password, respectively. Note that credentials specified via command-line arguments will take precedence over values defined in environment variables.
+
+- **Standard input**: if either the username or password has not been specified via a command-line argument or environment variable then the build command will prompt the user to enter the credential(s) for which values have not already been specified.
+
+Note that the username and password are handled independently, which means you can use different methods to specify the two credentials (e.g. username specified via command-line argument and password supplied via standard input.)
 
 ### Building a custom version of the Unreal Engine
 

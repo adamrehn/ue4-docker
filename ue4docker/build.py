@@ -3,6 +3,28 @@ import argparse, getpass, os, shutil, sys, tempfile
 from .infrastructure import *
 from os.path import join
 
+def _getCredential(args, name, envVar, promptFunc):
+	
+	# Check if the credential was specified via the command-line
+	if getattr(args, name, None) is not None:
+		print('Using {} specified via `-{}` command-line argument.'.format(name, name))
+		return getattr(args, name)
+	
+	# Check if the credential was specified via an environment variable
+	if envVar in os.environ:
+		print('Using {} specified via {} environment variable.'.format(name, envVar))
+		return os.environ[envVar]
+	
+	# Fall back to prompting the user for the value
+	return promptFunc()
+
+def _getUsername(args):
+	return _getCredential(args, 'username', 'UE4DOCKER_USERNAME', lambda: input("Username: "))
+
+def _getPassword(args):
+	return _getCredential(args, 'password', 'UE4DOCKER_PASSWORD', lambda: getpass.getpass("Password: "))
+
+
 def build():
 	
 	# Create our logger to generate coloured output on stderr
@@ -19,6 +41,8 @@ def build():
 	parser.add_argument('--no-cache', action='store_true', help='Disable Docker build cache')
 	parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
 	parser.add_argument('--cuda', action='store_true', help='Add CUDA support as well as OpenGL support when building Linux containers')
+	parser.add_argument('-username', default=None, help='Specify the username to use when cloning the git repository')
+	parser.add_argument('-password', default=None, help='Specify the password to use when cloning the git repository')
 	parser.add_argument('-repo', default=None, help='Set the custom git repository to clone when "custom" is specified as the release value')
 	parser.add_argument('-branch', default=None, help='Set the custom branch/tag to clone when "custom" is specified as the release value')
 	parser.add_argument('-isolation', default=None, help='Set the isolation mode to use for Windows containers (process or hyperv)')
@@ -116,9 +140,10 @@ def build():
 		else:
 			
 			# Retrieve the Git username and password from the user
-			print('Enter the Git credentials that will be used to clone the UE4 repo')
-			username = input("Username: ")
-			password = getpass.getpass("Password: ")
+			print('Retrieving the Git credentials that will be used to clone the UE4 repo')
+			username = _getUsername(args)
+			password = _getPassword(args)
+			print()
 		
 		# Start the HTTP credential endpoint as a child process and wait for it to start
 		endpoint = CredentialEndpoint(username, password)
