@@ -2,6 +2,10 @@ ARG TAG
 ARG PREREQS_TAG
 FROM adamrehn/ue4-engine:${TAG} AS builder
 
+# Increase the output verbosity of the DDC generation step
+COPY verbose-ddc.py /tmp/verbose-ddc.py
+RUN python3 /tmp/verbose-ddc.py /home/ue4/UnrealEngine/Engine/Build/InstalledEngineBuild.xml
+
 # Create an Installed Build of the Engine
 WORKDIR /home/ue4/UnrealEngine
 RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true
