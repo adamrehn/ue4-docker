@@ -2,6 +2,7 @@
 from .infrastructure import WindowsUtils
 from .build import build
 from .clean import clean
+from .info import info
 import os, platform, sys
 
 def main():
@@ -19,6 +20,10 @@ def main():
 		'clean': {
 			'function': clean,
 			'description': 'Cleans built container images'
+		},
+		'info': {
+			'function': info,
+			'description': 'Displays information about the host system and Docker daemon'
 		}
 	}
 	

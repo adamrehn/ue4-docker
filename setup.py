@@ -24,6 +24,7 @@ setup(
 		'docker>=3.0.0',
 		'flask',
 		'humanfriendly',
+		'psutil',
 		'semver>=2.7.9',
 		'setuptools',
 		'termcolor',

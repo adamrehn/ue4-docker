@@ -1,4 +1,4 @@
-import docker, fnmatch, humanfriendly, json, os
+import docker, fnmatch, humanfriendly, json, os, platform
 
 class DockerUtils(object):
 	
@@ -19,6 +19,14 @@ class DockerUtils(object):
 		'''
 		client = docker.from_env()
 		return client.version()
+	
+	@staticmethod
+	def info():
+		'''
+		Retrieves the system information as produced by `docker info`
+		'''
+		client = docker.from_env()
+		return client.info()
 	
 	@staticmethod
 	def exists(name):
@@ -44,12 +52,17 @@ class DockerUtils(object):
 		'''
 		Determines the configured size limit (in GB) for Windows containers
 		'''
-		with open('{}\\Docker\\config\\daemon.json'.format(os.environ['ProgramData'])) as configFile:
-			config = json.load(configFile)
-			if 'storage-opts' in config:
-				sizes = [opt.replace('size=', '') for opt in config['storage-opts'] if 'size=' in opt]
-				if len(sizes) > 0:
-					return humanfriendly.parse_size(sizes[0]) / 1000000000
+		if platform.system() != 'Windows':
+			return -1
+		
+		configPath = '{}\\Docker\\config\\daemon.json'.format(os.environ['ProgramData'])
+		if os.path.exists(configPath) == True:
+			with open(configPath) as configFile:
+				config = json.load(configFile)
+				if 'storage-opts' in config:
+					sizes = [opt.replace('size=', '') for opt in config['storage-opts'] if 'size=' in opt]
+					if len(sizes) > 0:
+						return humanfriendly.parse_size(sizes[0]) / 1000000000
 		
 		# The default limit on image size is 20GB
 		# (https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container-issues)
