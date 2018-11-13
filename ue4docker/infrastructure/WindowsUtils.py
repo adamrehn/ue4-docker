@@ -51,6 +51,7 @@ class WindowsUtils(object):
 		key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion')
 		releaseId = winreg.QueryValueEx(key, 'ReleaseId')
 		winreg.CloseKey(key)
+		return releaseId[0]
 	
 	@staticmethod
 	def getReleaseBaseTag(release):
