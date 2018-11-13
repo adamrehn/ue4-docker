@@ -66,7 +66,7 @@ class WindowsUtils(object):
 		Determines if the Windows host system is a Windows Insider preview build
 		'''
 		version = WindowsUtils.getWindowsVersion()
-		return version['patch'] > _latestReleaseBuild
+		return version['patch'] > WindowsUtils._latestReleaseBuild
 	
 	@staticmethod
 	def getReleaseBaseTag(release):
