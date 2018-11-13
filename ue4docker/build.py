@@ -103,7 +103,7 @@ def build():
 				sys.exit(1)
 			
 			# Check if the user is building a different kernel version to the host OS but is still copying DLLs from System32
-			differentKernels = WindowsUtils.isInsiderPreview(config.hostRelease) or config.basetag != config.hostBasetag
+			differentKernels = WindowsUtils.isInsiderPreview() or config.basetag != config.hostBasetag
 			if differentKernels == True and config.dlldir == config.defaultDllDir:
 				logger.error('Error: building images with a different kernel version than the host,', False)
 				logger.error('but a custom DLL directory has not specified via the `-dlldir=DIR` arg.', False)
