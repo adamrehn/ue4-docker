@@ -10,7 +10,7 @@ def setup():
 		return
 	
 	# We don't currently support auto-config for VM-based containers
-	if platform.system() == 'Darwin' or (platform.system() == 'Windows' and WindowsUtils.isWindowsServer() == True):
+	if platform.system() == 'Darwin' or (platform.system() == 'Windows' and WindowsUtils.isWindowsServer() == False):
 		print('Manual configuration is required under Windows 10 and macOS. Automatic configuration is not available.')
 		return
 	
