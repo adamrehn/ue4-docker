@@ -24,9 +24,12 @@ setup(
 		'docker>=3.0.0',
 		'flask',
 		'humanfriendly',
+		'pywin32; platform_system == "Windows"',
 		'semver>=2.7.9',
 		'setuptools',
-		'termcolor'
+		'termcolor',
+		'wheel',
+		'wmi; platform_system == "Windows"'
 	],
 	package_data = {
 		'ue4docker': ['dockerfiles/*/*/*']

@@ -13,6 +13,25 @@ class WindowsUtils(object):
 	_validTags = ['ltsc2016', '1709', '1803']
 	
 	@staticmethod
+	def formatSystemName(release):
+		'''
+		Generates a human-readable version string for the Windows host system
+		'''
+		return 'Windows {} version {}'.format('Server' if WindowsUtils.isWindowsServer() else '10', release)
+	
+	@staticmethod
+	def isWindowsServer():
+		'''
+		Determines if the Windows host system is Windows Server
+		'''
+		import wmi
+		for wOS in wmi.WMI().win32_OperatingSystem():
+			if 'Windows Server' in wOS.Caption:
+				return True
+		
+		return False
+	
+	@staticmethod
 	def getWindowsRelease():
 		'''
 		Determines the Windows 10 / Windows Server release (1607, 1709, 1803, etc.) of the Windows host system
