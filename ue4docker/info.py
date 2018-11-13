@@ -12,6 +12,11 @@ def _osName(dockerInfo):
 
 def info():
 	
+	# Verify that Docker is installed
+	if DockerUtils.installed() == False:
+		print('Error: could not detect Docker version. Please ensure Docker is installed.', file=sys.stderr)
+		sys.exit(1)
+	
 	# Gather our information on the Docker daemon
 	dockerInfo = DockerUtils.info()
 	nvidiaDocker = platform.system() == 'Linux' and 'nvidia' in dockerInfo['Runtimes']
