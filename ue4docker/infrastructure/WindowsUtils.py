@@ -18,9 +18,13 @@ class WindowsUtils(object):
 	@staticmethod
 	def isSupportedWindowsVersion():
 		'''
-		Verifies that the Windows host system is Windows 10 or Windows Server 2016 or newer
+		Verifies that the Windows host system is Windows 10 / Windows Server 2016 version 1607 or newer
+		
+		(1607 is the first build to support Windows containers, as per:
+		<https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/version-compatibility>)
 		'''
-		return platform.win32_ver()[0] >= 10
+		version = semver.parse(platform.win32_ver()[1])
+		return version['major'] == 10 and version['patch'] >= 14393
 	
 	@staticmethod
 	def formatSystemName(release):
@@ -44,28 +48,9 @@ class WindowsUtils(object):
 		'''
 		Determines the Windows 10 / Windows Server release (1607, 1709, 1803, etc.) of the Windows host system
 		'''
-		
-		# This lookup table is based on the data from these pages:
-		#  <https://www.microsoft.com/en-us/itpro/windows-10/release-information>
-		# and
-		#  <https://docs.microsoft.com/en-us/windows-server/get-started/windows-server-release-info>)
-		releases = {
-			10240: '1507',
-			14393: '1607',
-			15063: '1703',
-			16299: '1709',
-			17134: '1803',
-			17763: '1809'
-		}
-		
-		# Determine which Windows release the OS build number corresponds to
-		osBuild = semver.parse(platform.win32_ver()[1])
-		if osBuild['patch'] in releases:
-			return releases[osBuild['patch']]
-		elif osBuild['patch'] > max(releases.keys()):
-			return WindowsUtils._insiderSentinel
-		else:
-			raise RuntimeError('unrecognised Windows build "{}"'.format(semver.format_version(osBuild['major'], osBuild['minor'], osBuild['patch'])))
+		key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion')
+		releaseId = winreg.QueryValueEx(key, 'ReleaseId')
+		winreg.CloseKey(key)
 	
 	@staticmethod
 	def getReleaseBaseTag(release):
