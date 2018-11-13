@@ -43,4 +43,3 @@ def info():
 			' ' * ((longestName + minSpaces) - len(item[0])),
 			item[1]
 		))
-	print()
