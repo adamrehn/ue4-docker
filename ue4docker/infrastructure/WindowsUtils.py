@@ -1,6 +1,9 @@
 from .PackageUtils import PackageUtils
 import os, platform
 
+if platform.system() == 'Windows':
+	import winreg
+
 # Import the `semver` package even when the conflicting `node-semver` package is present
 semver = PackageUtils.importFile('semver', os.path.join(PackageUtils.getPackageLocation('semver'), 'semver.py'))
 
@@ -24,12 +27,10 @@ class WindowsUtils(object):
 		'''
 		Determines if the Windows host system is Windows Server
 		'''
-		import wmi
-		for wOS in wmi.WMI().win32_OperatingSystem():
-			if 'Windows Server' in wOS.Caption:
-				return True
-		
-		return False
+		key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion')
+		productName = winreg.QueryValueEx(key, 'ProductName')
+		winreg.CloseKey(key)
+		return 'Windows Server' in productName[0]
 	
 	@staticmethod
 	def getWindowsRelease():
