@@ -1,8 +1,13 @@
+from os.path import abspath, dirname, join
 from setuptools import setup
+
+# Read the version number from version.py
+with open(abspath(join(dirname(__file__), 'ue4docker', 'version.py'))) as versionFile:
+	__version__ = versionFile.read().strip().replace('__version__ = ', '').replace("'", '')
 
 setup(
 	name='ue4-docker',
-	version='0.0.3',
+	version=__version__,
 	description='Windows and Linux containers for Unreal Engine 4',
 	classifiers=[
 		'License :: OSI Approved :: MIT License',

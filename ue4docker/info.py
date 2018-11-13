@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import humanfriendly, platform, psutil, sys
+from .version import __version__
 from .infrastructure import *
 
 def _osName(dockerInfo):
@@ -24,6 +25,7 @@ def info():
 	
 	# Prepare our report items
 	items = [
+		('ue4-docker version', __version__),
 		('Operating system', _osName(dockerInfo)),
 		('Docker daemon version', dockerInfo['ServerVersion']),
 		('NVIDIA Docker supported', 'Yes' if nvidiaDocker == True else 'No'),

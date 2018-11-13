@@ -4,6 +4,7 @@ from .build import build
 from .clean import clean
 from .info import info
 from .setup_cmd import setup
+from .version_cmd import version
 import os, platform, sys
 
 def _exitWithError(err):
@@ -37,6 +38,10 @@ def main():
 		'setup': {
 			'function': setup,
 			'description': 'Automatically configures the host system where possible'
+		},
+		'version': {
+			'function': version,
+			'description': 'Prints the ue4-docker version number'
 		}
 	}
 	
