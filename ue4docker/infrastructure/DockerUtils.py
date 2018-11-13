@@ -48,6 +48,34 @@ class DockerUtils(object):
 		return ['docker', 'build', '-t', tag, context] + args
 	
 	@staticmethod
+	def configFilePath():
+		'''
+		Returns the path to the Docker daemon configuration file under Windows
+		'''
+		return '{}\\Docker\\config\\daemon.json'.format(os.environ['ProgramData'])
+	
+	@staticmethod
+	def getConfig():
+		'''
+		Retrieves and parses the Docker daemon configuration file under Windows
+		'''
+		configPath = DockerUtils.configFilePath()
+		if os.path.exists(configPath) == True:
+			with open(configPath) as configFile:
+				return json.load(configFile)
+		
+		return {}
+	
+	@staticmethod
+	def setConfig(config):
+		'''
+		Writes new values to the Docker daemon configuration file under Windows
+		'''
+		configPath = DockerUtils.configFilePath()
+		with open(configPath, 'w') as configFile:
+			configFile.write(json.dumps(config))
+	
+	@staticmethod
 	def maxsize():
 		'''
 		Determines the configured size limit (in GB) for Windows containers
@@ -55,14 +83,11 @@ class DockerUtils(object):
 		if platform.system() != 'Windows':
 			return -1
 		
-		configPath = '{}\\Docker\\config\\daemon.json'.format(os.environ['ProgramData'])
-		if os.path.exists(configPath) == True:
-			with open(configPath) as configFile:
-				config = json.load(configFile)
-				if 'storage-opts' in config:
-					sizes = [opt.replace('size=', '') for opt in config['storage-opts'] if 'size=' in opt]
-					if len(sizes) > 0:
-						return humanfriendly.parse_size(sizes[0]) / 1000000000
+		config = DockerUtils.getConfig()
+		if 'storage-opts' in config:
+			sizes = [opt.replace('size=', '') for opt in config['storage-opts'] if 'size=' in opt]
+			if len(sizes) > 0:
+				return humanfriendly.parse_size(sizes[0]) / 1000000000
 		
 		# The default limit on image size is 20GB
 		# (https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container-issues)

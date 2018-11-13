@@ -6,7 +6,7 @@ def _osName(dockerInfo):
 	if platform.system() == 'Windows':
 		return dockerInfo['OperatingSystem']
 	elif platform.system() == 'Darwin':
-		return 'macOS'
+		return 'macOS {}'.format(platform.mac_ver()[0])
 	else:
 		return 'Linux ({}, {})'.format(dockerInfo['OperatingSystem'], dockerInfo['KernelVersion'])
 

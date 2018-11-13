@@ -1,15 +1,24 @@
 #!/usr/bin/env python3
-from .infrastructure import WindowsUtils
+from .infrastructure import DockerUtils, Logger, WindowsUtils
 from .build import build
 from .clean import clean
 from .info import info
+from .setup_cmd import setup
 import os, platform, sys
+
+def _exitWithError(err):
+	Logger().error(err)
+	sys.exit(1)
 
 def main():
 	
+	# Verify that Docker is installed
+	if DockerUtils.installed() == False:
+		_exitWithError('Error: could not detect Docker daemon version. Please ensure Docker is installed.')
+	
 	# Under Windows, verify that the host is a supported version
 	if platform.system() == 'Windows' and WindowsUtils.isSupportedWindowsVersion() == False:
-		raise RuntimeError('unsupported version of Windows detected')
+		_exitWithError('Error: the detected version of Windows ({}) is not supported. Windows 10 / Windows Server version 1607 or newer is required.'.format(WindowsUtils.getWindowsVersion()))
 	
 	# Our supported commands
 	COMMANDS = {
@@ -24,6 +33,10 @@ def main():
 		'info': {
 			'function': info,
 			'description': 'Displays information about the host system and Docker daemon'
+		},
+		'setup': {
+			'function': setup,
+			'description': 'Automatically configures the host system where possible'
 		}
 	}
 	

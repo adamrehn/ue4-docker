@@ -16,6 +16,23 @@ class WindowsUtils(object):
 	_validTags = ['ltsc2016', '1709', '1803']
 	
 	@staticmethod
+	def requiredSizeLimit():
+		'''
+		Returns the minimum required image size limit (in GB) for Windows containers
+		'''
+		return 200.0
+	
+	@staticmethod
+	def minimumRequiredVersion():
+		'''
+		Returns the minimum required version of Windows 10 / Windows Server, which is release 1607
+		
+		(1607 is the first build to support Windows containers, as per:
+		<https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/version-compatibility>)
+		'''
+		return 14393
+	
+	@staticmethod
 	def formatSystemName(release):
 		'''
 		Generates a human-readable version string for the Windows host system
@@ -42,13 +59,10 @@ class WindowsUtils(object):
 	@staticmethod
 	def isSupportedWindowsVersion():
 		'''
-		Verifies that the Windows host system is Windows 10 / Windows Server 2016 version 1607 or newer
-		
-		(1607 is the first build to support Windows containers, as per:
-		<https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/version-compatibility>)
+		Verifies that the Windows host system meets our minimum Windows version requirements
 		'''
 		version = WindowsUtils.getWindowsVersion()
-		return version['major'] == 10 and version['patch'] >= 14393
+		return version['major'] == 10 and version['patch'] >= WindowsUtils.minimumRequiredVersion()
 	
 	@staticmethod
 	def isWindowsServer():

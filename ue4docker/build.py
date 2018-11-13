@@ -116,11 +116,13 @@ def build():
 				shutil.copy2(join(config.dlldir, dll), join(builder.context('ue4-build-prerequisites'), dll))
 			
 			# Ensure the Docker daemon is configured correctly
-			if DockerUtils.maxsize() < 200.0:
+			requiredLimit = WindowsUtils.requiredSizeLimit()
+			if DockerUtils.maxsize() < requiredLimit:
 				logger.error('SETUP REQUIRED:')
-				logger.error('The max image size for Windows containers must be set to at least 200GB.')
+				logger.error('The max image size for Windows containers must be set to at least {}GB.'.format(requiredLimit))
 				logger.error('See the Microsoft documentation for configuration instructions:')
 				logger.error('https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container#step-4-expand-maximum-container-disk-size')
+				logger.error('Under Windows Server, the command `{} setup` can be used to automatically configure the system.'.format(sys.argv[0]))
 				sys.exit(1)
 			
 		elif config.containerPlatform == 'linux':
