@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
+from .infrastructure import WindowsUtils
 from .build import build
 from .clean import clean
-import os, sys
+import os, platform, sys
 
 def main():
+	
+	# Under Windows, verify that the host is a supported version
+	if platform.system() == 'Windows' and WindowsUtils.isSupportedWindowsVersion() == False:
+		raise RuntimeError('unsupported version of Windows detected')
 	
 	# Our supported commands
 	COMMANDS = {

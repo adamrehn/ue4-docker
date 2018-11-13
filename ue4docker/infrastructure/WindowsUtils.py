@@ -16,6 +16,13 @@ class WindowsUtils(object):
 	_validTags = ['ltsc2016', '1709', '1803']
 	
 	@staticmethod
+	def isSupportedWindowsVersion():
+		'''
+		Verifies that the Windows host system is Windows 10 or Windows Server 2016 or newer
+		'''
+		return platform.win32_ver()[0] >= 10
+	
+	@staticmethod
 	def formatSystemName(release):
 		'''
 		Generates a human-readable version string for the Windows host system
