@@ -40,42 +40,9 @@ COPY --from=dlls C:\GatheredDlls\ C:\Windows\System32\
 # Add a sentinel label so we can easily identify all derived images, including intermediate images
 LABEL com.adamrehn.ue4-docker.sentinel="1"
 
-# Install chocolatey and our dependencies
-# (Note that these need to be separate RUN directives for `choco` to work)
-# (Note also that we ensure CMake is added to the path)
+# Install Chocolatey
 RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
-RUN choco install -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'" && `
-	choco install -y curl python vcredist-all && `
-	choco install -y cmake --installargs "ADD_CMAKE_TO_PATH=System"
 
-# Forcibly disable the git credential manager
-# (Note that this needs to be separate RUN directive for `git` to work)
-RUN git config --system credential.helper ""
-
-# Install our Python dependencies
-# (Note that this needs to be separate RUN directive for `pip` to work)
-RUN pip install setuptools wheel --no-warn-script-location
-
-# Install the Visual Studio 2017 Build Tools workloads and components we need, excluding components with known issues in containers
-RUN `
-	curl --progress -L "https://aka.ms/vs/15/release/vs_buildtools.exe" --output %TEMP%\vs_buildtools.exe && `
-	%TEMP%\vs_buildtools.exe --quiet --wait --norestart --nocache `
-	--installPath C:\BuildTools `
-	--add Microsoft.VisualStudio.Workload.VCTools;includeRecommended;includeOptional `
-	--add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools;includeRecommended;includeOptional `
-	--add Microsoft.VisualStudio.Workload.UniversalBuildTools `
-	--add Microsoft.VisualStudio.Workload.NetCoreBuildTools `
-	--add Microsoft.VisualStudio.Workload.MSBuildTools `
-	--add Microsoft.VisualStudio.Component.NuGet `
-	--remove Microsoft.VisualStudio.Component.Windows10SDK.10240 `
-	--remove Microsoft.VisualStudio.Component.Windows10SDK.10586 `
-	--remove Microsoft.VisualStudio.Component.Windows10SDK.14393 `
-	--remove Microsoft.VisualStudio.Component.Windows81SDK `
- || IF "%ERRORLEVEL%"=="3010" EXIT 0
-
-# Install WinDbg, which contains pdbcopy.exe (needed for creating an Installed Build of the Engine),
-# and copy pdbcopy.exe to the expected location for UE4 versions prior to the UE-51362 fix (https://issues.unrealengine.com/issue/UE-51362)
-RUN `
-	choco install -y windbg && `
-	echo f | xcopy "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\pdbcopy.exe" "C:\Program Files (x86)\MSBuild\Microsoft\VisualStudio\v12.0\AppxPackage\PDBCopy.exe" /Q /Y && `
-	echo f | xcopy "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\pdbcopy.exe" "C:\Program Files (x86)\MSBuild\Microsoft\VisualStudio\v14.0\AppxPackage\PDBCopy.exe" /Q /Y
+# Install the rest of our build prerequisites and clean up afterwards to minimise image size
+COPY buildtools-exitcode.py copy-pdbcopy.py install-prerequisites.bat C:\
+RUN C:\install-prerequisites.bat
