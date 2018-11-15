@@ -23,3 +23,12 @@ ENV GIT_ASKPASS=C:\git-credential-helper.bat
 # Clone the UE4 git repository using the host-supplied credentials
 WORKDIR C:\
 RUN git clone --progress --depth=1 -b %GIT_BRANCH% %GIT_REPO% C:\UnrealEngine
+
+# Since the UE4 prerequisites installer appears to break when newer versions
+# of the VC++ runtime are present, patch out the prereqs call in Setup.bat
+COPY patch-setup-win.py C:\patch-setup-win.py
+RUN python C:\patch-setup-win.py C:\UnrealEngine\Setup.bat
+
+# Run post-clone setup steps
+WORKDIR C:\UnrealEngine
+RUN Setup.bat
