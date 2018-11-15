@@ -23,3 +23,6 @@ COPY --from=builder C:\Users\ContainerAdministrator\.conan C:\Users\ContainerAdm
 # Install conan-ue4cli (just generate the profile, since we've already copied the generated packages)
 RUN ue4 setroot C:\UnrealEngine
 RUN python C:\conan-ue4cli\generate.py --profile-only
+
+# Install CMake and add it to the system PATH
+RUN choco install -y cmake --installargs "ADD_CMAKE_TO_PATH=System"

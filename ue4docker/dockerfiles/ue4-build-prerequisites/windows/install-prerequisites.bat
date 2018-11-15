@@ -1,7 +1,6 @@
 @rem Install the chocolatey packages we need
 choco install -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'" || goto :error
 choco install -y curl python vcredist-all || goto :error
-choco install -y cmake --installargs "ADD_CMAKE_TO_PATH=System" || goto :error
 
 @rem Reload our environment variables from the registry so the `git` and `pip` commands work
 call refreshenv
