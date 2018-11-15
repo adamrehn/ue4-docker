@@ -38,8 +38,12 @@ python C:\copy-pdbcopy.py || goto :error
 rmdir /S /Q \\?\%TEMP%
 mkdir %TEMP%
 
-@rem If any of our essential commands fail, propagate the error code
+@rem Display a human-readable completion message
+@echo off
+@echo Finished installing build prerequisites and cleaning up temporary files.
 goto :EOF
+
+@rem If any of our essential commands fail, propagate the error code
 :error
 @echo off
 exit /b %ERRORLEVEL%
