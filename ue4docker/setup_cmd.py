@@ -2,6 +2,11 @@
 import platform, subprocess, sys
 from .infrastructure import *
 
+# Runs a command without displaying its output and returns the exit code
+def _runSilent(command):
+	result = subprocess.run(command, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	return result.returncode
+
 def setup():
 	
 	# Under Linux, no config changes are necessary
@@ -39,3 +44,19 @@ def setup():
 		
 	else:
 		print('Maximum image size is already correctly configured.')
+	
+	# Determine if we need to configure Windows firewall
+	ruleName = 'Open Port 9876'
+	ruleExists = _runSilent(['netsh', 'advfirewall', 'firewall', 'show', 'rule', 'name={}'.format(ruleName)]) == 0
+	if ruleExists == False:
+		
+		# Add a rule to ensure Windows firewall allows access to the credential helper from our containers
+		print('Creating firewall rule for credential helper...')
+		subprocess.run([
+			'netsh', 'advfirewall',
+			'firewall', 'add', 'rule',
+			'name={}'.format(ruleName), 'dir=in', 'action=allow', 'protocol=TCP', 'localport=9876'
+		], check=True)
+		
+	else:
+		print('Firewall rule for credential helper is already configured.')
