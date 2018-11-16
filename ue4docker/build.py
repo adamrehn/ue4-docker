@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import argparse, getpass, os, shutil, sys, tempfile
+import argparse, getpass, humanfriendly, os, shutil, sys, tempfile, time
 from .infrastructure import *
 from os.path import join
 
@@ -153,6 +153,9 @@ def build():
 		
 		try:
 			
+			# Keep track of our starting time
+			startTime = time.time()
+			
 			# Build the UE4 build prerequisites image
 			prereqsTag = 'latest' + config.suffix
 			prereqsArgs = ['--build-arg', 'BASEIMAGE=' + config.baseImage]
@@ -184,6 +187,10 @@ def build():
 				builder.build('ue4-full', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
 			else:
 				logger.info('Not building ue4-minimal or user specified `--no-full`, skipping ue4-full image build.')
+			
+			# Report the total execution time
+			endTime = time.time()
+			logger.action('Total execution time: {}'.format(humanfriendly.format_timespan(endTime - startTime)))
 			
 			# Stop the HTTP server
 			endpoint.stop()

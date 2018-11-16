@@ -35,7 +35,7 @@ class ImageBuilder(object):
 		startTime = time.time()
 		exitCode = subprocess.call(buildCommand)
 		endTime = time.time()
-
+		
 		# Determine if the build succeeded
 		if exitCode == 0:
 			self.logger.action('Built image "{}" in {}'.format(
