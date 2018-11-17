@@ -57,7 +57,7 @@ class WindowsUtils(object):
 		'''
 		Generates a verbose human-readable version string for the Windows host system
 		'''
-		return '{} Version {} (Build {}.{})'.format(
+		return '{} Version {} (OS Build {}.{})'.format(
 			WindowsUtils._getVersionRegKey('ProductName'),
 			WindowsUtils.getWindowsRelease(),
 			WindowsUtils.getWindowsVersion()['patch'],
