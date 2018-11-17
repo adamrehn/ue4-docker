@@ -21,5 +21,20 @@ ENV GIT_ASKPASS=/tmp/git-credential-helper.sh
 RUN chmod +x /tmp/git-credential-helper.sh
 
 # Clone the UE4 git repository using the host-supplied credentials
-WORKDIR /home/ue4
 RUN git clone --progress --depth=1 -b $GIT_BRANCH $GIT_REPO /home/ue4/UnrealEngine
+
+# Patch out all instances of `sudo` in Setup.sh, plus any commands that refuse to run as root
+COPY --chown=ue4:ue4 patch-setup-linux.py /tmp/patch-setup-linux.py
+RUN python3 /tmp/patch-setup-linux.py /home/ue4/UnrealEngine/Setup.sh
+RUN python3 /tmp/patch-setup-linux.py /home/ue4/UnrealEngine/Engine/Build/BatchFiles/Linux/Setup.sh
+
+# Extract the list of post-clone setup commands that require root and run them as root,
+# running everything else as the non-root user to avoid creating files owned by root
+WORKDIR /home/ue4/UnrealEngine
+RUN echo "#!/usr/bin/env bash" >> ./root_commands.sh
+RUN echo "set -x" >> ./root_commands.sh
+RUN chmod a+x ./root_commands.sh
+RUN ./Setup.sh
+USER root
+RUN ./root_commands.sh
+USER ue4

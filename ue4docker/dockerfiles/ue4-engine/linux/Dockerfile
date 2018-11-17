@@ -18,22 +18,6 @@ RUN python3 /tmp/build-sdl.py
 # Isolate the SDL build dependencies in a separate stage to avoid polluting our main image
 FROM adamrehn/ue4-source:${TAG}
 
-# Patch out all instances of `sudo` in Setup.sh, plus any commands that refuse to run as root
-COPY --chown=ue4:ue4 patch-setup-linux.py /tmp/patch-setup-linux.py
-RUN python3 /tmp/patch-setup-linux.py /home/ue4/UnrealEngine/Setup.sh
-RUN python3 /tmp/patch-setup-linux.py /home/ue4/UnrealEngine/Engine/Build/BatchFiles/Linux/Setup.sh
-
-# Extract the list of post-clone setup commands that require root and run them as root,
-# running everything else as the non-root user to avoid creating files owned by root
-WORKDIR /home/ue4/UnrealEngine
-RUN echo "#!/usr/bin/env bash" >> ./root_commands.sh
-RUN echo "set -x" >> ./root_commands.sh
-RUN chmod a+x ./root_commands.sh
-RUN ./Setup.sh
-USER root
-RUN ./root_commands.sh
-USER ue4
-
 # The linker bundled with UE4.20.0 onwards chokes on system libraries built with newer compilers,
 # so redirect the bundled clang to use the system linker instead
 COPY --chown=ue4:ue4 linker-fixup.py /tmp/linker-fixup.py
