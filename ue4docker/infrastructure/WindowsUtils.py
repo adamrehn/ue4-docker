@@ -40,7 +40,7 @@ class WindowsUtils(object):
 		(1607 is the first build to support Windows containers, as per:
 		<https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/version-compatibility>)
 		'''
-		return 14393
+		return '10.0.14393'
 	
 	@staticmethod
 	def systemStringShort():
@@ -83,8 +83,7 @@ class WindowsUtils(object):
 		'''
 		Verifies that the Windows host system meets our minimum Windows version requirements
 		'''
-		version = WindowsUtils.getWindowsVersion()
-		return version['major'] == 10 and version['patch'] >= WindowsUtils.minimumRequiredVersion()
+		return semver.compare(platform.win32_ver()[1], WindowsUtils.minimumRequiredVersion()) >= 0
 	
 	@staticmethod
 	def isWindowsServer():

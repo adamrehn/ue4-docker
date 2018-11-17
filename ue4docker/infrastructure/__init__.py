@@ -1,5 +1,6 @@
 from .BuildConfiguration import BuildConfiguration
 from .CredentialEndpoint import CredentialEndpoint
+from .DarwinUtils import DarwinUtils
 from .DockerUtils import DockerUtils
 from .ImageBuilder import ImageBuilder
 from .ImageCleaner import ImageCleaner

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from .infrastructure import DockerUtils, Logger, WindowsUtils
+from .infrastructure import DarwinUtils, DockerUtils, Logger, WindowsUtils
 from .build import build
 from .clean import clean
 from .info import info
@@ -19,7 +19,11 @@ def main():
 	
 	# Under Windows, verify that the host is a supported version
 	if platform.system() == 'Windows' and WindowsUtils.isSupportedWindowsVersion() == False:
-		_exitWithError('Error: the detected version of Windows ({}) is not supported. Windows 10 / Windows Server version 1607 or newer is required.'.format(WindowsUtils.getWindowsVersion()))
+		_exitWithError('Error: the detected version of Windows ({}) is not supported. Windows 10 / Windows Server version 1607 or newer is required.'.format(platform.win32_ver()[1]))
+	
+	# Under macOS, verify that the host is a supported version
+	if platform.system() == 'Darwin' and DarwinUtils.isSupportedMacOsVersion() == False:
+		_exitWithError('Error: the detected version of macOS ({}) is not supported. macOS {} or newer is required.'.format(DarwinUtils.getMacOsVersion(), DarwinUtils.minimumRequiredVersion()))
 	
 	# Our supported commands
 	COMMANDS = {
