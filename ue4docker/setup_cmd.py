@@ -51,7 +51,7 @@ def setup():
 	if ruleExists == False:
 		
 		# Add a rule to ensure Windows firewall allows access to the credential helper from our containers
-		print('Creating firewall rule for credential helper...')
+		print('Creating firewall rule for credential endpoint...')
 		subprocess.run([
 			'netsh', 'advfirewall',
 			'firewall', 'add', 'rule',
@@ -59,4 +59,4 @@ def setup():
 		], check=True)
 		
 	else:
-		print('Firewall rule for credential helper is already configured.')
+		print('Firewall rule for credential endpoint is already configured.')
