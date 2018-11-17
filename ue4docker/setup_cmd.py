@@ -46,7 +46,7 @@ def setup():
 		print('Maximum image size is already correctly configured.')
 	
 	# Determine if we need to configure Windows firewall
-	ruleName = 'Open Port 9876'
+	ruleName = 'Open TCP port 9876 for ue4-docker credential endpoint'
 	ruleExists = _runSilent(['netsh', 'advfirewall', 'firewall', 'show', 'rule', 'name={}'.format(ruleName)]) == 0
 	if ruleExists == False:
 		
