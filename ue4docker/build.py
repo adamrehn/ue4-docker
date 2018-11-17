@@ -92,7 +92,7 @@ def build():
 			# Provide the user with feedback so they are aware of the Windows-specific values being used
 			logger.info('WINDOWS CONTAINER SETTINGS', False)
 			logger.info('Isolation mode:               {}'.format(config.isolation), False)
-			logger.info('Base OS image tag:            {} (host OS is {})'.format(config.basetag, WindowsUtils.formatSystemName(config.hostRelease)), False)
+			logger.info('Base OS image tag:            {} (host OS is {})'.format(config.basetag, WindowsUtils.systemStringShort()), False)
 			logger.info('Memory limit:                 {:.2f}GB'.format(config.memLimit), False)
 			logger.info('Detected max image size:      {:.0f}GB'.format(DockerUtils.maxsize()), False)
 			logger.info('Directory to copy DLLs from:  {}\n'.format(config.dlldir), False)

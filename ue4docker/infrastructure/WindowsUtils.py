@@ -16,6 +16,16 @@ class WindowsUtils(object):
 	_validTags = ['ltsc2016', '1709', '1803', 'ltsc2019']
 	
 	@staticmethod
+	def _getVersionRegKey(subkey):
+		'''
+		Retrieves the specified Windows version key from the registry
+		'''
+		key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion')
+		value = winreg.QueryValueEx(key, subkey)
+		winreg.CloseKey(key)
+		return value[0]
+	
+	@staticmethod
 	def requiredSizeLimit():
 		'''
 		Returns the minimum required image size limit (in GB) for Windows containers
@@ -33,11 +43,26 @@ class WindowsUtils(object):
 		return 14393
 	
 	@staticmethod
-	def formatSystemName(release):
+	def systemStringShort():
 		'''
-		Generates a human-readable version string for the Windows host system
+		Generates a concise human-readable version string for the Windows host system
 		'''
-		return 'Windows {} version {}'.format('Server' if WindowsUtils.isWindowsServer() else '10', release)
+		return 'Windows {} version {}'.format(
+			'Server' if WindowsUtils.isWindowsServer() else '10',
+			WindowsUtils.getWindowsRelease()
+		)
+	
+	@staticmethod
+	def systemStringLong():
+		'''
+		Generates a verbose human-readable version string for the Windows host system
+		'''
+		return '{} Version {} (Build {}.{})'.format(
+			WindowsUtils._getVersionRegKey('ProductName'),
+			WindowsUtils.getWindowsRelease(),
+			WindowsUtils.getWindowsVersion()['patch'],
+			WindowsUtils._getVersionRegKey('UBR')
+		)
 	
 	@staticmethod
 	def getWindowsVersion():
@@ -51,10 +76,7 @@ class WindowsUtils(object):
 		'''
 		Determines the Windows 10 / Windows Server release (1607, 1709, 1803, etc.) of the Windows host system
 		'''
-		key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion')
-		releaseId = winreg.QueryValueEx(key, 'ReleaseId')
-		winreg.CloseKey(key)
-		return releaseId[0]
+		return WindowsUtils._getVersionRegKey('ReleaseId')
 	
 	@staticmethod
 	def isSupportedWindowsVersion():
@@ -69,10 +91,7 @@ class WindowsUtils(object):
 		'''
 		Determines if the Windows host system is Windows Server
 		'''
-		key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion')
-		productName = winreg.QueryValueEx(key, 'ProductName')
-		winreg.CloseKey(key)
-		return 'Windows Server' in productName[0]
+		return 'Windows Server' in WindowsUtils._getVersionRegKey('ProductName')
 	
 	@staticmethod
 	def isInsiderPreview():
