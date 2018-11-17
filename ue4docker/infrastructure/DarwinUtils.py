@@ -38,5 +38,4 @@ class DarwinUtils(object):
 		'''
 		Verifies that the macOS host system meets our minimum version requirements
 		'''
-		version = semver.parse(DarwinUtils.getMacOsVersion())
-		return version > semver.parse(DarwinUtils.minimumRequiredVersion())
+		return semver.compare(DarwinUtils.getMacOsVersion(), DarwinUtils.minimumRequiredVersion()) >= 0
