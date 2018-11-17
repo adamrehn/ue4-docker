@@ -10,10 +10,10 @@ semver = PackageUtils.importFile('semver', os.path.join(PackageUtils.getPackageL
 class WindowsUtils(object):
 	
 	# The latest Windows build version we recognise as a non-Insider build
-	_latestReleaseBuild = 17134
+	_latestReleaseBuild = 17763
 	
 	# The list of Windows Server Core base image tags that we support, in ascending version number order
-	_validTags = ['ltsc2016', '1709', '1803']
+	_validTags = ['ltsc2016', '1709', '1803', 'ltsc2019']
 	
 	@staticmethod
 	def requiredSizeLimit():
@@ -96,6 +96,7 @@ class WindowsUtils(object):
 		return {
 			'1709': '1709',
 			'1803': '1803',
+			'1809': 'ltsc2019'
 		}.get(release, 'ltsc2016')
 	
 	@staticmethod
