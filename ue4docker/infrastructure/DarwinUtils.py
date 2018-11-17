@@ -21,7 +21,7 @@ class DarwinUtils(object):
 		'''
 		Generates a human-readable version string for the macOS host system
 		'''
-		'macOS {} (Kernel Version {})'.format(
+		return 'macOS {} (Kernel Version {})'.format(
 			platform.mac_ver()[0],
 			platform.uname().release
 		)
