@@ -38,3 +38,8 @@ RUN ./Setup.sh
 USER root
 RUN ./root_commands.sh
 USER ue4
+
+# The linker bundled with UE4.20.0 onwards chokes on system libraries built with newer compilers,
+# so redirect the bundled clang to use the system linker instead
+COPY --chown=ue4:ue4 linker-fixup.py /tmp/linker-fixup.py
+RUN python3 /tmp/linker-fixup.py /home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64 `which ld`

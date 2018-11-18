@@ -1,5 +1,5 @@
 ARG TAG
-FROM adamrehn/ue4-engine:${TAG} AS builder
+FROM adamrehn/ue4-source:${TAG} AS builder
 
 # Install ue4cli and the prerequisites for conan-ue4cli
 RUN git clone "https://github.com/adamrehn/conan-ue4cli.git" /home/ue4/conan-ue4cli

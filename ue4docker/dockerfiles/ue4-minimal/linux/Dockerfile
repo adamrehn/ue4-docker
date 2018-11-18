@@ -1,6 +1,6 @@
 ARG TAG
 ARG PREREQS_TAG
-FROM adamrehn/ue4-engine:${TAG} AS builder
+FROM adamrehn/ue4-source:${TAG} AS builder
 
 # Increase the output verbosity of the DDC generation step
 COPY verbose-ddc.py /tmp/verbose-ddc.py
