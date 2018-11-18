@@ -39,7 +39,7 @@ RUN python3 /home/ue4/ue4-conan-recipes/build.py MediaIPC-ue4
 RUN python3 /home/ue4/UE4Capture/scripts/patch-headers.py
 
 # Enable PulseAudio support
-COPY pulseaudio-client.conf /etc/pulse/client.conf
 USER root
 RUN apt-get install -y --no-install-recommends pulseaudio-utils
 USER ue4
+COPY pulseaudio-client.conf /etc/pulse/client.conf
