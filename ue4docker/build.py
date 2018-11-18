@@ -36,6 +36,7 @@ def build():
 	parser.add_argument('--linux', action='store_true', help='Build Linux container images under Windows')
 	parser.add_argument('--rebuild', action='store_true', help='Rebuild images even if they already exist')
 	parser.add_argument('--dry-run', action='store_true', help='Print `docker build` commands instead of running them')
+	parser.add_argument('--no-engine', action='store_true', help='Don\'t build the ue4-engine image')
 	parser.add_argument('--no-minimal', action='store_true', help='Don\'t build the ue4-minimal image')
 	parser.add_argument('--no-full', action='store_true', help='Don\'t build the ue4-full image')
 	parser.add_argument('--no-cache', action='store_true', help='Disable Docker build cache')
@@ -170,9 +171,12 @@ def build():
 			]
 			builder.build('ue4-source', mainTag, config.platformArgs + ue4SourceArgs + endpoint.args(), config.rebuild, config.dryRun)
 			
-			# Build the UE4 Engine source build image
+			# Build the UE4 Engine source build image, unless requested otherwise by the user
 			ue4BuildArgs = ['--build-arg', 'TAG={}'.format(mainTag)]
-			builder.build('ue4-engine', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
+			if config.noEngine == False:
+				builder.build('ue4-engine', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
+			else:
+				logger.info('User specified `--no-engine`, skipping ue4-engine image build.')
 			
 			# Build the minimal UE4 CI image, unless requested otherwise by the user
 			buildUe4Minimal = config.noMinimal == False
