@@ -37,3 +37,9 @@ RUN python3 /home/ue4/ue4-conan-recipes/build.py MediaIPC-ue4
 
 # Patch the problematic UE4 header files under 4.19.x (this call is a no-op under newer Engine versions)
 RUN python3 /home/ue4/UE4Capture/scripts/patch-headers.py
+
+# Enable PulseAudio support
+COPY pulseaudio-client.conf /etc/pulse/client.conf
+USER root
+RUN apt-get install -y --no-install-recommends pulseaudio-utils
+USER ue4
