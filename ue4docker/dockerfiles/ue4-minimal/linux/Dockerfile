@@ -6,6 +6,11 @@ FROM adamrehn/ue4-source:${TAG} AS builder
 COPY verbose-ddc.py /tmp/verbose-ddc.py
 RUN python3 /tmp/verbose-ddc.py /home/ue4/UnrealEngine/Engine/Build/InstalledEngineBuild.xml
 
+# Ensure UBT is built before we create the Installed Build, since Build.sh explicitly sets the
+# target .NET framework version, whereas InstalledEngineBuild.xml just uses the system default,
+# which can result in errors when running the built UBT due to the wrong version being targeted
+RUN ./Engine/Build/BatchFiles/Linux/Build.sh UE4Editor Linux Development -Clean
+
 # Create an Installed Build of the Engine
 WORKDIR /home/ue4/UnrealEngine
 RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true
