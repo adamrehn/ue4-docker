@@ -230,11 +230,11 @@ When running inside an OpenGL-enabled NVIDIA Docker container, the Unreal Engine
 
 ### Audio support
 
-To enable audio support inside an NVIDIA Docker container, you will need to provide access to the sound devices from the host system by specifying the arguments `--device /dev/snd` when invoking the `docker run` command.
+To enable audio support inside an NVIDIA Docker container, you will need to be running a PulseAudio server on the host system and bind-mount the current user's PulseAudio socket by specifying the argument `-v/run/user/$UID/pulse:/run/user/1000/pulse` when invoking the `docker run` command. Note that this will not work for the root user, so you will need to run the command as a non-root user as described by the [Post-installation steps for Linux](https://docs.docker.com/install/linux/linux-postinstall/) page of the Docker documentation.
 
 If you are running containers inside a virtual machine that does not have access to any physical audio devices, you will need to utilise an alternative such as an [ALSA loopback device](https://www.alsa-project.org/main/index.php/Matrix:Module-aloop), which can be enabled on most Linux distributions by using the command `sudo modprobe snd_aloop`. Note that this module is not available in the AWS-tuned Linux kernel that is used by default for AWS virtual machines, so you will need to [switch to a vanilla Linux kernel](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/UserProvidedKernels.html) in order to make use of an ALSA loopback.
 
-If you are using the [UE4Capture](https://github.com/adamrehn/UE4Capture) plugin to capture audio, you will need to ensure that you specify the argument `-AudioMixer` when running the Unreal project from which audio will be captured. Note that under some circumstances, packaged builds of Unreal projects will fail to open the default audio device, resulting in no audio output. To fix this, override the default device by specifying a value for the `AUDIODEV` environment variable. For example, to use the audio device called "front", you would issue the command `export AUDIODEV='front'`. (You can view the list of available ALSA audio devices using the `aplay` command from the [alsa-utils](https://packages.ubuntu.com/bionic/alsa-utils) package.) This issue does not appear to occur when running non-packaged projects from the Editor.
+If you are using the [UE4Capture](https://github.com/adamrehn/UE4Capture) plugin to capture audio, you will need to ensure that you specify the argument `-AudioMixer` when running the Unreal project from which audio will be captured.
 
 ### WebRTC streaming demo
 
