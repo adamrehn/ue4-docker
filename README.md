@@ -57,7 +57,7 @@ For a detailed discussion on how the build process works, see [the accompanying 
 
 The common requirements for both Windows and Linux containers are:
 
-- A minimum of 200GB of available disk space
+- A minimum of 300GB available disk space (400GB under Windows)
 - A minimum of 8GB of available memory (10GB under Windows)
 - [Python](https://www.python.org/) 3.6 or newer with `pip`
 - The ue4-docker package itself, which can be installed by running `pip3 install ue4-docker`
