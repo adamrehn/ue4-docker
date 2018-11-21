@@ -2,28 +2,26 @@
 ARG TAG
 FROM adamrehn/ue4-source:${TAG} AS builder
 
-# Install ue4cli and the prerequisites for conan-ue4cli
-RUN git clone "https://github.com/adamrehn/conan-ue4cli.git" C:\conan-ue4cli
-RUN pip install -r C:\conan-ue4cli\requirements.txt --no-warn-script-location
+# Install ue4cli and conan-ue4cli
+RUN pip install ue4cli conan-ue4cli --no-warn-script-location
 
-# Install conan-ue4cli, build UBT, and extract the third-party library details from UBT
-RUN ue4 setroot C:\UnrealEngine
+# Build UBT, and extract the third-party library details from UBT
 RUN GenerateProjectFiles.bat
-RUN python C:\conan-ue4cli\generate.py
+RUN ue4 setroot C:\UnrealEngine
+RUN ue4 conan generate
 
 # Copy the generated Conan packages into a new image with our Installed Build
 FROM adamrehn/ue4-minimal:${TAG}
 
-# Install ue4cli and the prerequisites for conan-ue4cli
-RUN git clone "https://github.com/adamrehn/conan-ue4cli.git" C:\conan-ue4cli
-RUN pip install -r C:\conan-ue4cli\requirements.txt --no-warn-script-location
+# Install ue4cli and conan-ue4cli
+RUN pip install ue4cli conan-ue4cli --no-warn-script-location
 
 # Copy the Conan configuration settings and package cache from the builder image
 COPY --from=builder C:\Users\ContainerAdministrator\.conan C:\Users\ContainerAdministrator\.conan
 
 # Install conan-ue4cli (just generate the profile, since we've already copied the generated packages)
 RUN ue4 setroot C:\UnrealEngine
-RUN python C:\conan-ue4cli\generate.py --profile-only
+RUN ue4 conan generate --profile-only
 
 # Install CMake and add it to the system PATH
 RUN choco install -y cmake --installargs "ADD_CMAKE_TO_PATH=System"
