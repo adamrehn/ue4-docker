@@ -3,6 +3,7 @@ ARG TAG
 FROM adamrehn/ue4-source:${TAG} AS builder
 
 # Install ue4cli and conan-ue4cli
+RUN pip install setuptools wheel --no-warn-script-location
 RUN pip install ue4cli conan-ue4cli --no-warn-script-location
 
 # Build UBT, and extract the third-party library details from UBT
@@ -14,6 +15,7 @@ RUN ue4 conan generate
 FROM adamrehn/ue4-minimal:${TAG}
 
 # Install ue4cli and conan-ue4cli
+RUN pip install setuptools wheel --no-warn-script-location
 RUN pip install ue4cli conan-ue4cli --no-warn-script-location
 
 # Copy the Conan configuration settings and package cache from the builder image

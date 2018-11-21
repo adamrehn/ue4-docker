@@ -3,6 +3,7 @@ FROM adamrehn/ue4-source:${TAG} AS builder
 
 # Install ue4cli and conan-ue4cli
 USER root
+RUN pip3 install setuptools wheel
 RUN pip3 install ue4cli conan-ue4cli
 USER ue4
 
@@ -19,6 +20,7 @@ RUN git clone "https://github.com/adamrehn/ue4-conan-recipes.git" /home/ue4/ue4-
 
 # Install ue4cli and conan-ue4cli
 USER root
+RUN pip3 install setuptools wheel
 RUN pip3 install ue4cli conan-ue4cli
 USER ue4
 
