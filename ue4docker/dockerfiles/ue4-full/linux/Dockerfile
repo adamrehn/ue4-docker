@@ -18,8 +18,9 @@ FROM adamrehn/ue4-minimal:${TAG}
 RUN git clone "https://github.com/adamrehn/UE4Capture.git" /home/ue4/UE4Capture
 RUN git clone "https://github.com/adamrehn/ue4-conan-recipes.git" /home/ue4/ue4-conan-recipes
 
-# Install ue4cli and conan-ue4cli
+# Install CMake, ue4cli and conan-ue4cli
 USER root
+RUN apt-get install -y --no-install-recommends cmake
 RUN pip3 install setuptools wheel
 RUN pip3 install ue4cli conan-ue4cli
 USER ue4

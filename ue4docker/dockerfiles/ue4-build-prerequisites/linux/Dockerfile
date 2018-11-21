@@ -12,18 +12,13 @@ RUN \
 	apt-get update && apt-get install -y --no-install-recommends \
 		build-essential \
 		ca-certificates \
-		clang-5.0 \
-		cmake \
 		curl \
 		git \
-		libasound2 \
-		lld-5.0 \
 		python3 \
 		python3-pip \
 		shared-mime-info \
 		tzdata \
 		unzip \
-		wget \
 		xdg-user-dirs \
 		zip
 

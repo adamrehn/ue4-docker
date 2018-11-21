@@ -18,6 +18,10 @@ RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build
 # Some versions of the Engine fail to include UnrealPak in the Installed Build, so copy it manually
 RUN cp ./Engine/Binaries/Linux/UnrealPak ./LocalBuilds/Engine/Linux/Engine/Binaries/Linux/UnrealPak
 
+# Ensure the bundled toolchain included in 4.20.0 and newer is copied to the Installed Build
+COPY --chown=ue4:ue4 copy-toolchain.py /tmp/copy-toolchain.py
+RUN python3 /tmp/copy-toolchain.py /home/ue4/UnrealEngine
+
 # Copy the Installed Build into a clean image, discarding the source build
 FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
 
