@@ -7,7 +7,7 @@ LABEL com.adamrehn.ue4-docker.sentinel="1"
 # Disable interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install our build prerequisites and Python dependencies
+# Install our build prerequisites
 RUN \
 	apt-get update && apt-get install -y --no-install-recommends \
 		build-essential \
@@ -25,10 +25,7 @@ RUN \
 		unzip \
 		wget \
 		xdg-user-dirs \
-		zip && \
-	pip3 install \
-		setuptools \
-		wheel
+		zip
 
 # Since UE4 refuses to build or run as the root user under Linux, create a non-root user
 RUN \

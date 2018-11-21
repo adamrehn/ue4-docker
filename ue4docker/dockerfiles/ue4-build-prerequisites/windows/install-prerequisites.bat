@@ -2,15 +2,12 @@
 choco install -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'" || goto :error
 choco install -y curl python vcredist-all || goto :error
 
-@rem Reload our environment variables from the registry so the `git` and `pip` commands work
+@rem Reload our environment variables from the registry so the `git` command works
 call refreshenv
 @echo on
 
 @rem Forcibly disable the git credential manager
 git config --system credential.helper "" || goto :error
-
-@rem Install our Python dependencies
-pip install setuptools wheel --no-warn-script-location || goto :error
 
 @rem Install the Visual Studio 2017 Build Tools workloads and components we need, excluding components with known issues in containers
 curl --progress -L "https://aka.ms/vs/15/release/vs_buildtools.exe" --output %TEMP%\vs_buildtools.exe || goto :error
