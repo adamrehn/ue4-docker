@@ -28,13 +28,24 @@ COPY --chown=ue4:ue4 patch-setup-linux.py /tmp/patch-setup-linux.py
 RUN python3 /tmp/patch-setup-linux.py /home/ue4/UnrealEngine/Setup.sh
 RUN python3 /tmp/patch-setup-linux.py /home/ue4/UnrealEngine/Engine/Build/BatchFiles/Linux/Setup.sh
 
-# Extract the list of post-clone setup commands that require root and run them as root,
-# running everything else as the non-root user to avoid creating files owned by root
+# Create a script to hold the list of post-clone setup commands that require root
 WORKDIR /home/ue4/UnrealEngine
 RUN echo "#!/usr/bin/env bash" >> ./root_commands.sh
 RUN echo "set -x" >> ./root_commands.sh
 RUN chmod a+x ./root_commands.sh
+
+# Preinstall mono for 4.19 so the GitDependencies.exe call triggered by Setup.sh works correctly
+# (this is a no-op for newer Engine versions)
+USER root
+COPY --chown=ue4:ue4 preinstall-mono.py /tmp/preinstall-mono.py
+RUN python3 /tmp/preinstall-mono.py
+USER ue4
+
+# Extract the list of post-clone setup commands that require root and add them to the script,
+# running everything else as the non-root user to avoid creating files owned by root
 RUN ./Setup.sh
+
+# Run the extracted root commands we gathered in our script
 USER root
 RUN ./root_commands.sh
 USER ue4
