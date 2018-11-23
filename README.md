@@ -285,6 +285,10 @@ For an example that demonstrates performing cloud rendering in the `ue4-full` NV
   
   ***Note 2:** This problem does not apply to Linux containers.*
 
+- **Building the Derived Data Cache (DDC) for the Installed Build of the Engine fails with a message about failed shader compilation or being unable to open a `.uasset` file:**
+  
+  This is typically caused by insufficient available disk space. To fix this, simply free up some disk space and run the build again. Running `docker system prune` can be helpful for freing up space occupied by untagged images. Note that restarting the Docker daemon and/or rebooting the host system may also help, since some versions of Docker have a bug that results in the amount of required disk space slowly increasing as more and more builds are run.
+
 
 ## Windows `hcsshim` timeout issues
 
