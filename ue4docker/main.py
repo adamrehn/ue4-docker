@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
-from .infrastructure import DarwinUtils, DockerUtils, Logger, WindowsUtils
+from .infrastructure import DarwinUtils, DockerUtils, Logger, PrettyPrinting, WindowsUtils
 from .build import build
 from .clean import clean
+from .export import export
 from .info import info
 from .setup_cmd import setup
 from .version_cmd import version
@@ -35,6 +35,10 @@ def main():
 			'function': clean,
 			'description': 'Cleans built container images'
 		},
+		'export': {
+			'function': export,
+			'description': 'Exports components from built container images to the host system'
+		},
 		'info': {
 			'function': info,
 			'description': 'Displays information about the host system and Docker daemon'
@@ -67,19 +71,12 @@ def main():
 		
 	else:
 		
-		# Determine the longest command name so we can format our list in nice columns
-		longestName = max([len(c) for c in COMMANDS])
-		minSpaces = 6
-		
 		# Print usage syntax
 		print('Usage: {} COMMAND [OPTIONS]\n'.format(sys.argv[0]))
 		print('Windows and Linux containers for Unreal Engine 4\n')
 		print('Commands:')
-		for command in COMMANDS:
-			whitespace = ' ' * ((longestName + minSpaces) - len(command))
-			print('  {}{}{}'.format(
-				command,
-				whitespace,
-				COMMANDS[command]['description']
-			))
+		PrettyPrinting.printColumns([
+			(command, COMMANDS[command]['description'])
+			for command in COMMANDS
+		])
 		print('\nRun `{} COMMAND --help` for more information on a command.'.format(sys.argv[0]))

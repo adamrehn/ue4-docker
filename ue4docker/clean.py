@@ -1,6 +1,5 @@
-#!/usr/bin/env python3
-import argparse, sys
 from .infrastructure import *
+import argparse, sys
 
 def _isIntermediateImage(image):
 	sentinel = 'com.adamrehn.ue4-docker.sentinel'

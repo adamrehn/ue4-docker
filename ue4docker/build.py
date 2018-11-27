@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import argparse, getpass, humanfriendly, os, shutil, sys, tempfile, time
 from .infrastructure import *
 from os.path import join

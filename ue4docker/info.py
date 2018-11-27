@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import humanfriendly, platform, psutil, sys
 from .version import __version__
 from .infrastructure import *
