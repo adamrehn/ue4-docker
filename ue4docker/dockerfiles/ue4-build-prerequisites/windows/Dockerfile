@@ -20,6 +20,7 @@ COPY opengl32.dll C:\GatheredDlls\opengl32.dll
 COPY glu32.dll C:\GatheredDlls\glu32.dll
 
 # Verify that the DLL files copied from the host can be loaded by the container OS
+RUN pip install pypiwin32
 COPY verify-host-dlls.py C:\
 RUN python C:\verify-host-dlls.py C:\GatheredDlls
 
