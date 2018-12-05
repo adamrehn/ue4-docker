@@ -48,12 +48,12 @@ class DockerUtils(object):
 		return ['docker', 'build', '-t', tag, context] + args
 	
 	@staticmethod
-	def start(image, command):
+	def start(image, command, **kwargs):
 		'''
 		Starts a container in a detached state and returns the container handle
 		'''
 		client = docker.from_env()
-		return client.containers.run(image, command, detach=True)
+		return client.containers.run(image, command, detach=True, **kwargs)
 	
 	@staticmethod
 	def configFilePath():

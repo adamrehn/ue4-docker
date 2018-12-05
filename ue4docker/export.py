@@ -22,7 +22,15 @@ def export():
 			'function': exportInstalledBuild,
 			'description': 'Exports an Installed Build of the Engine',
 			'image': 'adamrehn/ue4-full',
-			'help': 'HELP FOR INSTALLED BUILD'
+			'help': 'Copies the Installed Build from a container to the host system.\nOnly supported under Linux for UE 4.21.0 and newer.'
+		},
+		'packages': {
+			'function': exportPackages,
+			'description': 'Exports conan-ue4cli wrapper packages',
+			'image': 'adamrehn/ue4-full',
+			'help':
+				'Runs a temporary conan server inside a container and uses it to export the\ngenerated conan-ue4cli wrapper packages.\n\n' + 
+				'Currently the only supported destination value is "cache", which exports\nthe packages to the Conan local cache on the host system.'
 		}
 	}
 	
