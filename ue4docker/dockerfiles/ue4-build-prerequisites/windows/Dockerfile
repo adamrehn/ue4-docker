@@ -9,10 +9,19 @@ LABEL com.adamrehn.ue4-docker.sentinel="1"
 # Create a directory in which to gather the DLL files we need 
 RUN mkdir C:\GatheredDlls
 
-# Install 7-Zip and curl using Chocolatey
+# Install 7-Zip, curl, and Python using Chocolatey
 # (Note that these need to be separate RUN directives for `choco` to work)
 RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
-RUN choco install -y 7zip curl
+RUN choco install -y 7zip curl python
+
+# Copy the required DirectSound and OpenGL DLL files from the host system (since these ship with Windows and don't have installers)
+COPY dsound.dll C:\GatheredDlls\dsound.dll
+COPY opengl32.dll C:\GatheredDlls\opengl32.dll
+COPY glu32.dll C:\GatheredDlls\glu32.dll
+
+# Verify that the DLL files copied from the host can be loaded by the container OS
+COPY verify-host-dlls.py C:\
+RUN python C:\verify-host-dlls.py C:\GatheredDlls
 
 # Gather the required DirectX runtime files, since Windows Server Core does not include them
 RUN curl --progress -L "https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe" --output %TEMP%\directx_redist.exe
@@ -26,11 +35,6 @@ RUN start /wait %TEMP%\directx_redist.exe /Q /T:%TEMP% && `
 # Gather the Vulkan runtime library
 RUN curl --progress -L "https://sdk.lunarg.com/sdk/download/1.1.73.0/windows/VulkanSDK-1.1.73.0-Installer.exe?Human=true" --output %TEMP%\VulkanSDK.exe
 RUN 7z e %TEMP%\VulkanSDK.exe -oC:\GatheredDlls -y RunTimeInstaller\x64\vulkan-1.dll
-
-# Copy the required DirectSound and OpenGL DLL files from the host system (since these ship with Windows and don't have installers)
-COPY dsound.dll C:\GatheredDlls\dsound.dll
-COPY opengl32.dll C:\GatheredDlls\opengl32.dll
-COPY glu32.dll C:\GatheredDlls\glu32.dll
 
 # Copy our gathered DLLs into a clean image to reduce image size
 FROM ${BASEIMAGE}
