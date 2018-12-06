@@ -159,6 +159,8 @@ def build():
 			# Build the UE4 build prerequisites image
 			prereqsTag = 'latest' + config.suffix
 			prereqsArgs = ['--build-arg', 'BASEIMAGE=' + config.baseImage]
+			if config.containerPlatform == 'windows':
+				prereqsArgs = prereqsArgs + ['--build-arg', 'HOST_VERSION=' + WindowsUtils.getWindowsBuild()]
 			builder.build('ue4-build-prerequisites', prereqsTag, config.platformArgs + prereqsArgs, config.rebuild, config.dryRun)
 			
 			# Build the UE4 source image

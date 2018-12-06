@@ -79,6 +79,15 @@ class WindowsUtils(object):
 		return WindowsUtils._getVersionRegKey('ReleaseId')
 	
 	@staticmethod
+	def getWindowsBuild():
+		'''
+		Returns the full Windows version number as a string, including the build number
+		'''
+		version = platform.win32_ver()[1]
+		build = WindowsUtils._getVersionRegKey('BuildLabEx').split('.')[1]
+		return '{}.{}'.format(version, build)
+	
+	@staticmethod
 	def isSupportedWindowsVersion():
 		'''
 		Verifies that the Windows host system meets our minimum Windows version requirements

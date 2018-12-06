@@ -21,11 +21,13 @@ def getOsVersion():
 	build = getVersionRegKey('BuildLabEx').split('.')[1]
 	return '{}.{}'.format(version, build)
 
-# Print the OS build number
+# Print the host and container OS build numbers
+print('Host OS build number:      {}'.format(sys.argv[1]))
 print('Container OS build number: {}'.format(getOsVersion()))
+sys.stdout.flush()
 
 # Verify each DLL file in the directory specified by our command-line argument
-dlls = glob.glob(os.path.join(sys.argv[1], '*.dll'))
+dlls = glob.glob(os.path.join(sys.argv[2], '*.dll'))
 for dll in dlls:
 	
 	# Attempt to retrieve the version number of the DLL
@@ -39,6 +41,7 @@ for dll in dlls:
 	
 	# Print the DLL details
 	print('Found host DLL file "{}" with version string "{}".'.format(dllName, dllVersion))
+	sys.stdout.flush()
 	
 	# Determine if the container OS will load the DLL
 	try:

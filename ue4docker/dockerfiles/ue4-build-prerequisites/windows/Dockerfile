@@ -20,9 +20,10 @@ COPY opengl32.dll C:\GatheredDlls\opengl32.dll
 COPY glu32.dll C:\GatheredDlls\glu32.dll
 
 # Verify that the DLL files copied from the host can be loaded by the container OS
+ARG HOST_VERSION
 RUN pip install pypiwin32
 COPY verify-host-dlls.py C:\
-RUN python C:\verify-host-dlls.py C:\GatheredDlls
+RUN python C:\verify-host-dlls.py %HOST_VERSION% C:\GatheredDlls
 
 # Gather the required DirectX runtime files, since Windows Server Core does not include them
 RUN curl --progress -L "https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe" --output %TEMP%\directx_redist.exe
