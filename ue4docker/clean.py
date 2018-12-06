@@ -27,7 +27,8 @@ def clean():
 	parser.add_argument('--source', action='store_true', help='Clean ue4-source images')
 	parser.add_argument('--engine', action='store_true', help='Clean ue4-engine images')
 	parser.add_argument('--all', action='store_true', help='Clean all ue4-docker images')
-	parser.add_argument('--dry-run', action='store_true', help='Print `docker rmi` commands instead of running them')
+	parser.add_argument('--dry-run', action='store_true', help='Print docker commands instead of running them')
+	parser.add_argument('--prune', action='store_true', help='Run `docker system prune` after cleaning')
 	
 	# Parse the supplied command-line arguments
 	args = parser.parse_args()
@@ -51,3 +52,11 @@ def clean():
 	# If requested, remove everything
 	if args.all == True:
 		_cleanMatching(cleaner, 'adamrehn/ue4-*', args.tag, args.dry_run)
+	
+	# If requested, run `docker system prune`
+	if args.prune == True:
+		pruneCommand = ['docker', 'system', 'prune', '-f']
+		if args.dry_run == True:
+			print(pruneCommand)
+		else:
+			subprocess.call(pruneCommand)
