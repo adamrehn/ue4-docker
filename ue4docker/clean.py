@@ -1,5 +1,5 @@
+import argparse, subprocess, sys
 from .infrastructure import *
-import argparse, sys
 
 def _isIntermediateImage(image):
 	sentinel = 'com.adamrehn.ue4-docker.sentinel'
@@ -55,6 +55,7 @@ def clean():
 	
 	# If requested, run `docker system prune`
 	if args.prune == True:
+		logger.action('Running `docker system prune`...')
 		pruneCommand = ['docker', 'system', 'prune', '-f']
 		if args.dry_run == True:
 			print(pruneCommand)
