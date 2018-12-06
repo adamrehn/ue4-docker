@@ -11,7 +11,7 @@ DEFAULT_GIT_REPO = 'https://github.com/EpicGames/UnrealEngine.git'
 # The base images for Linux containers
 LINUX_BASE_IMAGES = {
 	'opengl': 'nvidia/opengl:1.0-glvnd-devel-ubuntu18.04',
-	'cudagl': 'nvidia/cudagl:9.2-devel-ubuntu18.04'
+	'cudagl': 'nvidia/cudagl:10.0-devel-ubuntu18.04'
 }
 
 # The default memory limit (in GB) under Windows
