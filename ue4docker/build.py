@@ -40,7 +40,7 @@ def build():
 	parser.add_argument('--no-full', action='store_true', help='Don\'t build the ue4-full image')
 	parser.add_argument('--no-cache', action='store_true', help='Disable Docker build cache')
 	parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
-	parser.add_argument('--cuda', action='store_true', help='Add CUDA support as well as OpenGL support when building Linux containers')
+	parser.add_argument('--cuda', default=None, metavar='VERSION', help='Add CUDA support as well as OpenGL support when building Linux containers')
 	parser.add_argument('-username', default=None, help='Specify the username to use when cloning the git repository')
 	parser.add_argument('-password', default=None, help='Specify the password to use when cloning the git repository')
 	parser.add_argument('-repo', default=None, help='Set the custom git repository to clone when "custom" is specified as the release value')
@@ -56,8 +56,11 @@ def build():
 		parser.print_help()
 		sys.exit(0)
 	
+	# If the user has specified `--cuda` without a version value, treat the value as an empty string
+	argv = [arg + '=' if arg == '--cuda' else arg for arg in sys.argv]
+	
 	# Parse the supplied command-line arguments
-	args = parser.parse_args()
+	args = parser.parse_args(argv[1:])
 	try:
 		config = BuildConfiguration(args)
 	except RuntimeError as e:
@@ -128,7 +131,7 @@ def build():
 		elif config.containerPlatform == 'linux':
 			
 			# Determine if we are building CUDA-enabled container images
-			capabilities = 'CUDA + OpenGL' if config.cuda == True else 'OpenGL'
+			capabilities = 'CUDA {} + OpenGL'.format(config.cuda) if config.cuda is not None else 'OpenGL'
 			logger.info('Building GPU-enabled images compatible with NVIDIA Docker ({} support).\n'.format(capabilities), False)
 		
 		# Determine if we are performing a dry run

@@ -11,8 +11,14 @@ DEFAULT_GIT_REPO = 'https://github.com/EpicGames/UnrealEngine.git'
 # The base images for Linux containers
 LINUX_BASE_IMAGES = {
 	'opengl': 'nvidia/opengl:1.0-glvnd-devel-ubuntu18.04',
-	'cudagl': 'nvidia/cudagl:9.2-devel-ubuntu18.04'
+	'cudagl': {
+		'9.2':  'nvidia/cudagl:9.2-devel-ubuntu18.04',
+		'10.0': 'nvidia/cudagl:10.0-devel-ubuntu18.04'
+	}
 }
+
+# The default CUDA version to use when `--cuda` is specified without a value
+DEFAULT_CUDA_VERSION = '9.2'
 
 # The default memory limit (in GB) under Windows
 DEFAULT_MEMORY_LIMIT = 10.0
@@ -106,8 +112,18 @@ class BuildConfiguration(object):
 	def _generateLinuxConfig(self, args):
 		
 		# Determine if we are building CUDA-enabled container images
-		self.cuda = args.cuda
-		if self.cuda == True:
-			self.baseImage = LINUX_BASE_IMAGES['cudagl']
+		self.cuda = None
+		if args.cuda is not None:
+			
+			# Verify that the specified CUDA version is valid
+			self.cuda = args.cuda if args.cuda != '' else DEFAULT_CUDA_VERSION
+			if self.cuda not in LINUX_BASE_IMAGES['cudagl']:
+				raise RuntimeError('unsupported CUDA version "{}", supported versions are: {}'.format(
+					self.cuda,
+					', '.join([v for v in LINUX_BASE_IMAGES['cudagl']])
+				))
+			
+			# Use the appropriate base image for the specified CUDA version
+			self.baseImage = LINUX_BASE_IMAGES['cudagl'][self.cuda]
 		else:
 			self.baseImage = LINUX_BASE_IMAGES['opengl']
