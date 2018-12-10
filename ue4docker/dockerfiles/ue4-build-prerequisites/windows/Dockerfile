@@ -23,6 +23,7 @@ COPY glu32.dll C:\GatheredDlls\glu32.dll
 ARG HOST_VERSION
 RUN pip install pypiwin32
 COPY verify-host-dlls.py C:\
+RUN xcopy /y "C:\GatheredDlls\*.dll" C:\Windows\System32\
 RUN python C:\verify-host-dlls.py %HOST_VERSION% C:\GatheredDlls
 
 # Gather the required DirectX runtime files, since Windows Server Core does not include them
