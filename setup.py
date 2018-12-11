@@ -1,6 +1,10 @@
 from os.path import abspath, dirname, join
 from setuptools import setup
 
+# Read the README markdown data from README.md
+with open(abspath(join(dirname(__file__), 'README.md'))) as readmeFile:
+	__readme__ = readmeFile.read()
+
 # Read the version number from version.py
 with open(abspath(join(dirname(__file__), 'ue4docker', 'version.py'))) as versionFile:
 	__version__ = versionFile.read().strip().replace('__version__ = ', '').replace("'", '')
@@ -9,6 +13,8 @@ setup(
 	name='ue4-docker',
 	version=__version__,
 	description='Windows and Linux containers for Unreal Engine 4',
+	long_description=__readme__,
+	long_description_content_type='text/markdown',
 	classifiers=[
 		'License :: OSI Approved :: MIT License',
 		'Programming Language :: Python :: 3.6',
