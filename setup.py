@@ -2,8 +2,8 @@ from os.path import abspath, dirname, join
 from setuptools import setup
 
 # Read the README markdown data from README.md
-with open(abspath(join(dirname(__file__), 'README.md'))) as readmeFile:
-	__readme__ = readmeFile.read()
+with open(abspath(join(dirname(__file__), 'README.md')), 'rb') as readmeFile:
+	__readme__ = readmeFile.read().decode('utf-8')
 
 # Read the version number from version.py
 with open(abspath(join(dirname(__file__), 'ue4docker', 'version.py'))) as versionFile:
