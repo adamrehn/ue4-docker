@@ -1,0 +1,18 @@
+Guidelines for contributing to ue4-docker
+=========================================
+
+
+## Contents
+
+- [Creating issues](#creating-issues)
+- [Creating pull requests](#creating-pull-requests)
+
+
+## Creating issues
+
+When creating an issue to report a bug, please follow the provided issue template. Make sure you include the full output of the `ue4-docker info` command in the provided section, as well as the full output of the `ue4-docker build` command and the command line parameters used to invoke the build if you are reporting a problem with building the container images.
+
+
+## Creating pull requests
+
+Before creating a pull request, please ensure sure you have tested your changes on all platforms to which the change applies (Linux / Windows Server / Windows 10 / macOS).
