@@ -26,6 +26,16 @@ class WindowsUtils(object):
 		return value[0]
 	
 	@staticmethod
+	def requiredHostDlls(basetag):
+		'''
+		Returns the list of required host DLL files for the specified container image base tag
+		'''
+		
+		# `ddraw.dll` is only required under Windows Server 2016 version 1607
+		common = ['dsound.dll', 'opengl32.dll', 'glu32.dll']
+		return ['ddraw.dll'] + common if basetag == 'ltsc2016' else common
+	
+	@staticmethod
 	def requiredSizeLimit():
 		'''
 		Returns the minimum required image size limit (in GB) for Windows containers

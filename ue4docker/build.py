@@ -114,8 +114,8 @@ def build():
 				logger.error('refuse to load them, preventing the built Engine from running correctly.', False)
 				sys.exit(1)
 			
-			# Attempt to copy the required DirectSound and OpenGL DLL files from the host system
-			for dll in ['dsound.dll', 'opengl32.dll', 'glu32.dll']:
+			# Attempt to copy the required DLL files from the host system
+			for dll in WindowsUtils.requiredHostDlls(config.basetag):
 				shutil.copy2(join(config.dlldir, dll), join(builder.context('ue4-build-prerequisites'), dll))
 			
 			# Ensure the Docker daemon is configured correctly

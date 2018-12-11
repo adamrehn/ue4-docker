@@ -14,10 +14,8 @@ RUN mkdir C:\GatheredDlls
 RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 RUN choco install -y 7zip curl python
 
-# Copy the required DirectSound and OpenGL DLL files from the host system (since these ship with Windows and don't have installers)
-COPY dsound.dll C:\GatheredDlls\dsound.dll
-COPY opengl32.dll C:\GatheredDlls\opengl32.dll
-COPY glu32.dll C:\GatheredDlls\glu32.dll
+# Copy the required DirectSound/DirectDraw and OpenGL DLL files from the host system (since these ship with Windows and don't have installers)
+COPY *.dll C:\GatheredDlls\
 
 # Verify that the DLL files copied from the host can be loaded by the container OS
 ARG HOST_VERSION
