@@ -1,19 +1,22 @@
+from ..infrastructure import DockerUtils, Logger
 import docker, os, subprocess, sys, tempfile
-from ..infrastructure import DockerUtils
+
+# The name we use for our temporary Conan remote
+REMOTE_NAME = '_ue4docker_export_temp'
 
 # Our conan_server config file data
 CONAN_SERVER_CONFIG = '''
 [server]
-jwt_secret: {jwt_secret}
+jwt_secret: jwt_secret
 jwt_expire_minutes: 120
 ssl_enabled: False
 port: 9300
-public_port:
+public_port: 9300
 host_name: 127.0.0.1
 authorize_timeout: 1800
-disk_storage_path: ~/.conan_server/data
+disk_storage_path: {}
 disk_authorize_timeout: 1800
-updown_secret: {updown_secret}
+updown_secret: updown_secret
 
 [write_permissions]
 */*@*/*: *
@@ -55,6 +58,8 @@ def _exec(container, command, **kwargs):
 				output
 			)
 		)
+	
+	return output
 
 def _execMultiple(container, commands, **kwargs):
 	for command in commands:
@@ -62,16 +67,19 @@ def _execMultiple(container, commands, **kwargs):
 
 def exportPackages(tag, destination, extraArgs):
 	
+	# Create our logger to generate coloured output on stderr
+	logger = Logger()
+	
 	# Verify that the destination is "cache"
 	if destination.lower() != 'cache':
-		print('Error: the only supported package export destination is "cache".')
+		logger.error('Error: the only supported package export destination is "cache".')
 		sys.exit(1)
 	
 	# Verify that Conan is installed on the host
 	try:
 		_run(['conan', '--version'])
 	except:
-		print('Error: Conan must be installed on the host system to export packages.')
+		logger.error('Error: Conan must be installed on the host system to export packages.')
 		sys.exit(1)
 	
 	# Determine if the container image is a Windows image or a Linux image
@@ -85,6 +93,7 @@ def exportPackages(tag, destination, extraArgs):
 			'rootCommand': ['bash', '-c', 'sleep infinity'],
 			'copyCommand': ['cp', '-f'],
 			
+			'dataDir':   '/home/ue4/.conan_server/data',
 			'configDir': '/home/ue4/.conan_server/',
 			'bindMount': '/hostdir/'
 		},
@@ -93,6 +102,7 @@ def exportPackages(tag, destination, extraArgs):
 			'rootCommand': ['timeout', '/t', '99999', '/nobreak'],
 			'copyCommand': ['xcopy', '/y'],
 			
+			'dataDir':   'C:\\Users\\ContainerAdministrator\\.conan_server\\data',
 			'configDir': 'C:\\Users\\ContainerAdministrator\\.conan_server\\',
 			'bindMount': 'C:\\hostdir\\'
 		}
@@ -103,7 +113,7 @@ def exportPackages(tag, destination, extraArgs):
 	with tempfile.TemporaryDirectory() as tempDir:
 		
 		# Generate our server config file in the temp directory
-		_writeFile(os.path.join(tempDir, 'server.conf'), CONAN_SERVER_CONFIG)
+		_writeFile(os.path.join(tempDir, 'server.conf'), CONAN_SERVER_CONFIG.format(cmdsAndPaths['dataDir']))
 		
 		# Progress output
 		print('Starting conan_server in a container...')
@@ -116,6 +126,9 @@ def exportPackages(tag, destination, extraArgs):
 			mounts = [docker.types.Mount(cmdsAndPaths['bindMount'], tempDir, 'bind')]
 		)
 		
+		# Keep track of the `conan_server` log output so we can display it in case of an error
+		serverOutput = None
+		
 		try:
 			
 			# Copy the server config file to the expected location inside the container
@@ -125,7 +138,7 @@ def exportPackages(tag, destination, extraArgs):
 			])
 			
 			# Start `conan_server`
-			_exec(container, ['conan_server'], detach = True)
+			serverOutput = _exec(container, ['conan_server'], stream = True)
 			
 			# Progress output
 			print('Uploading packages to the server...')
@@ -138,23 +151,31 @@ def exportPackages(tag, destination, extraArgs):
 			])
 			
 			# Configure the server as a temporary remote on the host system
-			remoteName = '_ue4docker_export_temp'
-			_run(['conan', 'remote', 'add', remoteName, 'http://127.0.0.1:9300'])
-			_run(['conan', 'user', 'user', '-r', remoteName, '-p', 'password'])
+			_run(['conan', 'remote', 'add', REMOTE_NAME, 'http://127.0.0.1:9300'])
+			_run(['conan', 'user', 'user', '-r', REMOTE_NAME, '-p', 'password'])
 			
 			# Retrieve the list of packages that were uploaded to the server
-			packages = _extractLines(_capture(['conan', 'search', '-r', remoteName, '*']).stdout)
+			packages = _extractLines(_capture(['conan', 'search', '-r', REMOTE_NAME, '*']).stdout)
 			packages = [package for package in packages if '/' in package and '@' in package]
 			
 			# Download each package in turn
 			for package in packages:
 				print('Downloading package {} to host system local cache...'.format(package))
-				_run(['conan', 'download', '-r', remoteName, '-re', package])
+				_run(['conan', 'download', '-r', REMOTE_NAME, '-re', package])
+			
+			# Once we reach this point, everything has worked and we don't need to output any logs
+			serverOutput = None
 			
 		finally:
 			
+			# If something went wrong then output the logs from `conan_server` to assist in diagnosing the failure
+			if serverOutput is not None:
+				print('Log output from conan_server:')
+				for chunk in serverOutput:
+					logger.error(chunk.decode('utf-8'))
+			
 			# Remove the temporary remote if it was created successfully
-			_run(['conan', 'remote', 'remove', remoteName], check = False)
+			_run(['conan', 'remote', 'remove', REMOTE_NAME], check = False)
 			
 			# Stop the container, irrespective of whether or not the export succeeded
 			print('Stopping conan_server...')
