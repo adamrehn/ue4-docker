@@ -161,7 +161,7 @@ def exportPackages(tag, destination, extraArgs):
 			# Download each package in turn
 			for package in packages:
 				print('Downloading package {} to host system local cache...'.format(package))
-				_run(['conan', 'download', '-r', REMOTE_NAME, '-re', package])
+				_run(['conan', 'download', '-r', REMOTE_NAME, package])
 			
 			# Once we reach this point, everything has worked and we don't need to output any logs
 			serverOutput = None
