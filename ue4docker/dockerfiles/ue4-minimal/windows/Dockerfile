@@ -8,8 +8,11 @@ COPY patch-filters-xml.py C:\patch-filters-xml.py
 RUN python C:\patch-filters-xml.py C:\UnrealEngine\Engine\Build\InstalledEngineFilters.xml
 
 # Create an Installed Build of the Engine
+# (We remove all .pdb files in order to reduce the final container image size)
 WORKDIR C:\UnrealEngine
-RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph -target="Make Installed Build Win64" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true
+RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph -target="Make Installed Build Win64" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true && `
+	cd C:\UnrealEngine\LocalBuilds\Engine\Windows && `
+	del /Q /F /S "*.pdb"
 
 # Copy the Installed Build into a clean image, discarding the source tree
 FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
