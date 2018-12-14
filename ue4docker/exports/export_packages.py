@@ -88,7 +88,8 @@ def exportPackages(tag, destination, extraArgs):
 			ports = {'9300/tcp': 9300},
 			mounts = [docker.types.Mount(cmdsAndPaths['bindMount'], tempDir, 'bind')],
 			stdin_open = imageOS == 'windows',
-			tty = imageOS == 'windows'
+			tty = imageOS == 'windows',
+			remove = True
 		)
 		
 		# Reload the container attributes from the Docker daemon to ensure the networking fields are populated
