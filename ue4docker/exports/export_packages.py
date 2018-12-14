@@ -12,7 +12,7 @@ jwt_expire_minutes: 120
 ssl_enabled: False
 port: 9300
 public_port: 9300
-host_name: 127.0.0.1
+host_name: {}
 authorize_timeout: 1800
 disk_storage_path: {}
 disk_authorize_timeout: 1800
@@ -78,9 +78,6 @@ def exportPackages(tag, destination, extraArgs):
 	# Create an auto-deleting temporary directory to hold our server config file
 	with tempfile.TemporaryDirectory() as tempDir:
 		
-		# Generate our server config file in the temp directory
-		FilesystemUtils.writeFile(os.path.join(tempDir, 'server.conf'), CONAN_SERVER_CONFIG.format(cmdsAndPaths['dataDir']))
-		
 		# Progress output
 		print('Starting conan_server in a container...')
 		
@@ -93,6 +90,16 @@ def exportPackages(tag, destination, extraArgs):
 			stdin_open = imageOS == 'windows',
 			tty = imageOS == 'windows'
 		)
+		
+		# Reload the container attributes from the Docker daemon to ensure the networking fields are populated
+		container.reload()
+		
+		# Under Linux we can simply access the container from the host over the loopback address, but this doesn't work under Windows
+		# (See <https://blog.sixeyed.com/published-ports-on-windows-containers-dont-do-loopback/>)
+		externalAddress = '127.0.0.1' if imageOS == 'linux' else container.attrs['NetworkSettings']['Networks']['nat']['IPAddress']
+		
+		# Generate our server config file in the temp directory
+		FilesystemUtils.writeFile(os.path.join(tempDir, 'server.conf'), CONAN_SERVER_CONFIG.format(externalAddress, cmdsAndPaths['dataDir']))
 		
 		# Keep track of the `conan_server` log output so we can display it in case of an error
 		serverOutput = None
@@ -119,7 +126,7 @@ def exportPackages(tag, destination, extraArgs):
 			])
 			
 			# Configure the server as a temporary remote on the host system
-			SubprocessUtils.run(['conan', 'remote', 'add', REMOTE_NAME, 'http://127.0.0.1:9300'])
+			SubprocessUtils.run(['conan', 'remote', 'add', REMOTE_NAME, 'http://{}:9300'.format(externalAddress)])
 			SubprocessUtils.run(['conan', 'user', 'user', '-r', REMOTE_NAME, '-p', 'password'])
 			
 			# Retrieve the list of packages that were uploaded to the server
