@@ -37,9 +37,10 @@ setup(
 		'humanfriendly',
 		'psutil',
 		'semver>=2.7.9',
-		'setuptools',
+		'setuptools>=38.6.0',
 		'termcolor',
-		'wheel'
+		'twine>=1.11.0',
+		'wheel>=0.31.0'
 	],
 	package_data = {
 		'ue4docker': [
