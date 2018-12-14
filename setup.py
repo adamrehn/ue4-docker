@@ -42,7 +42,10 @@ setup(
 		'wheel'
 	],
 	package_data = {
-		'ue4docker': ['dockerfiles/*/*/*']
+		'ue4docker': [
+			'dockerfiles/*/*/.dockerignore',
+			'dockerfiles/*/*/*'
+		]
 	},
 	entry_points = {
 		'console_scripts': ['ue4-docker=ue4docker:main']
