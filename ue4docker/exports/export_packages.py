@@ -54,8 +54,9 @@ def exportPackages(tag, destination, extraArgs):
 	cmdsAndPaths = {
 		
 		'linux': {
-			'rootCommand': ['bash', '-c', 'sleep infinity'],
-			'copyCommand': ['cp', '-f'],
+			'rootCommand':  ['bash', '-c', 'sleep infinity'],
+			'mkdirCommand': ['mkdir'],
+			'copyCommand':  ['cp', '-f'],
 			
 			'dataDir':   '/home/ue4/.conan_server/data',
 			'configDir': '/home/ue4/.conan_server/',
@@ -63,8 +64,9 @@ def exportPackages(tag, destination, extraArgs):
 		},
 		
 		'windows': {
-			'rootCommand': ['timeout', '/t', '99999', '/nobreak'],
-			'copyCommand': ['xcopy', '/y'],
+			'rootCommand':  ['timeout', '/t', '99999', '/nobreak'],
+			'mkdirCommand': ['cmd', '/S', '/C', 'mkdir'],
+			'copyCommand':  ['xcopy', '/y'],
 			
 			'dataDir':   'C:\\Users\\ContainerAdministrator\\.conan_server\\data',
 			'configDir': 'C:\\Users\\ContainerAdministrator\\.conan_server\\',
@@ -97,8 +99,8 @@ def exportPackages(tag, destination, extraArgs):
 			
 			# Copy the server config file to the expected location inside the container
 			DockerUtils.execMultiple(container, [
-				['mkdir', cmdsAndPaths['configDir']],
-				cmdsAndPaths['copyCommand'] + [cmdsAndPaths['bindMount'] + 'server.conf', cmdsAndPaths['configDir'] + 'server.conf']
+				cmdsAndPaths['mkdirCommand'] + [cmdsAndPaths['configDir']],
+				cmdsAndPaths['copyCommand'] + [cmdsAndPaths['bindMount'] + 'server.conf', cmdsAndPaths['configDir']]
 			])
 			
 			# Start `conan_server`
@@ -132,6 +134,10 @@ def exportPackages(tag, destination, extraArgs):
 			
 		finally:
 			
+			# Stop the container, irrespective of whether or not the export succeeded
+			print('Stopping conan_server...')
+			container.stop()
+			
 			# If something went wrong then output the logs from `conan_server` to assist in diagnosing the failure
 			if serverOutput is not None:
 				print('Log output from conan_server:')
@@ -140,7 +146,3 @@ def exportPackages(tag, destination, extraArgs):
 			
 			# Remove the temporary remote if it was created successfully
 			SubprocessUtils.run(['conan', 'remote', 'remove', REMOTE_NAME], check = False)
-			
-			# Stop the container, irrespective of whether or not the export succeeded
-			print('Stopping conan_server...')
-			container.stop()
