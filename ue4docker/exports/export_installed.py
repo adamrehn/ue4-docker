@@ -1,19 +1,8 @@
-from ..infrastructure import DockerUtils, PackageUtils
+from ..infrastructure import DockerUtils, PackageUtils, SubprocessUtils
 import os, platform, subprocess, sys
 
 # Import the `semver` package even when the conflicting `node-semver` package is present
 semver = PackageUtils.importFile('semver', os.path.join(PackageUtils.getPackageLocation('semver'), 'semver.py'))
-
-def _capture(command):
-	return subprocess.run(
-		command,
-		stdout = subprocess.PIPE,
-		stderr = subprocess.PIPE,
-		check = True
-	)
-
-def _extractLines(output):
-	return output.decode('utf-8').replace('\r\n', '\n').strip().split('\n')
 
 def exportInstalledBuild(tag, destination, extraArgs):
 	
@@ -24,9 +13,9 @@ def exportInstalledBuild(tag, destination, extraArgs):
 	
 	# Verify that the Installed Build in the specified image is at least 4.21.0
 	image = 'adamrehn/ue4-full:{}'.format(tag)
-	versionResult = _capture(['docker', 'run', '--rm', '-ti', image, 'ue4', 'version'])
+	versionResult = SubprocessUtils.capture(['docker', 'run', '--rm', '-ti', image, 'ue4', 'version'])
 	try:
-		version = semver.parse(_extractLines(versionResult.stdout)[-1])
+		version = semver.parse(SubprocessUtils.extractLines(versionResult.stdout)[-1])
 		if version['minor'] < 21:
 			raise Exception()
 	except:

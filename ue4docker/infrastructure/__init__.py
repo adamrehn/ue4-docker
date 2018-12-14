@@ -2,10 +2,12 @@ from .BuildConfiguration import BuildConfiguration
 from .CredentialEndpoint import CredentialEndpoint
 from .DarwinUtils import DarwinUtils
 from .DockerUtils import DockerUtils
+from .FilesystemUtils import FilesystemUtils
 from .ImageBuilder import ImageBuilder
 from .ImageCleaner import ImageCleaner
 from .Logger import Logger
 from .NetworkUtils import NetworkUtils
 from .PackageUtils import PackageUtils
 from .PrettyPrinting import PrettyPrinting
+from .SubprocessUtils import SubprocessUtils
 from .WindowsUtils import WindowsUtils

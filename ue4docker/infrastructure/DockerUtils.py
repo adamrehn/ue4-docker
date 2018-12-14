@@ -116,3 +116,29 @@ class DockerUtils(object):
 			images = [i for i in images if len(i.tags) > 0 and len(fnmatch.filter(i.tags, tagFilter)) > 0]
 		
 		return images
+	
+	@staticmethod
+	def exec(container, command, **kwargs):
+		'''
+		Executes a command in a container returned by `DockerUtils.start()` and returns the output
+		'''
+		result, output = container.exec_run(command, **kwargs)
+		if result is not None and result != 0:
+			container.stop()
+			raise RuntimeError(
+				'Failed to run command {} in container. Process returned exit code {} with output: {}'.format(
+					command,
+					result,
+					output
+				)
+			)
+		
+		return output
+	
+	@staticmethod
+	def execMultiple(container, commands, **kwargs):
+		'''
+		Executes multiple commands in a container returned by `DockerUtils.start()`
+		'''
+		for command in commands:
+			DockerUtils.exec(container, command, **kwargs)
