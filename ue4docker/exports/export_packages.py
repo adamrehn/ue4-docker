@@ -89,7 +89,9 @@ def exportPackages(tag, destination, extraArgs):
 			image,
 			cmdsAndPaths['rootCommand'],
 			ports = {'9300/tcp': 9300},
-			mounts = [docker.types.Mount(cmdsAndPaths['bindMount'], tempDir, 'bind')]
+			mounts = [docker.types.Mount(cmdsAndPaths['bindMount'], tempDir, 'bind')],
+			stdin_open = imageOS == 'windows',
+			tty = imageOS == 'windows'
 		)
 		
 		# Keep track of the `conan_server` log output so we can display it in case of an error
