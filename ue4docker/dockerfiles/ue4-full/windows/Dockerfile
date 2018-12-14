@@ -7,9 +7,10 @@ RUN pip install setuptools wheel --no-warn-script-location
 RUN pip install ue4cli conan-ue4cli --no-warn-script-location
 
 # Build UBT, and extract the third-party library details from UBT
+# (Remove the profile base packages to avoid a bug where Windows locks the files and breaks subsequent profile generation)
 RUN GenerateProjectFiles.bat
 RUN ue4 setroot C:\UnrealEngine
-RUN ue4 conan generate
+RUN ue4 conan generate && ue4 conan generate --remove-only
 
 # Copy the generated Conan packages into a new image with our Installed Build
 FROM adamrehn/ue4-minimal:${TAG}
