@@ -40,6 +40,7 @@ def build():
 	parser.add_argument('--no-full', action='store_true', help='Don\'t build the ue4-full image')
 	parser.add_argument('--no-cache', action='store_true', help='Disable Docker build cache')
 	parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
+	parser.add_argument('--keep-debug', action='store_true', help='Don\'t truncate PDB files when building Windows containers')
 	parser.add_argument('--cuda', default=None, metavar='VERSION', help='Add CUDA support as well as OpenGL support when building Linux containers')
 	parser.add_argument('-username', default=None, help='Specify the username to use when cloning the git repository')
 	parser.add_argument('-password', default=None, help='Specify the password to use when cloning the git repository')

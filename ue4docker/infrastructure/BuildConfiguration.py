@@ -108,6 +108,11 @@ class BuildConfiguration(object):
 		self.isolation = args.isolation if args.isolation is not None else 'default'
 		if self.isolation != 'default':
 			self.platformArgs.append('-isolation=' + self.isolation)
+		
+		# Set the PDB truncation Docker flags
+		self.keepDebug = args.keep_debug
+		if self.keepDebug == True:
+			self.platformArgs.extend(['--build-arg', 'KEEP_DEBUG=1'])
 	
 	def _generateLinuxConfig(self, args):
 		
