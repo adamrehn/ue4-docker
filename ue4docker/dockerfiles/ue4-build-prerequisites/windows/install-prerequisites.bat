@@ -13,16 +13,12 @@ git config --system credential.helper "" || goto :error
 curl --progress -L "https://aka.ms/vs/15/release/vs_buildtools.exe" --output %TEMP%\vs_buildtools.exe || goto :error
 %TEMP%\vs_buildtools.exe --quiet --wait --norestart --nocache ^
 	--installPath C:\BuildTools ^
-	--add Microsoft.VisualStudio.Workload.VCTools;includeRecommended;includeOptional ^
-	--add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools;includeRecommended;includeOptional ^
+	--add Microsoft.VisualStudio.Workload.VCTools;includeRecommended ^
+	--add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools;includeRecommended ^
 	--add Microsoft.VisualStudio.Workload.UniversalBuildTools ^
 	--add Microsoft.VisualStudio.Workload.NetCoreBuildTools ^
 	--add Microsoft.VisualStudio.Workload.MSBuildTools ^
-	--add Microsoft.VisualStudio.Component.NuGet ^
-	--remove Microsoft.VisualStudio.Component.Windows10SDK.10240 ^
-	--remove Microsoft.VisualStudio.Component.Windows10SDK.10586 ^
-	--remove Microsoft.VisualStudio.Component.Windows10SDK.14393 ^
-	--remove Microsoft.VisualStudio.Component.Windows81SDK
+	--add Microsoft.VisualStudio.Component.NuGet
 python C:\buildtools-exitcode.py %ERRORLEVEL% || goto :error
 
 @rem Install WinDbg, which contains pdbcopy.exe (needed for creating an Installed Build of the Engine)
