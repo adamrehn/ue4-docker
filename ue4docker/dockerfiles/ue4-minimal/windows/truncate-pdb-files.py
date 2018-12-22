@@ -12,6 +12,7 @@ def readFile(filename):
 		return f.read().decode('utf-8')
 
 # Parse the UE4 version information
+rootDir = sys.argv[1]
 version = json.loads(readFile(os.path.join(rootDir, 'Engine', 'Build', 'Build.version')))
 
 # Determine if we are preserving or truncating PDB files
@@ -21,7 +22,6 @@ if keepDebug == True:
 	sys.exit(0)
 
 # Truncate all PDB files to save space whilst avoiding the issues that would be caused by the files being missing
-rootDir = sys.argv[1]
 log('Scanning for PDB files in directory {}...'.format(rootDir))
 pdbFiles = glob.glob(os.path.join(rootDir, '**', '*.pdb'), recursive=True)
 for pdbFile in pdbFiles:
