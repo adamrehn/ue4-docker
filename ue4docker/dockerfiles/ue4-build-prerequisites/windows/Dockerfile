@@ -37,7 +37,11 @@ RUN start /wait %TEMP%\directx_redist.exe /Q /T:%TEMP% && `
 RUN curl --progress -L "https://sdk.lunarg.com/sdk/download/1.1.73.0/windows/VulkanSDK-1.1.73.0-Installer.exe?Human=true" --output %TEMP%\VulkanSDK.exe
 RUN 7z e %TEMP%\VulkanSDK.exe -oC:\GatheredDlls -y RunTimeInstaller\x64\vulkan-1.dll
 
-# Copy our gathered DLLs into a clean image to reduce image size
+# Gather pdbcopy.exe (needed for creating an Installed Build of the Engine)
+RUN choco install -y windbg
+RUN xcopy /y "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\pdbcopy.exe" C:\GatheredDlls\
+
+# Copy our gathered DLLs (and pdbcopy.exe) into a clean image to reduce image size
 FROM ${BASEIMAGE}
 SHELL ["cmd", "/S", "/C"]
 COPY --from=dlls C:\GatheredDlls\ C:\Windows\System32\

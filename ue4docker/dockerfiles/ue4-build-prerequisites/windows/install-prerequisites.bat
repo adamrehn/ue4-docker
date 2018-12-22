@@ -21,9 +21,6 @@ curl --progress -L "https://aka.ms/vs/15/release/vs_buildtools.exe" --output %TE
 	--add Microsoft.VisualStudio.Component.NuGet
 python C:\buildtools-exitcode.py %ERRORLEVEL% || goto :error
 
-@rem Install WinDbg, which contains pdbcopy.exe (needed for creating an Installed Build of the Engine)
-choco install -y windbg || goto :error
-
 @rem Copy pdbcopy.exe to the expected location(s) for UE4 versions prior to the UE-51362 fix (https://issues.unrealengine.com/issue/UE-51362)
 python C:\copy-pdbcopy.py || goto :error
 
