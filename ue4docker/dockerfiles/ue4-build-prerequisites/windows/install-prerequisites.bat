@@ -21,7 +21,7 @@ curl --progress -L "https://aka.ms/vs/15/release/vs_buildtools.exe" --output %TE
 	--add Microsoft.VisualStudio.Component.NuGet
 python C:\buildtools-exitcode.py %ERRORLEVEL% || goto :error
 
-@rem Copy pdbcopy.exe to the expected location(s) for UE4 versions prior to the UE-51362 fix (https://issues.unrealengine.com/issue/UE-51362)
+@rem Copy pdbcopy.exe to the expected location(s)
 python C:\copy-pdbcopy.py || goto :error
 
 @rem Clean up any temp files generated during prerequisite installation

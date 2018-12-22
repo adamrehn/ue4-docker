@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import os, shutil
 
-# Copy pdbcopy.exe to the expected location for UE4 versions prior to the UE-51362 fix (https://issues.unrealengine.com/issue/UE-51362)
+# Copy pdbcopy.exe to the expected location for both newer Engine versions, 
+# as well as UE4 versions prior to the UE-51362 fix (https://issues.unrealengine.com/issue/UE-51362)
 pdbcopyExe = 'C:\\Windows\\System32\\pdbcopy.exe'
 destDirTemplate = 'C:\\Program Files (x86)\\MSBuild\\Microsoft\\VisualStudio\\v{}\\AppxPackage'
 destDirs = [
