@@ -36,6 +36,7 @@ setup(
 		'flask',
 		'humanfriendly',
 		'psutil',
+		'requests',
 		'semver>=2.7.9',
 		'setuptools>=38.6.0',
 		'termcolor',

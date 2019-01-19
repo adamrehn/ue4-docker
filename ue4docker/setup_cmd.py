@@ -1,4 +1,4 @@
-import platform, subprocess, sys
+import docker, os, platform, requests, subprocess, sys
 from .infrastructure import *
 
 # Runs a command without displaying its output and returns the exit code
@@ -59,3 +59,46 @@ def setup():
 		
 	else:
 		print('Firewall rule for credential endpoint is already configured.')
+	
+	# Determine if the host system is Windows Server Core and lacks the required DLL files for building our containers
+	hostRelease = WindowsUtils.getWindowsRelease()
+	requiredDLLs = WindowsUtils.requiredHostDlls(hostRelease)
+	dllDir = os.path.join(os.environ['SystemRoot'], 'System32')
+	existing = [dll for dll in requiredDLLs if os.path.exists(os.path.join(dllDir, dll))]
+	if len(existing) != len(requiredDLLs):
+		
+		# Determine if we can extract DLL files from the full Windows base image (version 1809 and newer only)
+		tags = requests.get('https://mcr.microsoft.com/v2/windowsfamily/windows/tags/list').json()['tags']
+		if hostRelease in tags:
+			
+			# Pull the full Windows base image with the appropriate tag if it does not already exist
+			image = 'mcr.microsoft.com/windows:{}'.format(hostRelease)
+			print('Pulling full Windows base image "{}"...'.format(image))
+			subprocess.run(['docker', 'pull', image], check=True)
+			
+			# Start a container from which we will copy the DLL files, bind-mounting our DLL destination directory
+			print('Starting a container to copy DLL files from...')
+			mountPath = 'C:\\dlldir'
+			container = DockerUtils.start(
+				image,
+				['timeout', '/t', '99999', '/nobreak'],
+				mounts = [docker.types.Mount(mountPath, dllDir, 'bind')],
+				stdin_open = True,
+				tty = True,
+				remove = True
+			)
+			
+			# Copy the DLL files to the host
+			print('Copying DLL files to the host system...')
+			DockerUtils.execMultiple(container, [['xcopy', '/y', os.path.join(dllDir, dll), mountPath + '\\'] for dll in requiredDLLs])
+			
+			# Stop the container
+			print('Stopping the container...')
+			container.stop()
+			
+		else:
+			print('The following DLL files will need to be manually copied into {}:'.format(dllDir))
+			print('\n'.join(['- {}'.format(dll) for dll in requiredDLLs if dll not in existing]))
+		
+	else:
+		print('All required DLL files are already present on the host system.')
