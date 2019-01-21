@@ -14,9 +14,8 @@ RUN ue4 conan generate
 # Copy the generated Conan packages into a new image with our Installed Build
 FROM adamrehn/ue4-minimal:${TAG}
 
-# Clone the UE4Capture, and ue4-conan-recipes repositories
+# Clone the UE4Capture repository
 RUN git clone "https://github.com/adamrehn/UE4Capture.git" /home/ue4/UE4Capture
-RUN git clone "https://github.com/adamrehn/ue4-conan-recipes.git" /home/ue4/ue4-conan-recipes
 
 # Install CMake, ue4cli and conan-ue4cli
 USER root
@@ -33,7 +32,7 @@ RUN ue4 setroot /home/ue4/UnrealEngine
 RUN ue4 conan generate --profile-only
 
 # Build the Conan packages for the UE4Capture dependencies
-RUN ue4 conan build MediaIPC-ue4 -source /home/ue4/ue4-conan-recipes
+RUN ue4 conan build MediaIPC-ue4
 
 # Patch the problematic UE4 header files under 4.19.x (this call is a no-op under newer Engine versions)
 RUN python3 /home/ue4/UE4Capture/scripts/patch-headers.py
