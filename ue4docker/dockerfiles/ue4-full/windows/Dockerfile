@@ -15,9 +15,9 @@ RUN ue4 conan generate && ue4 conan generate --remove-only
 # Copy the generated Conan packages into a new image with our Installed Build
 FROM adamrehn/ue4-minimal:${TAG}
 
-# Install ue4cli and conan-ue4cli
+# Install ue4cli conan-ue4cli, and ue4-ci-helpers
 RUN pip install setuptools wheel --no-warn-script-location
-RUN pip install ue4cli conan-ue4cli --no-warn-script-location
+RUN pip install ue4cli conan-ue4cli ue4-ci-helpers --no-warn-script-location
 
 # Copy the Conan configuration settings and package cache from the builder image
 COPY --from=builder C:\Users\ContainerAdministrator\.conan C:\Users\ContainerAdministrator\.conan

@@ -17,11 +17,11 @@ FROM adamrehn/ue4-minimal:${TAG}
 # Clone the UE4Capture repository
 RUN git clone "https://github.com/adamrehn/UE4Capture.git" /home/ue4/UE4Capture
 
-# Install CMake, ue4cli and conan-ue4cli
+# Install CMake, ue4cli, conan-ue4cli, and ue4-ci-helpers
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends cmake
 RUN pip3 install setuptools wheel
-RUN pip3 install ue4cli conan-ue4cli
+RUN pip3 install ue4cli conan-ue4cli ue4-ci-helpers
 USER ue4
 
 # Copy the Conan configuration settings and package cache from the builder image
