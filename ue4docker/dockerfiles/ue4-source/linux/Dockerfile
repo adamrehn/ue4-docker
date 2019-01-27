@@ -23,6 +23,11 @@ RUN chmod +x /tmp/git-credential-helper.sh
 # Clone the UE4 git repository using the host-supplied credentials
 RUN git clone --progress --depth=1 -b $GIT_BRANCH $GIT_REPO /home/ue4/UnrealEngine
 
+# Ensure our package lists are up to date, since Setup.sh doesn't call `apt-get update`
+USER root
+RUN apt-get update
+USER ue4
+
 # Patch out all instances of `sudo` in Setup.sh, plus any commands that refuse to run as root
 COPY --chown=ue4:ue4 patch-setup-linux.py /tmp/patch-setup-linux.py
 RUN python3 /tmp/patch-setup-linux.py /home/ue4/UnrealEngine/Setup.sh
@@ -32,6 +37,7 @@ RUN python3 /tmp/patch-setup-linux.py /home/ue4/UnrealEngine/Engine/Build/BatchF
 WORKDIR /home/ue4/UnrealEngine
 RUN echo "#!/usr/bin/env bash" >> ./root_commands.sh
 RUN echo "set -x" >> ./root_commands.sh
+RUN echo "apt-get update" >> ./root_commands.sh
 RUN chmod a+x ./root_commands.sh
 
 # Preinstall mono for 4.19 so the GitDependencies.exe call triggered by Setup.sh works correctly
@@ -49,6 +55,9 @@ RUN ./Setup.sh
 USER root
 RUN ./root_commands.sh
 USER ue4
+
+# Make sure the root commands script cleans up the package lists when it is run in the ue4-minimal image
+RUN echo "rm -rf /var/lib/apt/lists/*" >> ./root_commands.sh
 
 # The linker bundled with UE4.20.0 onwards chokes on system libraries built with newer compilers,
 # so redirect the bundled clang to use the system linker instead

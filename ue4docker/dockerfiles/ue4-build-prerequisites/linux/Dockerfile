@@ -20,7 +20,8 @@ RUN \
 		tzdata \
 		unzip \
 		xdg-user-dirs \
-		zip
+		zip && \
+	rm -rf /var/lib/apt/lists/*
 
 # Since UE4 refuses to build or run as the root user under Linux, create a non-root user
 RUN \
