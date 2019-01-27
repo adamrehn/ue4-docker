@@ -48,6 +48,13 @@ class DockerUtils(object):
 		return ['docker', 'build', '-t', tag, context] + args
 	
 	@staticmethod
+	def pull(image):
+		'''
+		Returns the `docker pull` command to pull an image from a remote registry
+		'''
+		return ['docker', 'pull', image]
+	
+	@staticmethod
 	def start(image, command, **kwargs):
 		'''
 		Starts a container in a detached state and returns the container handle

@@ -35,6 +35,7 @@ def build():
 	parser.add_argument('--linux', action='store_true', help='Build Linux container images under Windows')
 	parser.add_argument('--rebuild', action='store_true', help='Rebuild images even if they already exist')
 	parser.add_argument('--dry-run', action='store_true', help='Print `docker build` commands instead of running them')
+	parser.add_argument('--pull-prerequisites', action='store_true', help='Pull the ue4-build-prerequisites image from Docker Hub instead of building it')
 	parser.add_argument('--no-engine', action='store_true', help='Don\'t build the ue4-engine image')
 	parser.add_argument('--no-minimal', action='store_true', help='Don\'t build the ue4-minimal image')
 	parser.add_argument('--no-full', action='store_true', help='Don\'t build the ue4-full image')
@@ -108,16 +109,17 @@ def build():
 			
 			# Check if the user is building a different kernel version to the host OS but is still copying DLLs from System32
 			differentKernels = WindowsUtils.isInsiderPreview() or config.basetag != config.hostBasetag
-			if differentKernels == True and config.dlldir == config.defaultDllDir:
+			if config.pullPrerequisites == False and differentKernels == True and config.dlldir == config.defaultDllDir:
 				logger.error('Error: building images with a different kernel version than the host,', False)
 				logger.error('but a custom DLL directory has not specified via the `-dlldir=DIR` arg.', False)
 				logger.error('The DLL files will be the incorrect version and the container OS will', False)
 				logger.error('refuse to load them, preventing the built Engine from running correctly.', False)
 				sys.exit(1)
 			
-			# Attempt to copy the required DLL files from the host system
-			for dll in WindowsUtils.requiredHostDlls(config.basetag):
-				shutil.copy2(join(config.dlldir, dll), join(builder.context('ue4-build-prerequisites'), dll))
+			# Attempt to copy the required DLL files from the host system if we are building the prerequisites image
+			if config.pullPrerequisites == False:
+				for dll in WindowsUtils.requiredHostDlls(config.basetag):
+					shutil.copy2(join(config.dlldir, dll), join(builder.context('ue4-build-prerequisites'), dll))
 			
 			# Ensure the Docker daemon is configured correctly
 			requiredLimit = WindowsUtils.requiredSizeLimit()
@@ -160,12 +162,17 @@ def build():
 			# Keep track of our starting time
 			startTime = time.time()
 			
-			# Build the UE4 build prerequisites image
+			# Compute the build options for the UE4 build prerequisites image
 			# (This is the only image that does not use any user-supplied tag suffix, since the tag always reflects any customisations)
 			prereqsArgs = ['--build-arg', 'BASEIMAGE=' + config.baseImage]
 			if config.containerPlatform == 'windows':
 				prereqsArgs = prereqsArgs + ['--build-arg', 'HOST_VERSION=' + WindowsUtils.getWindowsBuild()]
-			builder.build('ue4-build-prerequisites', config.prereqsTag, config.platformArgs + prereqsArgs, config.rebuild, config.dryRun)
+			
+			# Build or pull the UE4 build prerequisites image
+			if config.pullPrerequisites == True:
+				builder.pull('adamrehn/ue4-build-prerequisites:{}'.format(config.prereqsTag), config.rebuild, config.dryRun)
+			else:
+				builder.build('ue4-build-prerequisites', config.prereqsTag, config.platformArgs + prereqsArgs, config.rebuild, config.dryRun)
 			
 			# Build the UE4 source image
 			mainTag = config.release + config.suffix
