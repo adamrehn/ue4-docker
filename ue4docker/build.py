@@ -161,15 +161,15 @@ def build():
 			startTime = time.time()
 			
 			# Build the UE4 build prerequisites image
-			prereqsTag = 'latest' + config.suffix
+			# (This is the only image that does not use any user-supplied tag suffix, since the tag always reflects any customisations)
 			prereqsArgs = ['--build-arg', 'BASEIMAGE=' + config.baseImage]
 			if config.containerPlatform == 'windows':
 				prereqsArgs = prereqsArgs + ['--build-arg', 'HOST_VERSION=' + WindowsUtils.getWindowsBuild()]
-			builder.build('ue4-build-prerequisites', prereqsTag, config.platformArgs + prereqsArgs, config.rebuild, config.dryRun)
+			builder.build('ue4-build-prerequisites', config.prereqsTag, config.platformArgs + prereqsArgs, config.rebuild, config.dryRun)
 			
 			# Build the UE4 source image
 			mainTag = config.release + config.suffix
-			prereqConsumerArgs = ['--build-arg', 'PREREQS_TAG={}'.format(prereqsTag)]
+			prereqConsumerArgs = ['--build-arg', 'PREREQS_TAG={}'.format(config.prereqsTag)]
 			ue4SourceArgs = prereqConsumerArgs + [
 				'--build-arg', 'GIT_REPO={}'.format(config.repository),
 				'--build-arg', 'GIT_BRANCH={}'.format(config.branch)

@@ -67,6 +67,7 @@ class BuildConfiguration(object):
 		self.suffix = args.suffix
 		self.platformArgs = ['--no-cache'] if args.no_cache == True else []
 		self.baseImage = None
+		self.prereqsTag = None
 		
 		# If we're building Windows containers, generate our Windows-specific configuration settings
 		if self.containerPlatform == 'windows':
@@ -89,6 +90,7 @@ class BuildConfiguration(object):
 		# Store the tag for the base Windows Server Core image
 		self.basetag = args.basetag if args.basetag is not None else self.hostBasetag
 		self.baseImage = 'microsoft/dotnet-framework:4.7.2-sdk-windowsservercore-' + self.basetag
+		self.prereqsTag = self.basetag
 		
 		# Verify that any user-specified base tag is valid
 		if WindowsUtils.isValidBaseTag(self.basetag) == False:
@@ -130,5 +132,7 @@ class BuildConfiguration(object):
 			
 			# Use the appropriate base image for the specified CUDA version
 			self.baseImage = LINUX_BASE_IMAGES['cudagl'][self.cuda]
+			self.prereqsTag = 'cudagl{}'.format(self.cuda)
 		else:
 			self.baseImage = LINUX_BASE_IMAGES['opengl']
+			self.prereqsTag = 'opengl'
