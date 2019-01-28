@@ -17,7 +17,7 @@ RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph -target="Make Installed Buil
 
 # Copy our legacy toolchain installation script into the Installed Build
 # (This ensures we only need one COPY directive below)
-RUN xcopy /y C:\legacy-toolchain-fix.py C:\UnrealEngine\LocalBuilds\Engine\Windows\
+RUN C:\copy.py C:\legacy-toolchain-fix.py C:\UnrealEngine\LocalBuilds\Engine\Windows\
 
 # Copy the Installed Build into a clean image, discarding the source tree
 FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}

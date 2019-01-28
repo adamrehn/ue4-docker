@@ -20,8 +20,8 @@ COPY *.dll C:\GatheredDlls\
 # Verify that the DLL files copied from the host can be loaded by the container OS
 ARG HOST_VERSION
 RUN pip install pypiwin32
-COPY verify-host-dlls.py C:\
-RUN xcopy /y "C:\GatheredDlls\*.dll" C:\Windows\System32\
+COPY copy.py verify-host-dlls.py C:\
+RUN C:\copy.py "C:\GatheredDlls\*.dll" C:\Windows\System32\
 RUN python C:\verify-host-dlls.py %HOST_VERSION% C:\GatheredDlls
 
 # Gather the required DirectX runtime files, since Windows Server Core does not include them
@@ -39,7 +39,7 @@ RUN 7z e %TEMP%\VulkanSDK.exe -oC:\GatheredDlls -y RunTimeInstaller\x64\vulkan-1
 
 # Gather pdbcopy.exe (needed for creating an Installed Build of the Engine)
 RUN choco install -y windbg
-RUN xcopy /y "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\pdbcopy.exe" C:\GatheredDlls\
+RUN C:\copy.py "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\pdbcopy.exe" C:\GatheredDlls\
 
 # Copy our gathered DLLs (and pdbcopy.exe) into a clean image to reduce image size
 FROM ${BASEIMAGE}
@@ -53,5 +53,5 @@ LABEL com.adamrehn.ue4-docker.sentinel="1"
 RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 
 # Install the rest of our build prerequisites and clean up afterwards to minimise image size
-COPY buildtools-exitcode.py copy-pdbcopy.py install-prerequisites.bat C:\
+COPY buildtools-exitcode.py copy.py copy-pdbcopy.py install-prerequisites.bat C:\
 RUN C:\install-prerequisites.bat
