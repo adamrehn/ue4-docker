@@ -176,7 +176,7 @@ def build():
 				builder.build('ue4-build-prerequisites', [config.prereqsTag], config.platformArgs + prereqsArgs, config.rebuild, config.dryRun)
 			
 			# Build the UE4 source image
-			mainTags = [config.release + config.suffix, '{}{}-{}'.format(config.release, config.suffix, config.prereqsTag)]
+			mainTags = ['{}{}-{}'.format(config.release, config.suffix, config.prereqsTag), config.release + config.suffix]
 			prereqConsumerArgs = ['--build-arg', 'PREREQS_TAG={}'.format(config.prereqsTag)]
 			ue4SourceArgs = prereqConsumerArgs + [
 				'--build-arg', 'GIT_REPO={}'.format(config.repository),
