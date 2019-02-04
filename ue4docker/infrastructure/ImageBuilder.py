@@ -12,7 +12,7 @@ class ImageBuilder(object):
 		self.platform = platform
 		self.logger = logger
 	
-	def build(self, name, tag, args, rebuild=False, dryRun=False):
+	def build(self, name, tags, args, rebuild=False, dryRun=False):
 		'''
 		Builds the specified image if it doesn't exist (use rebuild=True to force a rebuild)
 		'''
@@ -28,10 +28,10 @@ class ImageBuilder(object):
 		])
 		
 		# Build the image if it doesn't already exist
-		image = '{}{}:{}'.format(self.prefix, name, tag)
+		imageTags = ['{}{}:{}'.format(self.prefix, name, tag) for tag in tags]
 		self._processImage(
-			image,
-			DockerUtils.build(image, self.context(name), args),
+			imageTags[0],
+			DockerUtils.build(imageTags, self.context(name), args),
 			'build',
 			'built',
 			rebuild=rebuild,

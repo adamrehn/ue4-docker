@@ -1,4 +1,4 @@
-import docker, fnmatch, humanfriendly, json, os, platform, re
+import docker, fnmatch, humanfriendly, itertools, json, os, platform, re
 from .FilesystemUtils import FilesystemUtils
 
 class DockerUtils(object):
@@ -42,11 +42,12 @@ class DockerUtils(object):
 			return False
 	
 	@staticmethod
-	def build(tag, context, args):
+	def build(tags, context, args):
 		'''
 		Returns the `docker build` command to build an image
 		'''
-		return ['docker', 'build', '-t', tag, context] + args
+		tagArgs = [['-t', tag] for tag in tags]
+		return ['docker', 'build'] + list(itertools.chain.from_iterable(tagArgs)) + [context] + args
 	
 	@staticmethod
 	def pull(image):

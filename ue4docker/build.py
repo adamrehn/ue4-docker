@@ -172,35 +172,35 @@ def build():
 			if config.pullPrerequisites == True:
 				builder.pull('adamrehn/ue4-build-prerequisites:{}'.format(config.prereqsTag), config.rebuild, config.dryRun)
 			else:
-				builder.build('ue4-build-prerequisites', config.prereqsTag, config.platformArgs + prereqsArgs, config.rebuild, config.dryRun)
+				builder.build('ue4-build-prerequisites', [config.prereqsTag], config.platformArgs + prereqsArgs, config.rebuild, config.dryRun)
 			
 			# Build the UE4 source image
-			mainTag = config.release + config.suffix
+			mainTags = [config.release + config.suffix, '{}{}-{}'.format(config.release, config.suffix, config.prereqsTag)]
 			prereqConsumerArgs = ['--build-arg', 'PREREQS_TAG={}'.format(config.prereqsTag)]
 			ue4SourceArgs = prereqConsumerArgs + [
 				'--build-arg', 'GIT_REPO={}'.format(config.repository),
 				'--build-arg', 'GIT_BRANCH={}'.format(config.branch)
 			]
-			builder.build('ue4-source', mainTag, config.platformArgs + ue4SourceArgs + endpoint.args(), config.rebuild, config.dryRun)
+			builder.build('ue4-source', mainTags, config.platformArgs + ue4SourceArgs + endpoint.args(), config.rebuild, config.dryRun)
 			
 			# Build the UE4 Engine source build image, unless requested otherwise by the user
-			ue4BuildArgs = ['--build-arg', 'TAG={}'.format(mainTag)]
+			ue4BuildArgs = ['--build-arg', 'TAG={}'.format(mainTags[0])]
 			if config.noEngine == False:
-				builder.build('ue4-engine', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
+				builder.build('ue4-engine', mainTags, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
 			else:
 				logger.info('User specified `--no-engine`, skipping ue4-engine image build.')
 			
 			# Build the minimal UE4 CI image, unless requested otherwise by the user
 			buildUe4Minimal = config.noMinimal == False
 			if buildUe4Minimal == True:
-				builder.build('ue4-minimal', mainTag, config.platformArgs + ue4BuildArgs + prereqConsumerArgs, config.rebuild, config.dryRun)
+				builder.build('ue4-minimal', mainTags, config.platformArgs + ue4BuildArgs + prereqConsumerArgs, config.rebuild, config.dryRun)
 			else:
 				logger.info('User specified `--no-minimal`, skipping ue4-minimal image build.')
 			
 			# Build the full UE4 CI image, unless requested otherwise by the user
 			buildUe4Full = buildUe4Minimal == True and config.noFull == False
 			if buildUe4Full == True:
-				builder.build('ue4-full', mainTag, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
+				builder.build('ue4-full', mainTags, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
 			else:
 				logger.info('Not building ue4-minimal or user specified `--no-full`, skipping ue4-full image build.')
 			

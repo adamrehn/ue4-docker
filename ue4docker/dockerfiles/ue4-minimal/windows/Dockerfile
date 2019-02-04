@@ -1,7 +1,7 @@
 # escape=`
 ARG TAG
 ARG PREREQS_TAG
-FROM adamrehn/ue4-source:${TAG} AS builder
+FROM adamrehn/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 
 # Patch out problematic entries in InstalledEngineFilters.xml introduced in UE4.20.0
 COPY patch-filters-xml.py C:\patch-filters-xml.py

@@ -77,6 +77,9 @@ class BuildConfiguration(object):
 		# If we're building Linux containers, generate our Linux-specific configuration settings
 		if self.containerPlatform == 'linux':
 			self._generateLinuxConfig(args)
+		
+		# If the user-specified suffix passed validation, prefix it with a dash
+		self.suffix = '-{}'.format(self.suffix) if self.suffix != '' else ''
 	
 	def _generateWindowsConfig(self, args):
 		
@@ -96,6 +99,10 @@ class BuildConfiguration(object):
 		# Verify that any user-specified base tag is valid
 		if WindowsUtils.isValidBaseTag(self.basetag) == False:
 			raise RuntimeError('unrecognised Windows Server Core base image tag "{}", supported tags are {}'.format(self.basetag, WindowsUtils.getValidBaseTags()))
+		
+		# Verify that any user-specified tag suffix does not collide with our base tags
+		if WindowsUtils.isValidBaseTag(self.suffix) == True:
+			raise RuntimeError('tag suffix cannot be any of the Windows Server Core base image tags: {}'.format(WindowsUtils.getValidBaseTags()))
 		
 		# Set the memory limit Docker flags
 		if args.m is not None:
@@ -118,6 +125,10 @@ class BuildConfiguration(object):
 			self.platformArgs.extend(['--build-arg', 'KEEP_DEBUG=1'])
 	
 	def _generateLinuxConfig(self, args):
+		
+		# Verify that any user-specified tag suffix does not collide with our base tags
+		if self.suffix.startswith('opengl') or self.suffix.startswith('cudagl'):
+			raise RuntimeError('tag suffix cannot begin with "opengl" or "cudagl".')
 		
 		# Determine if we are building CUDA-enabled container images
 		self.cuda = None
