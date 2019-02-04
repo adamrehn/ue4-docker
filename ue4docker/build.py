@@ -86,10 +86,11 @@ def build():
 		builder = ImageBuilder(contextRoot, 'adamrehn/', config.containerPlatform, logger)
 		
 		# Determine if we are building a custom version of UE4
-		if config.release == 'custom':
+		if config.custom == True:
 			logger.info('CUSTOM ENGINE BUILD:', False)
-			logger.info('Repository:  ' + config.repository, False)
-			logger.info('Branch/tag:  ' + config.branch + '\n', False)
+			logger.info('Custom name:  ' + config.release, False)
+			logger.info('Repository:   ' + config.repository, False)
+			logger.info('Branch/tag:   ' + config.branch + '\n', False)
 		
 		# Determine if we are building Windows or Linux containers
 		if config.containerPlatform == 'windows':
