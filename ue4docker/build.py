@@ -185,7 +185,7 @@ def build():
 			builder.build('ue4-source', mainTags, config.platformArgs + ue4SourceArgs + endpoint.args(), config.rebuild, config.dryRun)
 			
 			# Build the UE4 Engine source build image, unless requested otherwise by the user
-			ue4BuildArgs = ['--build-arg', 'TAG={}'.format(mainTags[0])] + prereqConsumerArgs
+			ue4BuildArgs = ['--build-arg', 'TAG={}'.format(mainTags[1])] + prereqConsumerArgs
 			if config.noEngine == False:
 				builder.build('ue4-engine', mainTags, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
 			else:
