@@ -1,4 +1,5 @@
-import docker, fnmatch, humanfriendly, json, os, platform
+import docker, fnmatch, humanfriendly, json, os, platform, re
+from .FilesystemUtils import FilesystemUtils
 
 class DockerUtils(object):
 	
@@ -149,3 +150,33 @@ class DockerUtils(object):
 		'''
 		for command in commands:
 			DockerUtils.exec(container, command, **kwargs)
+	
+	@staticmethod
+	def injectPostRunMessage(dockerfile, platform, messageLines):
+		'''
+		Injects the supplied message at the end of each RUN directive in the specified Dockerfile
+		'''
+		
+		# Generate the `echo` command for each line of the message
+		prefix = 'echo.' if platform == 'windows' else "echo '"
+		suffix = '' if platform == 'windows' else "'"
+		echoCommands = ''.join([' && {}{}{}'.format(prefix, line, suffix) for line in messageLines])
+		
+		# Read the Dockerfile contents and convert all line endings to \n
+		contents = FilesystemUtils.readFile(dockerfile)
+		contents = contents.replace('\r\n', '\n')
+		
+		# Determine the escape character for the Dockerfile
+		escapeMatch = re.search('#[\\s]*escape[\\s]*=[\\s]*([^\n])\n', contents)
+		escape = escapeMatch[1] if escapeMatch is not None else '\\'
+		
+		# Identify each RUN directive in the Dockerfile
+		runMatches = re.finditer('^RUN(.+?[^{}])\n'.format(re.escape(escape)), contents, re.DOTALL | re.MULTILINE)
+		if runMatches is not None:
+			for match in runMatches:
+				
+				# Append the `echo` commands to the directive
+				contents = contents.replace(match[0], 'RUN{}{}\n'.format(match[1], echoCommands))
+		
+		# Write the modified contents back to the Dockerfile
+		FilesystemUtils.writeFile(dockerfile, contents)

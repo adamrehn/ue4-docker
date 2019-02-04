@@ -16,6 +16,18 @@ class ImageBuilder(object):
 		'''
 		Builds the specified image if it doesn't exist (use rebuild=True to force a rebuild)
 		'''
+		
+		# Inject our filesystem layer commit message after each RUN directive in the Dockerfile
+		dockerfile = os.path.join(self.context(name), 'Dockerfile')
+		DockerUtils.injectPostRunMessage(dockerfile, self.platform, [
+			'',
+			'RUN directive complete. Docker will now commit the filesystem layer to disk.',
+			'Note that for large filesystem layers this can take quite some time.',
+			'Performing filesystem layer commit...',
+			''
+		])
+		
+		# Build the image if it doesn't already exist
 		image = '{}{}:{}'.format(self.prefix, name, tag)
 		self._processImage(
 			image,
