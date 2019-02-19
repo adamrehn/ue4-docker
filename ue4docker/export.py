@@ -51,15 +51,18 @@ def export():
 	# Determine if we are performing an export
 	if args['help'] == False and _notNone([args['component'], args['tag'], args['destination']]):
 		
-		# Verify that the required container image exists
+		# Determine if the user specified an image and a tag or just a tag
+		tag = args['tag']
 		details = COMPONENTS[ args['component'] ]
-		requiredImage = '{}:{}'.format(details['image'], args['tag'])
+		requiredImage = '{}:{}'.format(details['image'], tag) if ':' not in tag else tag
+		
+		# Verify that the required container image exists
 		if DockerUtils.exists(requiredImage) == False:
-			print('Error: the required container image "{}" does not exist.'.format(requiredImage), file=sys.stderr)
+			print('Error: the specified container image "{}" does not exist.'.format(requiredImage), file=sys.stderr)
 			sys.exit(1)
 		
 		# Attempt to perform the export
-		details['function'](args['tag'], args['destination'], stripped[4:])
+		details['function'](requiredImage, args['destination'], stripped[4:])
 		print('Export complete.')
 	
 	# Determine if we are displaying the help for a specific component

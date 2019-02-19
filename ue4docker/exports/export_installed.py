@@ -4,7 +4,7 @@ import os, platform, shutil, subprocess, sys
 # Import the `semver` package even when the conflicting `node-semver` package is present
 semver = PackageUtils.importFile('semver', os.path.join(PackageUtils.getPackageLocation('semver'), 'semver.py'))
 
-def exportInstalledBuild(tag, destination, extraArgs):
+def exportInstalledBuild(image, destination, extraArgs):
 	
 	# Verify that we are running under Linux
 	if platform.system() != 'Linux':
@@ -17,7 +17,6 @@ def exportInstalledBuild(tag, destination, extraArgs):
 		sys.exit(1)
 	
 	# Verify that the Installed Build in the specified image is at least 4.21.0
-	image = 'adamrehn/ue4-full:{}'.format(tag)
 	versionResult = SubprocessUtils.capture(['docker', 'run', '--rm', '-ti', image, 'ue4', 'version'])
 	try:
 		version = semver.parse(SubprocessUtils.extractLines(versionResult.stdout)[-1])

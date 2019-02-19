@@ -29,7 +29,7 @@ user: password
 '''
 
 
-def exportPackages(tag, destination, extraArgs):
+def exportPackages(image, destination, extraArgs):
 	
 	# Create our logger to generate coloured output on stderr
 	logger = Logger()
@@ -47,7 +47,6 @@ def exportPackages(tag, destination, extraArgs):
 		sys.exit(1)
 	
 	# Determine if the container image is a Windows image or a Linux image
-	image = 'adamrehn/ue4-full:{}'.format(tag)
 	imageOS = DockerUtils.listImages(image)[0].attrs['Os']
 	
 	# Use the appropriate commands and paths for the container platform
