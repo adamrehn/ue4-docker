@@ -1,4 +1,4 @@
-import logging, multiprocessing, platform, secrets, time, urllib.parse
+import logging, multiprocessing, os, platform, secrets, time, urllib.parse
 from .NetworkUtils import NetworkUtils
 from flask import Flask, request
 
@@ -53,6 +53,9 @@ class CredentialEndpoint(object):
 		Implements a HTTP endpoint to provide Git credentials to Docker containers
 		'''
 		server = Flask(__name__)
+		
+		# Disable the first-run banner message
+		os.environ['WERKZEUG_RUN_MAIN'] = 'true'
 		
 		# Disable Flask log output (from <https://stackoverflow.com/a/18379764>)
 		log = logging.getLogger('werkzeug')
