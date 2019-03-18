@@ -2,6 +2,10 @@ ARG TAG
 ARG PREREQS_TAG
 FROM adamrehn/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 
+# Set the changelist number in Build.version to ensure our Build ID is generated correctly
+COPY set-changelist.py /tmp/set-changelist.py
+RUN python3 /tmp/set-changelist.py /home/ue4/UnrealEngine/Engine/Build/Build.version
+
 # Increase the output verbosity of the DDC generation step
 COPY verbose-ddc.py /tmp/verbose-ddc.py
 RUN python3 /tmp/verbose-ddc.py /home/ue4/UnrealEngine/Engine/Build/InstalledEngineBuild.xml

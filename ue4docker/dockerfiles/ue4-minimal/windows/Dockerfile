@@ -3,6 +3,10 @@ ARG TAG
 ARG PREREQS_TAG
 FROM adamrehn/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 
+# Set the changelist number in Build.version to ensure our Build ID is generated correctly
+COPY set-changelist.py C:\set-changelist.py
+RUN python C:\set-changelist.py C:\UnrealEngine\Engine\Build\Build.version
+
 # Patch out problematic entries in InstalledEngineFilters.xml introduced in UE4.20.0
 COPY patch-filters-xml.py C:\patch-filters-xml.py
 RUN python C:\patch-filters-xml.py C:\UnrealEngine\Engine\Build\InstalledEngineFilters.xml
