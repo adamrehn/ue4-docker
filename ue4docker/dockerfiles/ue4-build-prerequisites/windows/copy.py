@@ -9,7 +9,11 @@ if os.path.isdir(destination) == True:
 else:
 	sources = [sys.argv[1]]
 
-# Copy each of our source files
+# Copy each of our source files/directories
 for source in sources:
-	shutil.copy2(source, destination)
+	if os.path.isdir(source):
+		dest = os.path.join(destination, os.path.basename(source))
+		shutil.copytree(source, dest)
+	else:
+		shutil.copy2(source, destination)
 	print('Copied {} to {}.'.format(source, destination), file=sys.stderr)

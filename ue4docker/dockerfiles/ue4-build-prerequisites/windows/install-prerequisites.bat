@@ -10,7 +10,8 @@ call refreshenv
 git config --system credential.helper "" || goto :error
 
 @rem Install the Visual Studio 2017 Build Tools workloads and components we need, excluding components with known issues in containers
-curl --progress -L "https://aka.ms/vs/15/release/vs_buildtools.exe" --output %TEMP%\vs_buildtools.exe || goto :error
+@rem (Note that we use the Visual Studio 2019 installer here because the old installer now breaks, adding the v141 toolchain and removing v142)
+curl --progress -L "https://aka.ms/vs/16/release/vs_buildtools.exe" --output %TEMP%\vs_buildtools.exe || goto :error
 %TEMP%\vs_buildtools.exe --quiet --wait --norestart --nocache ^
 	--installPath C:\BuildTools ^
 	--add Microsoft.VisualStudio.Workload.VCTools;includeRecommended ^
@@ -18,8 +19,14 @@ curl --progress -L "https://aka.ms/vs/15/release/vs_buildtools.exe" --output %TE
 	--add Microsoft.VisualStudio.Workload.UniversalBuildTools ^
 	--add Microsoft.VisualStudio.Workload.NetCoreBuildTools ^
 	--add Microsoft.VisualStudio.Workload.MSBuildTools ^
-	--add Microsoft.VisualStudio.Component.NuGet
+	--add Microsoft.VisualStudio.Component.NuGet ^
+	--add Microsoft.VisualStudio.Component.VC.v141.x86.x64 ^
+	--remove Microsoft.VisualStudio.Component.VC.Tools.x86.x64
 python C:\buildtools-exitcode.py %ERRORLEVEL% || goto :error
+
+@rem Copy MSBuild to the expected location
+rmdir /S /Q C:\BuildTools\MSBuild\15.0\Bin || goto :error
+python C:\copy.py C:\BuildTools\MSBuild\Current\Bin C:\BuildTools\MSBuild\15.0 || goto :error
 
 @rem Copy pdbcopy.exe to the expected location(s)
 python C:\copy-pdbcopy.py || goto :error
