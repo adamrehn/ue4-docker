@@ -27,10 +27,6 @@ curl --progress -L "https://aka.ms/vs/16/release/vs_buildtools.exe" --output %TE
 	--add Microsoft.VisualStudio.Component.NuGet
 python C:\buildtools-exitcode.py %ERRORLEVEL% || goto :error
 
-@rem Copy MSBuild to the expected location
-rmdir /S /Q C:\BuildTools\MSBuild\15.0\Bin || goto :error
-python C:\copy.py C:\BuildTools\MSBuild\Current\Bin C:\BuildTools\MSBuild\15.0 || goto :error
-
 @rem Copy pdbcopy.exe to the expected location(s)
 python C:\copy-pdbcopy.py || goto :error
 
