@@ -10,18 +10,21 @@ call refreshenv
 git config --system credential.helper "" || goto :error
 
 @rem Install the Visual Studio 2017 Build Tools workloads and components we need, excluding components with known issues in containers
-@rem (Note that we use the Visual Studio 2019 installer here because the old installer now breaks, adding the v141 toolchain and removing v142)
+@rem (Note that we use the Visual Studio 2019 installer here because the old installer now breaks, but explicitly install the VS2017 Build Tools)
+curl --progress -L "https://aka.ms/vs/15/release/channel" --output %TEMP%\visualstudio.15.release.chman || goto :error
 curl --progress -L "https://aka.ms/vs/16/release/vs_buildtools.exe" --output %TEMP%\vs_buildtools.exe || goto :error
 %TEMP%\vs_buildtools.exe --quiet --wait --norestart --nocache ^
 	--installPath C:\BuildTools ^
+	--channelUri %TEMP%\visualstudio.15.release.chman ^
+	--installChannelUri %TEMP%\visualstudio.15.release.chman ^
+	--channelId VisualStudio.15.Release ^
+	--productId Microsoft.VisualStudio.Product.BuildTools ^
 	--add Microsoft.VisualStudio.Workload.VCTools;includeRecommended ^
 	--add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools;includeRecommended ^
 	--add Microsoft.VisualStudio.Workload.UniversalBuildTools ^
 	--add Microsoft.VisualStudio.Workload.NetCoreBuildTools ^
 	--add Microsoft.VisualStudio.Workload.MSBuildTools ^
-	--add Microsoft.VisualStudio.Component.NuGet ^
-	--add Microsoft.VisualStudio.Component.VC.v141.x86.x64 ^
-	--remove Microsoft.VisualStudio.Component.VC.Tools.x86.x64
+	--add Microsoft.VisualStudio.Component.NuGet
 python C:\buildtools-exitcode.py %ERRORLEVEL% || goto :error
 
 @rem Copy MSBuild to the expected location
