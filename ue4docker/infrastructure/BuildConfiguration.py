@@ -13,7 +13,8 @@ LINUX_BASE_IMAGES = {
 	'opengl': 'nvidia/opengl:1.0-glvnd-devel-ubuntu18.04',
 	'cudagl': {
 		'9.2':  'nvidia/cudagl:9.2-devel-ubuntu18.04',
-		'10.0': 'nvidia/cudagl:10.0-devel-ubuntu18.04'
+		'10.0': 'nvidia/cudagl:10.0-devel-ubuntu18.04',
+		'10.1': 'nvidia/cudagl:10.1-devel-ubuntu18.04'
 	}
 }
 
