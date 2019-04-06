@@ -15,11 +15,15 @@ if version['MinorVersion'] < 20:
 	sys.stdout.flush()
 	run = lambda cmd: subprocess.run(cmd, check=True)
 	installerFile = '{}\\vs_buildtools.exe'.format(os.environ['TEMP'])
-	run(['curl', '--progress', '-L', 'https://aka.ms/vs/15/release/vs_buildtools.exe', '--output', installerFile])
+	run(['curl', '--progress', '-L', 'https://aka.ms/vs/16/release/vs_buildtools.exe', '--output', installerFile])
 	run([
 		installerFile,
 		'--quiet', '--wait', '--norestart', '--nocache',
 		'--installPath', 'C:\BuildTools',
+		'--channelUri', 'https://aka.ms/vs/15/release/channel',
+		'--installChannelUri', 'https://aka.ms/vs/15/release/channel',
+		'--channelId', 'VisualStudio.15.Release',
+		'--productId', 'Microsoft.VisualStudio.Product.BuildTools',
 		'--add', 'Microsoft.VisualStudio.Component.VC.140',
 		'--add', 'Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Win81'
 	])
