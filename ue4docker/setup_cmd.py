@@ -103,7 +103,7 @@ def _setupWindowsServer():
 	if len(existing) != len(requiredDLLs):
 		
 		# Determine if we can extract DLL files from the full Windows base image (version 1809 and newer only)
-		tags = requests.get('https://mcr.microsoft.com/v2/windowsfamily/windows/tags/list').json()['tags']
+		tags = requests.get('https://mcr.microsoft.com/v2/windows/tags/list').json()['tags']
 		if hostRelease in tags:
 			
 			# Pull the full Windows base image with the appropriate tag if it does not already exist
