@@ -41,5 +41,24 @@ RUN python3 /home/ue4/UE4Capture/scripts/patch-headers.py
 # Enable PulseAudio support
 USER root
 RUN apt-get install -y --no-install-recommends pulseaudio-utils
-USER ue4
 COPY pulseaudio-client.conf /etc/pulse/client.conf
+
+# Enable X11 support
+USER root
+RUN apt-get install -y --no-install-recommends \
+	libfontconfig1 \
+	libfreetype6 \
+	libglu1 \
+	libsm6 \
+	libxcomposite1 \
+	libxcursor1 \
+	libxi6 \
+	libxrandr2 \
+	libxrender1 \
+	libxss1 \
+	libxv1 \
+	x11-xkb-utils \
+	xauth \
+	xfonts-base \
+	xkb-data
+USER ue4
