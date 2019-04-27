@@ -19,4 +19,7 @@ for bundled in glob.glob(sdkGlob):
 	
 	# Perform the copy
 	dest = join(installedRoot, relpath(toolchain, sourceRoot))
-	shutil.copytree(toolchain, dest)
+	if os.path.exists(dest) == True:
+		print('Destination toolchain already exists: {}'.format(dest), file=sys.stderr, flush=True)
+	else:
+		shutil.copytree(toolchain, dest)
