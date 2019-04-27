@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from os.path import basename, dirname, join, relpath
+from os.path import basename, dirname, exists, join, relpath
 import glob, shutil, sys
 
 # Determine the root directory for the source build and the Installed Build
@@ -19,7 +19,7 @@ for bundled in glob.glob(sdkGlob):
 	
 	# Perform the copy
 	dest = join(installedRoot, relpath(toolchain, sourceRoot))
-	if os.path.exists(dest) == True:
+	if exists(dest) == True:
 		print('Destination toolchain already exists: {}'.format(dest), file=sys.stderr, flush=True)
 	else:
 		shutil.copytree(toolchain, dest)
