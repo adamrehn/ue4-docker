@@ -75,33 +75,33 @@ class BuildConfiguration(object):
 		argv = [arg + '=' if arg == '--cuda' else arg for arg in argv]
 		
 		# Parse the supplied command-line arguments
-		args = parser.parse_args(argv)
+		self.args = parser.parse_args(argv)
 		
 		# Determine if we are building a custom version of UE4 rather than an official release
-		args.release = args.release.lower()
-		if args.release == 'custom' or args.release.startswith('custom:'):
+		self.args.release = self.args.release.lower()
+		if self.args.release == 'custom' or self.args.release.startswith('custom:'):
 			
 			# Both a custom repository and a custom branch/tag must be specified
-			if args.repo is None or args.branch is None:
+			if self.args.repo is None or self.args.branch is None:
 				raise RuntimeError('both a repository and branch/tag must be specified when building a custom version of the Engine')
 			
 			# Use the specified repository and branch/tag
-			customName = args.release.split(':', 2)[1].strip() if ':' in args.release else ''
+			customName = self.args.release.split(':', 2)[1].strip() if ':' in self.args.release else ''
 			self.release = customName if len(customName) > 0 else 'custom'
-			self.repository = args.repo
-			self.branch = args.branch
+			self.repository = self.args.repo
+			self.branch = self.args.branch
 			self.custom = True
 			
 		else:
 			
 			# Validate the specified version string
 			try:
-				ue4Version = semver.parse(args.release)
+				ue4Version = semver.parse(self.args.release)
 				if ue4Version['major'] != 4 or ue4Version['prerelease'] != None:
 					raise Exception()
 				self.release = semver.format_version(ue4Version['major'], ue4Version['minor'], ue4Version['patch'])
 			except:
-				raise RuntimeError('invalid UE4 release number "{}", full semver format required (e.g. "4.19.0")'.format(args.release))
+				raise RuntimeError('invalid UE4 release number "{}", full semver format required (e.g. "4.19.0")'.format(self.args.release))
 			
 			# Use the default repository and the release tag for the specified version
 			self.repository = DEFAULT_GIT_REPO
@@ -109,16 +109,16 @@ class BuildConfiguration(object):
 			self.custom = False
 		
 		# Store our common configuration settings
-		self.containerPlatform = 'windows' if platform.system() == 'Windows' and args.linux == False else 'linux'
-		self.dryRun = args.dry_run
-		self.rebuild = args.rebuild
-		self.pullPrerequisites = args.pull_prerequisites
-		self.noEngine = args.no_engine
-		self.noMinimal = args.no_minimal
-		self.noFull = args.no_full
-		self.suffix = args.suffix
-		self.platformArgs = ['--no-cache'] if args.no_cache == True else []
-		self.excludedComponents = set(args.exclude)
+		self.containerPlatform = 'windows' if platform.system() == 'Windows' and self.args.linux == False else 'linux'
+		self.dryRun = self.args.dry_run
+		self.rebuild = self.args.rebuild
+		self.pullPrerequisites = self.args.pull_prerequisites
+		self.noEngine = self.args.no_engine
+		self.noMinimal = self.args.no_minimal
+		self.noFull = self.args.no_full
+		self.suffix = self.args.suffix
+		self.platformArgs = ['--no-cache'] if self.args.no_cache == True else []
+		self.excludedComponents = set(self.args.exclude)
 		self.baseImage = None
 		self.prereqsTag = None
 		
@@ -143,14 +143,14 @@ class BuildConfiguration(object):
 		
 		# Store the path to the directory containing our required Windows DLL files
 		self.defaultDllDir = os.path.join(os.environ['SystemRoot'], 'System32')
-		self.dlldir = args.dlldir if args.dlldir is not None else self.defaultDllDir
+		self.dlldir = self.args.dlldir if self.args.dlldir is not None else self.defaultDllDir
 		
 		# Determine base tag for the Windows release of the host system
 		self.hostRelease = WindowsUtils.getWindowsRelease()
 		self.hostBasetag = WindowsUtils.getReleaseBaseTag(self.hostRelease)
 		
 		# Store the tag for the base Windows Server Core image
-		self.basetag = args.basetag if args.basetag is not None else self.hostBasetag
+		self.basetag = self.args.basetag if self.args.basetag is not None else self.hostBasetag
 		self.baseImage = 'microsoft/dotnet-framework:4.7.2-sdk-windowsservercore-' + self.basetag
 		self.prereqsTag = self.basetag
 		
@@ -163,19 +163,19 @@ class BuildConfiguration(object):
 			raise RuntimeError('tag suffix cannot be any of the Windows Server Core base image tags: {}'.format(WindowsUtils.getValidBaseTags()))
 		
 		# Set the memory limit Docker flags
-		if args.m is not None:
+		if self.args.m is not None:
 			try:
-				self.memLimit = humanfriendly.parse_size(args.m) / (1000*1000*1000)
+				self.memLimit = humanfriendly.parse_size(self.args.m) / (1000*1000*1000)
 			except:
-				raise RuntimeError('invalid memory limit "{}"'.format(args.m))
+				raise RuntimeError('invalid memory limit "{}"'.format(self.args.m))
 		else:
-			self.memLimit = DEFAULT_MEMORY_LIMIT if args.random_memory == False else random.uniform(DEFAULT_MEMORY_LIMIT, DEFAULT_MEMORY_LIMIT + 2.0)
-		self.platformArgs.extend(['-m', '{:.2f}GB'.format(self.memLimit)])
+			self.memLimit = DEFAULT_MEMORY_LIMIT if self.args.random_memory == False else random.uniform(DEFAULT_MEMORY_LIMIT, DEFAULT_MEMORY_LIMIT + 2.0)
+		self.platformself.args.extend(['-m', '{:.2f}GB'.format(self.memLimit)])
 		
 		# Set the isolation mode Docker flags
-		self.isolation = args.isolation if args.isolation is not None else 'default'
+		self.isolation = self.args.isolation if self.args.isolation is not None else 'default'
 		if self.isolation != 'default':
-			self.platformArgs.append('-isolation=' + self.isolation)
+			self.platformself.args.append('-isolation=' + self.isolation)
 	
 	def _generateLinuxConfig(self, args):
 		
@@ -185,10 +185,10 @@ class BuildConfiguration(object):
 		
 		# Determine if we are building CUDA-enabled container images
 		self.cuda = None
-		if args.cuda is not None:
+		if self.args.cuda is not None:
 			
 			# Verify that the specified CUDA version is valid
-			self.cuda = args.cuda if args.cuda != '' else DEFAULT_CUDA_VERSION
+			self.cuda = self.args.cuda if self.args.cuda != '' else DEFAULT_CUDA_VERSION
 			if self.cuda not in LINUX_BASE_IMAGES['cudagl']:
 				raise RuntimeError('unsupported CUDA version "{}", supported versions are: {}'.format(
 					self.cuda,

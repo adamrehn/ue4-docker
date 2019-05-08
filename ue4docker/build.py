@@ -126,8 +126,8 @@ def build():
 			
 			# Retrieve the Git username and password from the user
 			print('Retrieving the Git credentials that will be used to clone the UE4 repo')
-			username = _getUsername(args)
-			password = _getPassword(args)
+			username = _getUsername(config.args)
+			password = _getPassword(config.args)
 			print()
 		
 		# Start the HTTP credential endpoint as a child process and wait for it to start
