@@ -16,8 +16,13 @@ RUN python3 /tmp/verbose-ddc.py /home/ue4/UnrealEngine/Engine/Build/InstalledEng
 RUN ./Engine/Build/BatchFiles/Linux/Build.sh UE4Editor Linux Development -Clean
 
 # Create an Installed Build of the Engine
+# (We can optionally remove debug symbols and/or template projects in order to reduce the final container image size)
+ARG EXCLUDE_DEBUG=0
+ARG EXCLUDE_TEMPLATES=0
 WORKDIR /home/ue4/UnrealEngine
-RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true
+COPY exclude-components.py /tmp/exclude-components.py
+RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true && \
+	python3 /tmp/exclude-components.py /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux $EXCLUDE_DEBUG $EXCLUDE_TEMPLATES
 
 # Some versions of the Engine fail to include UnrealPak in the Installed Build, so copy it manually
 RUN cp ./Engine/Binaries/Linux/UnrealPak ./LocalBuilds/Engine/Linux/Engine/Binaries/Linux/UnrealPak
