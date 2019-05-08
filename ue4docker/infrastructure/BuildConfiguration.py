@@ -130,16 +130,16 @@ class BuildConfiguration(object):
 		
 		# If we're building Windows containers, generate our Windows-specific configuration settings
 		if self.containerPlatform == 'windows':
-			self._generateWindowsConfig(args)
+			self._generateWindowsConfig()
 		
 		# If we're building Linux containers, generate our Linux-specific configuration settings
 		if self.containerPlatform == 'linux':
-			self._generateLinuxConfig(args)
+			self._generateLinuxConfig()
 		
 		# If the user-specified suffix passed validation, prefix it with a dash
 		self.suffix = '-{}'.format(self.suffix) if self.suffix != '' else ''
 	
-	def _generateWindowsConfig(self, args):
+	def _generateWindowsConfig(self):
 		
 		# Store the path to the directory containing our required Windows DLL files
 		self.defaultDllDir = os.path.join(os.environ['SystemRoot'], 'System32')
@@ -177,7 +177,7 @@ class BuildConfiguration(object):
 		if self.isolation != 'default':
 			self.platformself.args.append('-isolation=' + self.isolation)
 	
-	def _generateLinuxConfig(self, args):
+	def _generateLinuxConfig(self):
 		
 		# Verify that any user-specified tag suffix does not collide with our base tags
 		if self.suffix.startswith('opengl') or self.suffix.startswith('cudagl'):
