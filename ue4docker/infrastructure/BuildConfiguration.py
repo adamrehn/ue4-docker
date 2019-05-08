@@ -53,10 +53,16 @@ class BuildConfiguration(object):
 		parser.add_argument('-suffix', default='', help='Add a suffix to the tags of the built images')
 		parser.add_argument('-m', default=None, help='Override the default memory limit under Windows (also overrides --random-memory)')
 	
-	def __init__(self, args):
+	def __init__(self, parser, argv):
 		'''
 		Creates a new build configuration based on the supplied arguments object
 		'''
+		
+		# If the user has specified `--cuda` without a version value, treat the value as an empty string
+		argv = [arg + '=' if arg == '--cuda' else arg for arg in argv]
+		
+		# Parse the supplied command-line arguments
+		args = parser.parse_args(argv)
 		
 		# Determine if we are building a custom version of UE4 rather than an official release
 		args.release = args.release.lower()

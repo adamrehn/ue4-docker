@@ -38,13 +38,9 @@ def build():
 		parser.print_help()
 		sys.exit(0)
 	
-	# If the user has specified `--cuda` without a version value, treat the value as an empty string
-	argv = [arg + '=' if arg == '--cuda' else arg for arg in sys.argv]
-	
 	# Parse the supplied command-line arguments
-	args = parser.parse_args(argv[1:])
 	try:
-		config = BuildConfiguration(args)
+		config = BuildConfiguration(parser, sys.argv[1:])
 	except RuntimeError as e:
 		logger.error('Error: {}'.format(e))
 		sys.exit(1)
