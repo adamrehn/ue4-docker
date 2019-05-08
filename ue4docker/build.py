@@ -29,29 +29,9 @@ def build():
 	# Create our logger to generate coloured output on stderr
 	logger = Logger(prefix='[{} build] '.format(sys.argv[0]))
 	
-	# Our supported command-line arguments
+	# Register our supported command-line arguments
 	parser = argparse.ArgumentParser(prog='{} build'.format(sys.argv[0]))
-	parser.add_argument('release', help='UE4 release to build, in semver format (e.g. 4.19.0) or "custom" for a custom repo and branch')
-	parser.add_argument('--linux', action='store_true', help='Build Linux container images under Windows')
-	parser.add_argument('--rebuild', action='store_true', help='Rebuild images even if they already exist')
-	parser.add_argument('--dry-run', action='store_true', help='Print `docker build` commands instead of running them')
-	parser.add_argument('--pull-prerequisites', action='store_true', help='Pull the ue4-build-prerequisites image from Docker Hub instead of building it')
-	parser.add_argument('--no-engine', action='store_true', help='Don\'t build the ue4-engine image')
-	parser.add_argument('--no-minimal', action='store_true', help='Don\'t build the ue4-minimal image')
-	parser.add_argument('--no-full', action='store_true', help='Don\'t build the ue4-full image')
-	parser.add_argument('--no-cache', action='store_true', help='Disable Docker build cache')
-	parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
-	parser.add_argument('--keep-debug', action='store_true', help='Don\'t truncate PDB files when building Windows containers')
-	parser.add_argument('--cuda', default=None, metavar='VERSION', help='Add CUDA support as well as OpenGL support when building Linux containers')
-	parser.add_argument('-username', default=None, help='Specify the username to use when cloning the git repository')
-	parser.add_argument('-password', default=None, help='Specify the password to use when cloning the git repository')
-	parser.add_argument('-repo', default=None, help='Set the custom git repository to clone when "custom" is specified as the release value')
-	parser.add_argument('-branch', default=None, help='Set the custom branch/tag to clone when "custom" is specified as the release value')
-	parser.add_argument('-isolation', default=None, help='Set the isolation mode to use for Windows containers (process or hyperv)')
-	parser.add_argument('-basetag', default=None, help='Windows Server Core base image tag to use for Windows containers (default is the host OS version)')
-	parser.add_argument('-dlldir', default=None, help='Set the directory to copy required Windows DLLs from (default is the host System32 directory)')
-	parser.add_argument('-suffix', default='', help='Add a suffix to the tags of the built images')
-	parser.add_argument('-m', default=None, help='Override the default memory limit under Windows (also overrides --random-memory)')
+	BuildConfiguration.addArguments(parser)
 	
 	# If no command-line arguments were supplied, display the help message and exit
 	if len(sys.argv) < 2:
