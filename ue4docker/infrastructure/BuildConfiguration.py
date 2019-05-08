@@ -24,6 +24,19 @@ DEFAULT_CUDA_VERSION = '9.2'
 # The default memory limit (in GB) under Windows
 DEFAULT_MEMORY_LIMIT = 10.0
 
+
+class ExcludedComponent(object):
+	'''
+	The different components that we support excluding from the built images
+	'''
+	
+	# Engine debug symbols
+	Debug = 'debug'
+	
+	# Template projects and samples
+	Templates = 'templates'
+
+
 class BuildConfiguration(object):
 	
 	@staticmethod
@@ -41,7 +54,7 @@ class BuildConfiguration(object):
 		parser.add_argument('--no-full', action='store_true', help='Don\'t build the ue4-full image')
 		parser.add_argument('--no-cache', action='store_true', help='Disable Docker build cache')
 		parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
-		parser.add_argument('--keep-debug', action='store_true', help='Don\'t truncate PDB files when building Windows containers')
+		parser.add_argument('--exclude', action='append', default=[], choices=[ExcludedComponent.Debug, ExcludedComponent.Templates], help='Exclude the specified component (can be specified multiple times to exclude multiple components)')
 		parser.add_argument('--cuda', default=None, metavar='VERSION', help='Add CUDA support as well as OpenGL support when building Linux containers')
 		parser.add_argument('-username', default=None, help='Specify the username to use when cloning the git repository')
 		parser.add_argument('-password', default=None, help='Specify the password to use when cloning the git repository')
@@ -105,8 +118,15 @@ class BuildConfiguration(object):
 		self.noFull = args.no_full
 		self.suffix = args.suffix
 		self.platformArgs = ['--no-cache'] if args.no_cache == True else []
+		self.excludedComponents = set(args.exclude)
 		self.baseImage = None
 		self.prereqsTag = None
+		
+		# Generate our flags for keeping or excluding components
+		self.exclusionFlags = [
+			'--build-arg', 'EXCLUDE_DEBUG={}'.format(1 if ExcludedComponent.Debug in self.excludedComponents else 0),
+			'--build-arg', 'EXCLUDE_TEMPLATES={}'.format(1 if ExcludedComponent.Templates in self.excludedComponents else 0)
+		]
 		
 		# If we're building Windows containers, generate our Windows-specific configuration settings
 		if self.containerPlatform == 'windows':
@@ -156,11 +176,6 @@ class BuildConfiguration(object):
 		self.isolation = args.isolation if args.isolation is not None else 'default'
 		if self.isolation != 'default':
 			self.platformArgs.append('-isolation=' + self.isolation)
-		
-		# Set the PDB truncation Docker flags
-		self.keepDebug = args.keep_debug
-		if self.keepDebug == True:
-			self.platformArgs.extend(['--build-arg', 'KEEP_DEBUG=1'])
 	
 	def _generateLinuxConfig(self, args):
 		

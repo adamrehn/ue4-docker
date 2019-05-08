@@ -12,12 +12,12 @@ COPY patch-filters-xml.py C:\patch-filters-xml.py
 RUN python C:\patch-filters-xml.py C:\UnrealEngine\Engine\Build\InstalledEngineFilters.xml
 
 # Create an Installed Build of the Engine
-# (By default we truncate all .pdb files in order to reduce the final container image size)
-ARG KEEP_DEBUG=0
+# (We can optionally truncate all .pdb files in order to reduce the final container image size)
+ARG EXCLUDE_DEBUG=0
 WORKDIR C:\UnrealEngine
 COPY truncate-pdb-files.py C:\truncate-pdb-files.py
 RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph -target="Make Installed Build Win64" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true && `
-	python C:\truncate-pdb-files.py C:\UnrealEngine\LocalBuilds\Engine\Windows %KEEP_DEBUG%
+	python C:\truncate-pdb-files.py C:\UnrealEngine\LocalBuilds\Engine\Windows %EXCLUDE_DEBUG%
 
 # Copy our legacy toolchain installation script into the Installed Build
 # (This ensures we only need one COPY directive below)

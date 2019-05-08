@@ -16,8 +16,8 @@ rootDir = sys.argv[1]
 version = json.loads(readFile(os.path.join(rootDir, 'Engine', 'Build', 'Build.version')))
 
 # Determine if we are preserving or truncating PDB files
-keepDebug = len(sys.argv) > 2 and sys.argv[2] == '1'
-if keepDebug == True:
+truncateDebug = len(sys.argv) > 2 and sys.argv[2] == '1'
+if truncateDebug == False:
 	log('User opted to preserve debug symbols, leaving all PDB files intact.')
 	sys.exit(0)
 
