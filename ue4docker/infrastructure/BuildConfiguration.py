@@ -170,7 +170,7 @@ class BuildConfiguration(object):
 		
 		# Store the tag for the base Windows Server Core image
 		self.basetag = self.args.basetag if self.args.basetag is not None else self.hostBasetag
-		self.baseImage = 'microsoft/dotnet-framework:4.7.2-sdk-windowsservercore-' + self.basetag
+		self.baseImage = 'mcr.microsoft.com/dotnet/framework/sdk:4.7.2-windowsservercore-' + self.basetag
 		self.prereqsTag = self.basetag
 		
 		# Verify that any user-specified base tag is valid
