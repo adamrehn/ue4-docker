@@ -135,7 +135,7 @@ def build():
 		else:
 			
 			# Retrieve the Git username and password from the user
-			print('Retrieving the Git credentials that will be used to clone the UE4 repo')
+			print('\nRetrieving the Git credentials that will be used to clone the UE4 repo')
 			username = _getUsername(config.args)
 			password = _getPassword(config.args)
 			print()
@@ -204,8 +204,6 @@ def build():
 		except Exception as e:
 			
 			# One of the images failed to build
-			import traceback
-			print(traceback.format_exc())
 			logger.error('Error: {}'.format(e))
 			endpoint.stop()
 			sys.exit(1)
