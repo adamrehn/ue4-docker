@@ -35,6 +35,19 @@ class ExcludedComponent(object):
 	
 	# Template projects and samples
 	Templates = 'templates'
+	
+	
+	@staticmethod
+	def description(component):
+		'''
+		Returns a human-readable description of the specified component
+		'''
+		return {
+			
+			ExcludedComponent.Debug: 'Debug symbols',
+			ExcludedComponent.Templates: 'Template projects and samples'
+			
+		}.get(component, '[Unknown component]')
 
 
 class BuildConfiguration(object):
@@ -138,6 +151,12 @@ class BuildConfiguration(object):
 		
 		# If the user-specified suffix passed validation, prefix it with a dash
 		self.suffix = '-{}'.format(self.suffix) if self.suffix != '' else ''
+	
+	def describeExcludedComponents(self):
+		'''
+		Returns a list of strings describing the components that will be excluded (if any.)
+		'''
+		return sorted([ExcludedComponent.description(component) for component in self.excludedComponents])
 	
 	def _generateWindowsConfig(self):
 		

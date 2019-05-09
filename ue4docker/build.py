@@ -112,7 +112,17 @@ def build():
 			
 			# Determine if we are building CUDA-enabled container images
 			capabilities = 'CUDA {} + OpenGL'.format(config.cuda) if config.cuda is not None else 'OpenGL'
+			logger.info('LINUX CONTAINER SETTINGS', False)
 			logger.info('Building GPU-enabled images compatible with NVIDIA Docker ({} support).\n'.format(capabilities), False)
+		
+		# Report which Engine components are being excluded (if any)
+		logger.info('GENERAL SETTINGS', False)
+		if len(config.excludedComponents) > 0:
+			logger.info('Excluding the following Engine components:', False)
+			for component in config.describeExcludedComponents():
+				logger.info('- {}'.format(component), False)
+		else:
+			logger.info('Not excluding any Engine components.', False)
 		
 		# Determine if we are performing a dry run
 		if config.dryRun == True:
