@@ -2,6 +2,8 @@
 ARG NAMESPACE
 ARG TAG
 ARG PREREQS_TAG
+ARG EXCLUDE_DEBUG
+ARG EXCLUDE_TEMPLATES
 FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 
 # Set the changelist number in Build.version to ensure our Build ID is generated correctly
@@ -14,8 +16,6 @@ RUN python C:\patch-filters-xml.py C:\UnrealEngine\Engine\Build\InstalledEngineF
 
 # Create an Installed Build of the Engine
 # (We can optionally remove debug symbols and/or template projects in order to reduce the final container image size)
-ARG EXCLUDE_DEBUG=0
-ARG EXCLUDE_TEMPLATES=0
 WORKDIR C:\UnrealEngine
 COPY exclude-components.py C:\exclude-components.py
 RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph -target="Make Installed Build Win64" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true && `

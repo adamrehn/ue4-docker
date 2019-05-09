@@ -1,6 +1,8 @@
 ARG NAMESPACE
 ARG TAG
 ARG PREREQS_TAG
+ARG EXCLUDE_DEBUG
+ARG EXCLUDE_TEMPLATES
 FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 
 # Set the changelist number in Build.version to ensure our Build ID is generated correctly
@@ -18,8 +20,6 @@ RUN ./Engine/Build/BatchFiles/Linux/Build.sh UE4Editor Linux Development -Clean
 
 # Create an Installed Build of the Engine
 # (We can optionally remove debug symbols and/or template projects in order to reduce the final container image size)
-ARG EXCLUDE_DEBUG=0
-ARG EXCLUDE_TEMPLATES=0
 WORKDIR /home/ue4/UnrealEngine
 COPY exclude-components.py /tmp/exclude-components.py
 RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true && \
@@ -46,5 +46,5 @@ RUN /tmp/root_commands.sh
 USER ue4
 
 # Add labels to the built image to identify which components (if any) were excluded from the build that it contains
-LABEL com.adamrehn.ue4-docker.excluded.debug=$EXCLUDE_DEBUG
-LABEL com.adamrehn.ue4-docker.excluded.templates=$EXCLUDE_TEMPLATES
+LABEL com.adamrehn.ue4-docker.excluded.debug=${EXCLUDE_DEBUG}
+LABEL com.adamrehn.ue4-docker.excluded.templates=${EXCLUDE_TEMPLATES}
