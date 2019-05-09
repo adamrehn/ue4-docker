@@ -189,12 +189,12 @@ class BuildConfiguration(object):
 				raise RuntimeError('invalid memory limit "{}"'.format(self.args.m))
 		else:
 			self.memLimit = DEFAULT_MEMORY_LIMIT if self.args.random_memory == False else random.uniform(DEFAULT_MEMORY_LIMIT, DEFAULT_MEMORY_LIMIT + 2.0)
-		self.platformself.args.extend(['-m', '{:.2f}GB'.format(self.memLimit)])
+		self.platformArgs.extend(['-m', '{:.2f}GB'.format(self.memLimit)])
 		
 		# Set the isolation mode Docker flags
 		self.isolation = self.args.isolation if self.args.isolation is not None else 'default'
 		if self.isolation != 'default':
-			self.platformself.args.append('-isolation=' + self.isolation)
+			self.platformArgs.append('-isolation=' + self.isolation)
 	
 	def _generateLinuxConfig(self):
 		
