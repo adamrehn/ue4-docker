@@ -33,3 +33,7 @@ WORKDIR C:\UnrealEngine
 # Install legacy toolchain components if we're building UE4.19
 # (This call is a no-op under newer Engine versions)
 RUN python C:\UnrealEngine\legacy-toolchain-fix.py
+
+# Add labels to the built image to identify which components (if any) were excluded from the build that it contains
+LABEL com.adamrehn.ue4-docker.excluded.debug=%EXCLUDE_DEBUG%
+LABEL com.adamrehn.ue4-docker.excluded.templates=%EXCLUDE_TEMPLATES%

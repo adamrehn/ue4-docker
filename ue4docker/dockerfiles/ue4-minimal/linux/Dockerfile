@@ -44,3 +44,7 @@ WORKDIR /home/ue4/UnrealEngine
 USER root
 RUN /tmp/root_commands.sh
 USER ue4
+
+# Add labels to the built image to identify which components (if any) were excluded from the build that it contains
+LABEL com.adamrehn.ue4-docker.excluded.debug=$EXCLUDE_DEBUG
+LABEL com.adamrehn.ue4-docker.excluded.templates=$EXCLUDE_TEMPLATES
