@@ -43,15 +43,15 @@ def clean():
 	
 	# If requested, remove ue4-source images
 	if args.source == True:
-		_cleanMatching(cleaner, 'adamrehn/ue4-source', args.tag, args.dry_run)
+		_cleanMatching(cleaner, GlobalConfiguration.resolveTag('ue4-source'), args.tag, args.dry_run)
 		
 	# If requested, remove ue4-engine images
 	if args.engine == True:
-		_cleanMatching(cleaner, 'adamrehn/ue4-engine', args.tag, args.dry_run)
+		_cleanMatching(cleaner, GlobalConfiguration.resolveTag('ue4-engine'), args.tag, args.dry_run)
 	
 	# If requested, remove everything
 	if args.all == True:
-		_cleanMatching(cleaner, 'adamrehn/ue4-*', args.tag, args.dry_run)
+		_cleanMatching(cleaner, GlobalConfiguration.resolveTag('ue4-*'), args.tag, args.dry_run)
 	
 	# If requested, run `docker system prune`
 	if args.prune == True:

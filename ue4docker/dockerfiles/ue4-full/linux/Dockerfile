@@ -1,6 +1,7 @@
+ARG NAMESPACE
 ARG TAG
 ARG PREREQS_TAG
-FROM adamrehn/ue4-source:${TAG}-${PREREQS_TAG} AS builder
+FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 
 # Install ue4cli and conan-ue4cli
 USER root
@@ -13,7 +14,7 @@ RUN ue4 setroot /home/ue4/UnrealEngine
 RUN ue4 conan generate
 
 # Copy the generated Conan packages into a new image with our Installed Build
-FROM adamrehn/ue4-minimal:${TAG}-${PREREQS_TAG}
+FROM ${NAMESPACE}/ue4-minimal:${TAG}-${PREREQS_TAG}
 
 # Clone the UE4Capture repository
 RUN git clone "https://github.com/adamrehn/UE4Capture.git" /home/ue4/UE4Capture

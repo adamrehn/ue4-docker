@@ -59,7 +59,7 @@ def build():
 		shutil.copytree(contextOrig, contextRoot)
 		
 		# Create the builder instance to build the Docker images
-		builder = ImageBuilder(contextRoot, 'adamrehn/', config.containerPlatform, logger)
+		builder = ImageBuilder(contextRoot, config.containerPlatform, logger)
 		
 		# Determine if we are building a custom version of UE4
 		if config.custom == True:
@@ -159,7 +159,7 @@ def build():
 			if config.pullPrerequisites == True:
 				builder.pull('adamrehn/ue4-build-prerequisites:{}'.format(config.prereqsTag), config.rebuild, config.dryRun)
 			else:
-				builder.build('ue4-build-prerequisites', [config.prereqsTag], config.platformArgs + prereqsArgs, config.rebuild, config.dryRun)
+				builder.build('adamrehn/ue4-build-prerequisites', [config.prereqsTag], config.platformArgs + prereqsArgs, config.rebuild, config.dryRun)
 			
 			# Build the UE4 source image
 			mainTags = ['{}{}-{}'.format(config.release, config.suffix, config.prereqsTag), config.release + config.suffix]
@@ -171,7 +171,10 @@ def build():
 			builder.build('ue4-source', mainTags, config.platformArgs + ue4SourceArgs + endpoint.args(), config.rebuild, config.dryRun)
 			
 			# Build the UE4 Engine source build image, unless requested otherwise by the user
-			ue4BuildArgs = ['--build-arg', 'TAG={}'.format(mainTags[1])] + prereqConsumerArgs
+			ue4BuildArgs = prereqConsumerArgs + [
+				'--build-arg', 'TAG={}'.format(mainTags[1]),
+				'--build-arg', 'NAMESPACE={}'.format(GlobalConfiguration.getTagNamespace())
+			]
 			if config.noEngine == False:
 				builder.build('ue4-engine', mainTags, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
 			else:
@@ -201,6 +204,8 @@ def build():
 		except Exception as e:
 			
 			# One of the images failed to build
+			import traceback
+			print(traceback.format_exc())
 			logger.error('Error: {}'.format(e))
 			endpoint.stop()
 			sys.exit(1)

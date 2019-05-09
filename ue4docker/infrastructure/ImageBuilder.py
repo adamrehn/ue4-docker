@@ -1,14 +1,14 @@
 from .DockerUtils import DockerUtils
+from .GlobalConfiguration import GlobalConfiguration
 import humanfriendly, os, subprocess, time
 
 class ImageBuilder(object):
 	
-	def __init__(self, root, prefix, platform, logger):
+	def __init__(self, root, platform, logger):
 		'''
-		Creates an ImageBuilder for the specified build context root, image name prefix, and platform
+		Creates an ImageBuilder for the specified build context root, image name and platform
 		'''
 		self.root = root
-		self.prefix = prefix
 		self.platform = platform
 		self.logger = logger
 	
@@ -28,7 +28,7 @@ class ImageBuilder(object):
 		])
 		
 		# Build the image if it doesn't already exist
-		imageTags = ['{}{}:{}'.format(self.prefix, name, tag) for tag in tags]
+		imageTags = ['{}:{}'.format(GlobalConfiguration.resolveTag(name), tag) for tag in tags]
 		self._processImage(
 			imageTags[0],
 			DockerUtils.build(imageTags, self.context(name), args),
@@ -42,7 +42,7 @@ class ImageBuilder(object):
 		'''
 		Resolve the full path to the build context for the specified image
 		'''
-		return os.path.join(self.root, name, self.platform)
+		return os.path.join(self.root, os.path.basename(name), self.platform)
 	
 	def pull(self, image, rebuild=False, dryRun=False):
 		'''

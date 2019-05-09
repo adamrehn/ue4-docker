@@ -1,7 +1,8 @@
 # escape=`
+ARG NAMESPACE
 ARG TAG
 ARG PREREQS_TAG
-FROM adamrehn/ue4-source:${TAG}-${PREREQS_TAG} AS builder
+FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 
 # Set the changelist number in Build.version to ensure our Build ID is generated correctly
 COPY set-changelist.py C:\set-changelist.py
@@ -25,7 +26,7 @@ RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph -target="Make Installed Buil
 RUN C:\copy.py C:\legacy-toolchain-fix.py C:\UnrealEngine\LocalBuilds\Engine\Windows\
 
 # Copy the Installed Build into a clean image, discarding the source tree
-FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
+FROM ${NAMESPACE}/ue4-build-prerequisites:${PREREQS_TAG}
 COPY --from=builder C:\UnrealEngine\LocalBuilds\Engine\Windows C:\UnrealEngine
 WORKDIR C:\UnrealEngine
 

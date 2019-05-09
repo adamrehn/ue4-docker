@@ -1,7 +1,8 @@
 # escape=`
+ARG NAMESPACE
 ARG TAG
 ARG PREREQS_TAG
-FROM adamrehn/ue4-source:${TAG}-${PREREQS_TAG} AS builder
+FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 
 # Install ue4cli and conan-ue4cli
 RUN pip install setuptools wheel --no-warn-script-location
@@ -14,7 +15,7 @@ RUN ue4 setroot C:\UnrealEngine
 RUN ue4 conan generate && ue4 conan generate --remove-only
 
 # Copy the generated Conan packages into a new image with our Installed Build
-FROM adamrehn/ue4-minimal:${TAG}-${PREREQS_TAG}
+FROM ${NAMESPACE}/ue4-minimal:${TAG}-${PREREQS_TAG}
 
 # Install ue4cli conan-ue4cli, and ue4-ci-helpers
 RUN pip install setuptools wheel --no-warn-script-location

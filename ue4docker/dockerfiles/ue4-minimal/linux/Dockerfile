@@ -1,6 +1,7 @@
+ARG NAMESPACE
 ARG TAG
 ARG PREREQS_TAG
-FROM adamrehn/ue4-source:${TAG}-${PREREQS_TAG} AS builder
+FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 
 # Set the changelist number in Build.version to ensure our Build ID is generated correctly
 COPY set-changelist.py /tmp/set-changelist.py
@@ -32,7 +33,7 @@ COPY --chown=ue4:ue4 copy-toolchain.py /tmp/copy-toolchain.py
 RUN python3 /tmp/copy-toolchain.py /home/ue4/UnrealEngine
 
 # Copy the Installed Build into a clean image, discarding the source build
-FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
+FROM ${NAMESPACE}/ue4-build-prerequisites:${PREREQS_TAG}
 
 # Copy the Installed Build files from the builder image
 COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux /home/ue4/UnrealEngine

@@ -3,6 +3,7 @@ from .CredentialEndpoint import CredentialEndpoint
 from .DarwinUtils import DarwinUtils
 from .DockerUtils import DockerUtils
 from .FilesystemUtils import FilesystemUtils
+from .GlobalConfiguration import GlobalConfiguration
 from .ImageBuilder import ImageBuilder
 from .ImageCleaner import ImageCleaner
 from .Logger import Logger
