@@ -26,7 +26,7 @@ RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph -target="Make Installed Buil
 RUN C:\copy.py C:\legacy-toolchain-fix.py C:\UnrealEngine\LocalBuilds\Engine\Windows\
 
 # Copy the Installed Build into a clean image, discarding the source tree
-FROM ${NAMESPACE}/ue4-build-prerequisites:${PREREQS_TAG}
+FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
 COPY --from=builder C:\UnrealEngine\LocalBuilds\Engine\Windows C:\UnrealEngine
 WORKDIR C:\UnrealEngine
 
