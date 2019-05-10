@@ -1,4 +1,4 @@
-import humanfriendly, platform, psutil, sys
+import humanfriendly, platform, psutil, shutil, sys
 from .version import __version__
 from .infrastructure import *
 
@@ -10,6 +10,9 @@ def _osName(dockerInfo):
 	else:
 		return 'Linux ({}, {})'.format(dockerInfo['OperatingSystem'], dockerInfo['KernelVersion'])
 
+def _formatSize(size):
+	return humanfriendly.format_size(size, binary=True)
+
 def info():
 	
 	# Verify that Docker is installed
@@ -17,20 +20,36 @@ def info():
 		print('Error: could not detect Docker version. Please ensure Docker is installed.', file=sys.stderr)
 		sys.exit(1)
 	
-	# Gather our information on the Docker daemon
+	# Gather our information about the Docker daemon
 	dockerInfo = DockerUtils.info()
 	nvidiaDocker = platform.system() == 'Linux' and 'nvidia' in dockerInfo['Runtimes']
 	maxSize = DockerUtils.maxsize()
+	rootDir = dockerInfo['DockerRootDir']
+	
+	# Gather our information about the host system
+	diskSpace = shutil.disk_usage(rootDir).free
+	memPhysical = psutil.virtual_memory().total
+	memVirtual = psutil.swap_memory().total
+	cpuPhysical = psutil.cpu_count(False)
+	cpuLogical = psutil.cpu_count()
+	
+	# Attempt to query PyPI to determine the latest version of ue4-docker
+	# (We ignore any errors here to ensure the `ue4-docker info` command still works without network access)
+	try:
+		latestVersion = GlobalConfiguration.getLatestVersion()
+	except:
+		latestVersion = None
 	
 	# Prepare our report items
 	items = [
-		('ue4-docker version', __version__),
+		('ue4-docker version', '{}{}'.format(__version__, '' if latestVersion is None else ' (latest available version is {})'.format(latestVersion))),
 		('Operating system', _osName(dockerInfo)),
 		('Docker daemon version', dockerInfo['ServerVersion']),
 		('NVIDIA Docker supported', 'Yes' if nvidiaDocker == True else 'No'),
 		('Maximum image size', '{:.0f}GB'.format(maxSize) if maxSize != -1 else 'No limit detected'),
-		('Total system memory', humanfriendly.format_size(psutil.virtual_memory().total, binary=True)),
-		('Number of processors', '{} physical, {} logical'.format(psutil.cpu_count(False), psutil.cpu_count()))
+		('Available disk space', _formatSize(diskSpace)),
+		('Total system memory', '{} physical, {} virtual'.format(_formatSize(memPhysical), _formatSize(memVirtual))),
+		('Number of processors', '{} physical, {} logical'.format(cpuPhysical, cpuLogical))
 	]
 	
 	# Determine the longest item name so we can format our list in nice columns
