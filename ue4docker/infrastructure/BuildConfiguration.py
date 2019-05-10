@@ -1,6 +1,8 @@
+from .DockerUtils import DockerUtils
 from .PackageUtils import PackageUtils
 from .WindowsUtils import WindowsUtils
 import humanfriendly, os, platform, random
+from pkg_resources import parse_version
 
 # Import the `semver` package even when the conflicting `node-semver` package is present
 semver = PackageUtils.importFile('semver', os.path.join(PackageUtils.getPackageLocation('semver'), 'semver.py'))
@@ -191,10 +193,22 @@ class BuildConfiguration(object):
 			self.memLimit = DEFAULT_MEMORY_LIMIT if self.args.random_memory == False else random.uniform(DEFAULT_MEMORY_LIMIT, DEFAULT_MEMORY_LIMIT + 2.0)
 		self.platformArgs.extend(['-m', '{:.2f}GB'.format(self.memLimit)])
 		
-		# Set the isolation mode Docker flags
-		self.isolation = self.args.isolation if self.args.isolation is not None else 'default'
-		if self.isolation != 'default':
-			self.platformArgs.append('-isolation=' + self.isolation)
+		# If the user has explicitly specified an isolation mode then use it, otherwise auto-detect
+		if self.args.isolation is not None:
+			self.isolation = self.args.isolation
+		else:
+			
+			# If we are able to use process isolation mode then use it, otherwise fallback to the Docker daemon's default isolation mode
+			differentKernels = WindowsUtils.isInsiderPreview() or self.basetag != self.hostBasetag
+			hostSupportsProcess = WindowsUtils.isWindowsServer() or int(self.hostRelease) >= 1809
+			dockerSupportsProcess = parse_version(DockerUtils.version()['Version']) >= parse_version('18.09.0')
+			if not differentKernels and hostSupportsProcess and dockerSupportsProcess:
+				self.isolation = 'process'
+			else:
+				self.isolation = DockerUtils.info()['Isolation']
+		
+		# Set the isolation mode Docker flag
+		self.platformArgs.append('-isolation=' + self.isolation)
 	
 	def _generateLinuxConfig(self):
 		

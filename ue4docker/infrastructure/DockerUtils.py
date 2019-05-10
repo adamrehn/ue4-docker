@@ -16,7 +16,7 @@ class DockerUtils(object):
 	@staticmethod
 	def version():
 		'''
-		Retrieves the version string for the Docker daemon
+		Retrieves the version information for the Docker daemon
 		'''
 		client = docker.from_env()
 		return client.version()
