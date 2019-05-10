@@ -75,7 +75,7 @@ def build():
 			logger.info('WINDOWS CONTAINER SETTINGS', False)
 			logger.info('Isolation mode:               {}'.format(config.isolation), False)
 			logger.info('Base OS image tag:            {} (host OS is {})'.format(config.basetag, WindowsUtils.systemStringShort()), False)
-			logger.info('Memory limit:                 {:.2f}GB'.format(config.memLimit), False)
+			logger.info('Memory limit:                 {}'.format('No limit' if config.memLimit is None else '{:.2f}GB'.format(config.memLimit)), False)
 			logger.info('Detected max image size:      {:.0f}GB'.format(DockerUtils.maxsize()), False)
 			logger.info('Directory to copy DLLs from:  {}\n'.format(config.dlldir), False)
 			

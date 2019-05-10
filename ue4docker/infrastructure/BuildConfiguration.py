@@ -183,16 +183,6 @@ class BuildConfiguration(object):
 		if WindowsUtils.isValidBaseTag(self.suffix) == True:
 			raise RuntimeError('tag suffix cannot be any of the Windows Server Core base image tags: {}'.format(WindowsUtils.getValidBaseTags()))
 		
-		# Set the memory limit Docker flags
-		if self.args.m is not None:
-			try:
-				self.memLimit = humanfriendly.parse_size(self.args.m) / (1000*1000*1000)
-			except:
-				raise RuntimeError('invalid memory limit "{}"'.format(self.args.m))
-		else:
-			self.memLimit = DEFAULT_MEMORY_LIMIT if self.args.random_memory == False else random.uniform(DEFAULT_MEMORY_LIMIT, DEFAULT_MEMORY_LIMIT + 2.0)
-		self.platformArgs.extend(['-m', '{:.2f}GB'.format(self.memLimit)])
-		
 		# If the user has explicitly specified an isolation mode then use it, otherwise auto-detect
 		if self.args.isolation is not None:
 			self.isolation = self.args.isolation
@@ -209,6 +199,24 @@ class BuildConfiguration(object):
 		
 		# Set the isolation mode Docker flag
 		self.platformArgs.append('-isolation=' + self.isolation)
+		
+		# If the user has explicitly specified a memory limit then use it, otherwise auto-detect
+		self.memLimit = None
+		if self.args.m is not None:
+			try:
+				self.memLimit = humanfriendly.parse_size(self.args.m) / (1000*1000*1000)
+			except:
+				raise RuntimeError('invalid memory limit "{}"'.format(self.args.m))
+		else:
+			
+			# Only specify a memory limit when using Hyper-V isolation mode, in order to override the 1GB default limit
+			# (Process isolation mode does not impose any memory limits by default)
+			if self.isolation == 'hyperv':
+				self.memLimit = DEFAULT_MEMORY_LIMIT if self.args.random_memory == False else random.uniform(DEFAULT_MEMORY_LIMIT, DEFAULT_MEMORY_LIMIT + 2.0)
+		
+		# Set the memory limit Docker flag
+		if self.memLimit is not None:
+			self.platformArgs.extend(['-m', '{:.2f}GB'.format(self.memLimit)])
 	
 	def _generateLinuxConfig(self):
 		
