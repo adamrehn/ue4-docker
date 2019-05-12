@@ -2,6 +2,9 @@ dist: xenial
 language: python
 python:
   - "3.7"
+install:
+  - pip install wheel
+script: echo "No build-time tests to run."
 deploy:
   provider: pypi
   user: adamrehn
