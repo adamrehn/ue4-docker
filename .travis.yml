@@ -1,3 +1,4 @@
+if: tag IS present
 dist: xenial
 language: python
 python:
