@@ -198,7 +198,7 @@ class BuildConfiguration(object):
 				self.isolation = DockerUtils.info()['Isolation']
 		
 		# Set the isolation mode Docker flag
-		self.platformArgs.append('-isolation=' + self.isolation)
+		self.platformArgs.append('--isolation=' + self.isolation)
 		
 		# If the user has explicitly specified a memory limit then use it, otherwise auto-detect
 		self.memLimit = None
