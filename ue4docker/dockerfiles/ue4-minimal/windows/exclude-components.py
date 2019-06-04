@@ -48,6 +48,6 @@ if excludeTemplates == True:
 	for subdir in ['FeaturePacks', 'Samples', 'Templates']:
 		log('Removing {} directory...'.format(subdir))
 		try:
-			shutil.rmtree(join(rootDir, currDir))
+			shutil.rmtree(join(rootDir, subdir))
 		except:
 			log('  Warning: failed to remove {} directory...'.format(subdir))
