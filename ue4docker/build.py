@@ -59,7 +59,10 @@ def build():
 		shutil.copytree(contextOrig, contextRoot)
 		
 		# Create the builder instance to build the Docker images
-		builder = ImageBuilder(contextRoot, config.containerPlatform, logger)
+		builder = ImageBuilder(contextRoot, config.containerPlatform, logger, config.rebuild, config.dryRun)
+		
+		# Resolve our main set of tags for the generated images
+		mainTags = ['{}{}-{}'.format(config.release, config.suffix, config.prereqsTag), config.release + config.suffix]
 		
 		# Determine if we are building a custom version of UE4
 		if config.custom == True:
@@ -124,17 +127,24 @@ def build():
 		else:
 			logger.info('Not excluding any Engine components.', False)
 		
-		# Determine if we are performing a dry run
+		# Determine if we need to prompt for credentials
 		if config.dryRun == True:
 			
-			# Don't bother prompting the user for any credentials
+			# Don't bother prompting the user for any credentials during a dry run
 			logger.info('Performing a dry run, `docker build` commands will be printed and not executed.', False)
+			username = ''
+			password = ''
+			
+		elif builder.willBuild('ue4-source', mainTags) == False:
+			
+			# Don't bother prompting the user for any credentials if we're not building the ue4-source image
+			logger.info('Not building the ue4-source image, no Git credentials required.', False)
 			username = ''
 			password = ''
 			
 		else:
 			
-			# Retrieve the Git username and password from the user
+			# Retrieve the Git username and password from the user when building the ue4-source image
 			print('\nRetrieving the Git credentials that will be used to clone the UE4 repo')
 			username = _getUsername(config.args)
 			password = _getPassword(config.args)
@@ -157,18 +167,17 @@ def build():
 			
 			# Build or pull the UE4 build prerequisites image
 			if config.pullPrerequisites == True:
-				builder.pull('adamrehn/ue4-build-prerequisites:{}'.format(config.prereqsTag), config.rebuild, config.dryRun)
+				builder.pull('adamrehn/ue4-build-prerequisites:{}'.format(config.prereqsTag))
 			else:
-				builder.build('adamrehn/ue4-build-prerequisites', [config.prereqsTag], config.platformArgs + prereqsArgs, config.rebuild, config.dryRun)
+				builder.build('adamrehn/ue4-build-prerequisites', [config.prereqsTag], config.platformArgs + prereqsArgs)
 			
 			# Build the UE4 source image
-			mainTags = ['{}{}-{}'.format(config.release, config.suffix, config.prereqsTag), config.release + config.suffix]
 			prereqConsumerArgs = ['--build-arg', 'PREREQS_TAG={}'.format(config.prereqsTag)]
 			ue4SourceArgs = prereqConsumerArgs + [
 				'--build-arg', 'GIT_REPO={}'.format(config.repository),
 				'--build-arg', 'GIT_BRANCH={}'.format(config.branch)
 			]
-			builder.build('ue4-source', mainTags, config.platformArgs + ue4SourceArgs + endpoint.args(), config.rebuild, config.dryRun)
+			builder.build('ue4-source', mainTags, config.platformArgs + ue4SourceArgs + endpoint.args())
 			
 			# Build the UE4 Engine source build image, unless requested otherwise by the user
 			ue4BuildArgs = prereqConsumerArgs + [
@@ -176,21 +185,21 @@ def build():
 				'--build-arg', 'NAMESPACE={}'.format(GlobalConfiguration.getTagNamespace())
 			]
 			if config.noEngine == False:
-				builder.build('ue4-engine', mainTags, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
+				builder.build('ue4-engine', mainTags, config.platformArgs + ue4BuildArgs)
 			else:
 				logger.info('User specified `--no-engine`, skipping ue4-engine image build.')
 			
 			# Build the minimal UE4 CI image, unless requested otherwise by the user
 			buildUe4Minimal = config.noMinimal == False
 			if buildUe4Minimal == True:
-				builder.build('ue4-minimal', mainTags, config.platformArgs + config.exclusionFlags + ue4BuildArgs, config.rebuild, config.dryRun)
+				builder.build('ue4-minimal', mainTags, config.platformArgs + config.exclusionFlags + ue4BuildArgs)
 			else:
 				logger.info('User specified `--no-minimal`, skipping ue4-minimal image build.')
 			
 			# Build the full UE4 CI image, unless requested otherwise by the user
 			buildUe4Full = buildUe4Minimal == True and config.noFull == False
 			if buildUe4Full == True:
-				builder.build('ue4-full', mainTags, config.platformArgs + ue4BuildArgs, config.rebuild, config.dryRun)
+				builder.build('ue4-full', mainTags, config.platformArgs + ue4BuildArgs)
 			else:
 				logger.info('Not building ue4-minimal or user specified `--no-full`, skipping ue4-full image build.')
 			
