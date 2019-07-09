@@ -5,13 +5,19 @@ from .export import export
 from .info import info
 from .setup_cmd import setup
 from .version_cmd import version
-import os, platform, sys
+import logging, os, platform, sys
 
 def _exitWithError(err):
 	Logger().error(err)
 	sys.exit(1)
 
 def main():
+	
+	# Configure verbose logging if the user requested it
+	# (NOTE: in a future version of ue4-docker the `Logger` class will be properly integrated with standard logging)
+	if '-v' in sys.argv or '--verbose' in sys.argv:
+		sys.argv = list([arg for arg in sys.argv if arg not in ['-v', '--verbose']])
+		logging.getLogger().setLevel(logging.DEBUG)
 	
 	# Verify that Docker is installed
 	if DockerUtils.installed() == False:

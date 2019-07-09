@@ -1,4 +1,4 @@
-import docker, fnmatch, humanfriendly, itertools, json, os, platform, re
+import docker, fnmatch, humanfriendly, itertools, json, logging, os, platform, re
 from .FilesystemUtils import FilesystemUtils
 
 class DockerUtils(object):
@@ -10,7 +10,8 @@ class DockerUtils(object):
 		'''
 		try:
 			return DockerUtils.version() is not None
-		except:
+		except Exception as e:
+			logging.debug(str(e))
 			return False
 	
 	@staticmethod
