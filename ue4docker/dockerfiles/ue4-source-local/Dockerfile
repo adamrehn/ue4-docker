@@ -1,15 +1,14 @@
 ARG PREREQS_TAG
-ARG UE_SRC=UnrealEngine
+
 FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
+ARG UE_SRC=UnrealEngine
 
 # Clone the UE4 git repository using the host-supplied credentials
 
 COPY ${UE_SRC}/* /home/ue4/UnrealEngine/
-RUN echo "Content of /home/ue4/UnrealEngine `ls -l /home/ue4/UnrealEngine`"
 USER root
 RUN chmod +x /home/ue4/UnrealEngine/*.sh
 RUN chown -R  ue4:ue4 /home/ue4/UnrealEngine/
-RUN echo "Content of /home/ue4/UnrealEngine `ls -l /home/ue4/UnrealEngine`"
 USER ue4
 
 # Ensure our package lists are up to date, since Setup.sh doesn't call `apt-get update`
