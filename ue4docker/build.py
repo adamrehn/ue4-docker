@@ -200,7 +200,7 @@ def build():
 			# Build the UE4 source image
 			prereqConsumerArgs = ['--build-arg', 'PREREQS_TAG={}'.format(config.prereqsTag)]
 
-			if config.ueSrc is not None:
+			if config.ueSrc is not None and builder.willBuild('ue4-source-local', mainTags) == True:
 				ue4SourceArgs = prereqConsumerArgs + [
 					'--build-arg', 'UE_SRC={}'.format(ueSrcForDocker)
 				]
