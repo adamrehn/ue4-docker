@@ -71,6 +71,8 @@ class BuildConfiguration(object):
 		parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
 		parser.add_argument('--exclude', action='append', default=[], choices=[ExcludedComponent.Debug, ExcludedComponent.Templates], help='Exclude the specified component (can be specified multiple times to exclude multiple components)')
 		parser.add_argument('--cuda', default=None, metavar='VERSION', help='Add CUDA support as well as OpenGL support when building Linux containers')
+		parser.add_argument('--ue-src',  default=None, help='directory or .tar.gz file to copy ue4 source from instead of from repository')
+		parser.add_argument('--tmp-dir',  default=None, help='directory to setup temporary working space (may need more space during --ue-src)')
 		parser.add_argument('-username', default=None, help='Specify the username to use when cloning the git repository')
 		parser.add_argument('-password', default=None, help='Specify the password to use when cloning the git repository')
 		parser.add_argument('-repo', default=None, help='Set the custom git repository to clone when "custom" is specified as the release value')
@@ -136,6 +138,8 @@ class BuildConfiguration(object):
 		self.excludedComponents = set(self.args.exclude)
 		self.baseImage = None
 		self.prereqsTag = None
+		self.ueSrc = self.args.ue_src
+		self.tmp_dir = self.args.tmp_dir
 		
 		# Generate our flags for keeping or excluding components
 		self.exclusionFlags = [

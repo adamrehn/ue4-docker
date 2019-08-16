@@ -4,3 +4,4 @@ build
 dist
 *.egg-info
 *.pyc
+.envrc

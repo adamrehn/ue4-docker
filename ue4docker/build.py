@@ -1,6 +1,7 @@
-import argparse, getpass, humanfriendly, os, shutil, sys, tempfile, time
+import argparse, getpass, humanfriendly, os, shutil, sys, tempfile, time, subprocess
 from .infrastructure import *
 from os.path import join
+import tarfile
 
 def _getCredential(args, name, envVar, promptFunc):
 	
@@ -51,8 +52,8 @@ def build():
 		sys.exit(1)
 	
 	# Create an auto-deleting temporary directory to hold our build context
-	with tempfile.TemporaryDirectory() as tempDir:
-		
+	with tempfile.TemporaryDirectory(dir=config.tmp_dir) as tempDir:
+
 		# Copy our Dockerfiles to the temporary directory
 		contextOrig = join(os.path.dirname(os.path.abspath(__file__)), 'dockerfiles')
 		contextRoot = join(tempDir, 'dockerfiles')
@@ -128,7 +129,32 @@ def build():
 			logger.info('Not excluding any Engine components.', False)
 		
 		# Determine if we need to prompt for credentials
-		if config.dryRun == True:
+		if config.ueSrc is not None and builder.willBuild('ue4-source', mainTags) == True:
+
+			# Don't bother prompting the user for any credentials if we're building the ue4-source image by mounting src lcoally
+			logger.info('building the ue4-source image by mounting src lcoally, no Git credentials required.', False)
+			username = ''
+			password = ''
+			originalPath=os.path.abspath(config.ueSrc)
+			ueSrcForDocker = join(contextRoot, 'ue4-source-local','UnrealEngine')
+			
+			if os.path.isdir(originalPath):
+				logger.info('copying from {} to {}'.format(originalPath,ueSrcForDocker))
+				shutil.copytree(originalPath, ueSrcForDocker)
+			elif (tarfile.is_tarfile(originalPath)):
+				logger.info('extracting from {} to {}'.format(originalPath,ueSrcForDocker))
+				tar = tarfile.open(originalPath, "r:*")
+				tar.extractall(path=ueSrcForDocker)
+				tar.close()
+			else:
+				logger.error("Bad source {}".format(originalPath))
+				return
+			
+			if len(os.listdir(ueSrcForDocker))==1:
+				ueSrcForDocker=join(ueSrcForDocker,os.listdir(ueSrcForDocker)[0])
+			print("Content of source: {} is {}".format(ueSrcForDocker,os.listdir(ueSrcForDocker)))
+				
+		elif config.dryRun == True:
 			
 			# Don't bother prompting the user for any credentials during a dry run
 			logger.info('Performing a dry run, `docker build` commands will be printed and not executed.', False)
@@ -143,7 +169,7 @@ def build():
 			password = ''
 			
 		else:
-			
+
 			# Retrieve the Git username and password from the user when building the ue4-source image
 			print('\nRetrieving the Git credentials that will be used to clone the UE4 repo')
 			username = _getUsername(config.args)
@@ -173,12 +199,22 @@ def build():
 			
 			# Build the UE4 source image
 			prereqConsumerArgs = ['--build-arg', 'PREREQS_TAG={}'.format(config.prereqsTag)]
-			ue4SourceArgs = prereqConsumerArgs + [
-				'--build-arg', 'GIT_REPO={}'.format(config.repository),
-				'--build-arg', 'GIT_BRANCH={}'.format(config.branch)
-			]
-			builder.build('ue4-source', mainTags, config.platformArgs + ue4SourceArgs + endpoint.args())
-			
+
+			if config.ueSrc is not None:
+				ue4SourceArgs = prereqConsumerArgs + [
+					'--build-arg', 'UE_SRC={}'.format(ueSrcForDocker)
+				]
+				logger.info('ue4-source-local mainTags: {} ue4SourceArgs: {}'.format(mainTags,ue4SourceArgs))
+				builder.platform=''
+				builder.build('ue4-source-local', mainTags, ue4SourceArgs)
+				builder.platform=config.containerPlatform
+			else:
+				ue4SourceArgs = prereqConsumerArgs + [
+					'--build-arg', 'GIT_REPO={}'.format(config.repository),
+					'--build-arg', 'GIT_BRANCH={}'.format(config.branch)
+				]
+				builder.build('ue4-source', mainTags, config.platformArgs + ue4SourceArgs + endpoint.args())
+						
 			# Build the UE4 Engine source build image, unless requested otherwise by the user
 			ue4BuildArgs = prereqConsumerArgs + [
 				'--build-arg', 'TAG={}'.format(mainTags[1]),
