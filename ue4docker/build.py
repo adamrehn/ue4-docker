@@ -145,14 +145,14 @@ def build():
 				logger.info('extracting from {} to {}'.format(originalPath,ueSrcForDocker))
 				tar = tarfile.open(originalPath, "r:*")
 				tar.extractall(path=ueSrcForDocker)
-				tar.close()
+				tar.close()				
 			else:
 				logger.error("Bad source {}".format(originalPath))
 				return
 			
 			if len(os.listdir(ueSrcForDocker))==1:
-				ueSrcForDocker=join(ueSrcForDocker,os.listdir(ueSrcForDocker)[0])
-			print("Content of source: {} is {}".format(ueSrcForDocker,os.listdir(ueSrcForDocker)))
+					ueSrcForDocker=join(ueSrcForDocker,os.listdir(ueSrcForDocker)[0])
+			ueSrcForDocker=os.path.relpath(ueSrcForDocker,join(contextRoot, 'ue4-source-local'))
 				
 		elif config.dryRun == True:
 			
@@ -252,3 +252,4 @@ def build():
 			logger.error('Error: {}'.format(e))
 			endpoint.stop()
 			sys.exit(1)
+			
