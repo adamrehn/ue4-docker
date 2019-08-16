@@ -129,6 +129,7 @@ def build():
 			logger.info('Not excluding any Engine components.', False)
 		
 		# Determine if we need to prompt for credentials
+		ueSrcForDocker='UnrealEngine'
 		if config.ueSrc is not None and builder.willBuild('ue4-source-local', mainTags) == True:
 
 			# Don't bother prompting the user for any credentials if we're building the ue4-source image by mounting src lcoally
@@ -200,7 +201,7 @@ def build():
 			# Build the UE4 source image
 			prereqConsumerArgs = ['--build-arg', 'PREREQS_TAG={}'.format(config.prereqsTag)]
 
-			if config.ueSrc is not None and builder.willBuild('ue4-source-local', mainTags) == True:
+			if config.ueSrc is not None:
 				ue4SourceArgs = prereqConsumerArgs + [
 					'--build-arg', 'UE_SRC={}'.format(ueSrcForDocker)
 				]
