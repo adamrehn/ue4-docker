@@ -129,7 +129,7 @@ def build():
 			logger.info('Not excluding any Engine components.', False)
 		
 		# Determine if we need to prompt for credentials
-		if config.ueSrc is not None and builder.willBuild('ue4-source', mainTags) == True:
+		if config.ueSrc is not None and builder.willBuild('ue4-source-local', mainTags) == True:
 
 			# Don't bother prompting the user for any credentials if we're building the ue4-source image by mounting src lcoally
 			logger.info('building the ue4-source image by mounting src lcoally, no Git credentials required.', False)
