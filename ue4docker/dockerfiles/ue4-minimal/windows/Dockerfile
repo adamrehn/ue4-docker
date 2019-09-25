@@ -12,6 +12,10 @@ RUN python C:\set-changelist.py C:\UnrealEngine\Engine\Build\Build.version
 COPY patch-filters-xml.py C:\patch-filters-xml.py
 RUN python C:\patch-filters-xml.py C:\UnrealEngine\Engine\Build\InstalledEngineFilters.xml
 
+# Patch out problematic entries in InstalledEngineBuild.xml introduced in UE4.23.0
+COPY patch-build-graph.py C:\patch-build-graph.py
+RUN python C:\patch-build-graph.py C:\UnrealEngine\Engine\Build\InstalledEngineBuild.xml
+
 # Create an Installed Build of the Engine
 # (We can optionally remove debug symbols and/or template projects in order to reduce the final container image size)
 ARG EXCLUDE_DEBUG
