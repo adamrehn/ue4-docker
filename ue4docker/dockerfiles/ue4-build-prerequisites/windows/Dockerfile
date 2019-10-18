@@ -12,14 +12,14 @@ RUN mkdir C:\GatheredDlls
 # Install 7-Zip, curl, and Python using Chocolatey
 # (Note that these need to be separate RUN directives for `choco` to work)
 RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
-RUN choco install -y 7zip curl python
+RUN choco install -y 7zip curl && choco install -y python --version=3.7.5
 
 # Copy the required DirectSound/DirectDraw and OpenGL DLL files from the host system (since these ship with Windows and don't have installers)
 COPY *.dll C:\GatheredDlls\
 
 # Verify that the DLL files copied from the host can be loaded by the container OS
 ARG HOST_VERSION
-RUN pip install pypiwin32
+RUN pip install pywin32
 COPY copy.py verify-host-dlls.py C:\
 RUN C:\copy.py "C:\GatheredDlls\*.dll" C:\Windows\System32\
 RUN python C:\verify-host-dlls.py %HOST_VERSION% C:\GatheredDlls
