@@ -10,10 +10,13 @@ semver = PackageUtils.importFile('semver', os.path.join(PackageUtils.getPackageL
 class WindowsUtils(object):
 	
 	# The latest Windows build version we recognise as a non-Insider build
-	_latestReleaseBuild = 17763
+	_latestReleaseBuild = 18362
 	
 	# The list of Windows Server Core base image tags that we support, in ascending version number order
 	_validTags = ['ltsc2016', '1709', '1803', 'ltsc2019']
+	
+	# The list of Windows Server and Windows 10 releases that are blacklisted due to critical bugs
+	_blacklistedReleases = ['1903']
 	
 	@staticmethod
 	def _getVersionRegKey(subkey):
@@ -96,6 +99,13 @@ class WindowsUtils(object):
 		version = platform.win32_ver()[1]
 		build = WindowsUtils._getVersionRegKey('BuildLabEx').split('.')[1]
 		return '{}.{}'.format(version, build)
+	
+	@staticmethod
+	def isBlacklistedWindowsVersion():
+		'''
+		Determines if the Windows host system is a release with bugs that make it unsuitable for use
+		'''
+		return WindowsUtils.getWindowsRelease() in WindowsUtils._blacklistedReleases
 	
 	@staticmethod
 	def isSupportedWindowsVersion():

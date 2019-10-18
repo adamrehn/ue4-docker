@@ -82,6 +82,14 @@ def build():
 			logger.info('Detected max image size:      {:.0f}GB'.format(DockerUtils.maxsize()), False)
 			logger.info('Directory to copy DLLs from:  {}\n'.format(config.dlldir), False)
 			
+			# Verify that the host OS is not a release that is blacklisted due to critical bugs
+			if WindowsUtils.isBlacklistedWindowsVersion() == True:
+				logger.error('Error: detected blacklisted host OS version: {}'.format(WindowsUtils.systemStringShort()), False)
+				logger.error('This version of Windows contains one or more critical bugs that', False)
+				logger.error('render it incapable of successfully building UE4 container images.', False)
+				logger.error('You will need to use an older or newer version of Windows.', False)
+				sys.exit(1)
+			
 			# Verify that the user is not attempting to build images with a newer kernel version than the host OS
 			if WindowsUtils.isNewerBaseTag(config.hostBasetag, config.basetag):
 				logger.error('Error: cannot build container images with a newer kernel version than that of the host OS!')
