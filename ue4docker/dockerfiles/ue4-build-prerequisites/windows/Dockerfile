@@ -49,6 +49,9 @@ COPY --from=dlls C:\GatheredDlls\ C:\Windows\System32\
 # Add a sentinel label so we can easily identify all derived images, including intermediate images
 LABEL com.adamrehn.ue4-docker.sentinel="1"
 
+# Enable long path support
+RUN reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem /v LongPathsEnabled /t REG_DWORD /d 1 /f
+
 # Install Chocolatey
 RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 
