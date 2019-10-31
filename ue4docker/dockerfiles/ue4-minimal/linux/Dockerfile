@@ -7,6 +7,10 @@ FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 COPY set-changelist.py /tmp/set-changelist.py
 RUN python3 /tmp/set-changelist.py /home/ue4/UnrealEngine/Engine/Build/Build.version
 
+# Enable the OpenGL RHI for Engine versions where it is present but deprecated
+COPY enable-opengl.py /tmp/enable-opengl.py
+RUN python3 /tmp/enable-opengl.py /home/ue4/UnrealEngine/Engine/Config/BaseEngine.ini
+
 # Increase the output verbosity of the DDC generation step
 COPY verbose-ddc.py /tmp/verbose-ddc.py
 RUN python3 /tmp/verbose-ddc.py /home/ue4/UnrealEngine/Engine/Build/InstalledEngineBuild.xml
