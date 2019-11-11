@@ -29,6 +29,10 @@ COPY exclude-components.py /tmp/exclude-components.py
 RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true && \
 	python3 /tmp/exclude-components.py /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux $EXCLUDE_DEBUG $EXCLUDE_TEMPLATES
 
+# Ensure Client and Server targets have their `PlatformType` field set correctly in BaseEngine.ini
+COPY fix-targets.py /tmp/fix-targets.py
+RUN python3 /tmp/fix-targets.py /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux/Engine/Config/BaseEngine.ini
+
 # Some versions of the Engine fail to include UnrealPak in the Installed Build, so copy it manually
 RUN cp ./Engine/Binaries/Linux/UnrealPak ./LocalBuilds/Engine/Linux/Engine/Binaries/Linux/UnrealPak
 

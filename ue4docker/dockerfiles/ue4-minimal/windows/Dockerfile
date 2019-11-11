@@ -25,6 +25,10 @@ COPY exclude-components.py C:\exclude-components.py
 RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph -target="Make Installed Build Win64" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true && `
 	python C:\exclude-components.py C:\UnrealEngine\LocalBuilds\Engine\Windows %EXCLUDE_DEBUG% %EXCLUDE_TEMPLATES%
 
+# Ensure Client and Server targets have their `PlatformType` field set correctly in BaseEngine.ini
+COPY fix-targets.py C:\fix-targets.py
+RUN python C:\fix-targets.py C:\UnrealEngine\LocalBuilds\Engine\Windows\Engine\Config\BaseEngine.ini
+
 # Copy our legacy toolchain installation script into the Installed Build
 # (This ensures we only need one COPY directive below)
 RUN C:\copy.py C:\legacy-toolchain-fix.py C:\UnrealEngine\LocalBuilds\Engine\Windows\
