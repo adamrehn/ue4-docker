@@ -8,8 +8,10 @@ class CredentialEndpoint(object):
 		'''
 		Creates an endpoint manager for the supplied credentials
 		'''
-		self.username = username
-		self.password = password
+		
+		# Make sure neither our username or password are blank, since that can cause `git clone` to hang indefinitely
+		self.username = username if username is not None and len(username) > 0 else ' '
+		self.password = password if password is not None and len(password) > 0 else ' '
 		self.endpoint = None
 		
 		# Generate a security token to require when requesting credentials 
