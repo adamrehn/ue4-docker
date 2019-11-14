@@ -33,12 +33,20 @@ class CredentialEndpoint(object):
 		'''
 		Starts the HTTP endpoint as a child process
 		'''
+		
+		# Create a child process to run the credential endpoint
 		self.endpoint = multiprocessing.Process(
 			target = CredentialEndpoint._endpoint,
 			args=(self.username, self.password, self.token)
 		)
+		
+		# Spawn the child process and give the endpoint time to start
 		self.endpoint.start()
 		time.sleep(2)
+		
+		# Verify that the endpoint started correctly
+		if self.endpoint.is_alive() == False:
+			raise RuntimeError('failed to start the credential endpoint')
 	
 	def stop(self):
 		'''
