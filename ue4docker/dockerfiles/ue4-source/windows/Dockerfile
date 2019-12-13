@@ -37,3 +37,7 @@ RUN python C:\patch-setup-win.py C:\UnrealEngine\Setup.bat
 # Run post-clone setup steps
 WORKDIR C:\UnrealEngine
 RUN Setup.bat
+
+# Remove the sample `XXX` example platform code, since this breaks builds from 4.24.0 onwards
+# (For details of what this is, see: <https://forums.unrealengine.com/unreal-engine/announcements-and-releases/1617783-attention-platform-changes-ahead>)
+RUN del /s /q C:\UnrealEngine\Engine\Platforms\XXX

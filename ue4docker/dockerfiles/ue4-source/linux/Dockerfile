@@ -63,3 +63,7 @@ RUN echo "rm -rf /var/lib/apt/lists/*" >> ./root_commands.sh
 # so redirect the bundled clang to use the system linker instead
 COPY --chown=ue4:ue4 linker-fixup.py /tmp/linker-fixup.py
 RUN python3 /tmp/linker-fixup.py /home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64 `which ld`
+
+# Remove the sample `XXX` example platform code, since this breaks builds from 4.24.0 onwards
+# (For details of what this is, see: <https://forums.unrealengine.com/unreal-engine/announcements-and-releases/1617783-attention-platform-changes-ahead>)
+RUN rm -r -f /home/ue4/UnrealEngine/Engine/Platforms/XXX
