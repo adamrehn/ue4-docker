@@ -158,6 +158,11 @@ def build():
 			password = _getPassword(config.args)
 			print()
 		
+		# If resource monitoring has been enabled, start the resource monitoring background thread
+		resourceMonitor = ResourceMonitor(logger, config.args.interval)
+		if config.args.monitor == True:
+			resourceMonitor.start()
+		
 		# Start the HTTP credential endpoint as a child process and wait for it to start
 		endpoint = CredentialEndpoint(username, password)
 		endpoint.start()
@@ -215,12 +220,16 @@ def build():
 			endTime = time.time()
 			logger.action('Total execution time: {}'.format(humanfriendly.format_timespan(endTime - startTime)))
 			
+			# Stop the resource monitoring background thread if it is running
+			resourceMonitor.stop()
+			
 			# Stop the HTTP server
 			endpoint.stop()
 		
-		except Exception as e:
+		except (Exception, KeyboardInterrupt) as e:
 			
 			# One of the images failed to build
 			logger.error('Error: {}'.format(e))
+			resourceMonitor.stop()
 			endpoint.stop()
 			sys.exit(1)

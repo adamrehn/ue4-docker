@@ -81,6 +81,8 @@ class BuildConfiguration(object):
 		parser.add_argument('-dlldir', default=None, help='Set the directory to copy required Windows DLLs from (default is the host System32 directory)')
 		parser.add_argument('-suffix', default='', help='Add a suffix to the tags of the built images')
 		parser.add_argument('-m', default=None, help='Override the default memory limit under Windows (also overrides --random-memory)')
+		parser.add_argument('--monitor', action='store_true', help='Monitor resource usage during builds (useful for debugging)')
+		parser.add_argument('-interval', type=float, default=20.0, help='Sampling interval in seconds when resource monitoring has been enabled using --monitor (default is 20 seconds)')
 	
 	def __init__(self, parser, argv):
 		'''
