@@ -27,7 +27,12 @@ setup(
 	author='Adam Rehn',
 	author_email='adam@adamrehn.com',
 	license='MIT',
-	packages=['ue4docker', 'ue4docker.exports', 'ue4docker.infrastructure'],
+	packages=[
+		'ue4docker',
+		'ue4docker.diagnostics',
+		'ue4docker.exports',
+		'ue4docker.infrastructure'
+	],
 	zip_safe=False,
 	python_requires = '>=3.6',
 	install_requires = [
@@ -46,6 +51,7 @@ setup(
 	package_data = {
 		'ue4docker': [
 			'dockerfiles/*/*/.dockerignore',
+			'dockerfiles/diagnostics/*/*/*',
 			'dockerfiles/*/*/*'
 		]
 	},

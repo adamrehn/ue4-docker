@@ -1,6 +1,7 @@
 from .infrastructure import DarwinUtils, DockerUtils, Logger, PrettyPrinting, WindowsUtils
 from .build import build
 from .clean import clean
+from .diagnostics_cmd import diagnostics
 from .export import export
 from .info import info
 from .setup_cmd import setup
@@ -40,6 +41,10 @@ def main():
 		'clean': {
 			'function': clean,
 			'description': 'Cleans built container images'
+		},
+		'diagnostics': {
+			'function': diagnostics,
+			'description': 'Runs diagnostics to detect issues with the host system configuration'
 		},
 		'export': {
 			'function': export,

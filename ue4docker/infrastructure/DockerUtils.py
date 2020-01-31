@@ -112,14 +112,14 @@ class DockerUtils(object):
 		return 20.0
 	
 	@staticmethod
-	def listImages(tagFilter = None, filters = {}):
+	def listImages(tagFilter = None, filters = {}, all=False):
 		'''
 		Retrieves the details for each image matching the specified filters
 		'''
 		
 		# Retrieve the list of images matching the specified filters
 		client = docker.from_env()
-		images = client.images.list(filters=filters)
+		images = client.images.list(filters=filters, all=all)
 		
 		# Apply our tag filter if one was specified
 		if tagFilter is not None:
