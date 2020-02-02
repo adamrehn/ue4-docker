@@ -27,7 +27,7 @@ class diagnostic8Gig(DiagnosticBase):
 			'Docker CE under Windows 10 and Docker EE under Windows Server.',
 			'',
 			'You can force the use of a Linux image under Windows hosts by specifying the',
-			'--linux flag, which can be useful when testing LCOW support.'
+			'--linux flag, which can be useful when testing Docker Desktop or LCOW support.'
 		])
 	
 	def run(self, logger, args=[]):
@@ -37,6 +37,17 @@ class diagnostic8Gig(DiagnosticBase):
 		
 		# Determine which image platform we will build the Dockerfile for (default is the host platform unless overridden)
 		containerPlatform = 'linux' if '--linux' in args or platform.system().lower() != 'windows' else 'windows'
+		
+		# Verify that the user isn't trying to test Windows containers under Windows 10 when in Linux container mode (or vice versa)
+		dockerPlatform = DockerUtils.info()['OSType'].lower()
+		if containerPlatform == 'windows' and dockerPlatform == 'linux':
+			logger.error('[8gig] Error: attempting to test Windows containers while Docker Desktop is in Linux container mode.', False)
+			logger.error('[8gig] Use the --linux flag if you want to test Linux containers instead.', False)
+			return False
+		elif containerPlatform == 'linux' and dockerPlatform == 'windows':
+			logger.error('[8gig] Error: attempting to test Linux containers while Docker Desktop is in Windows container mode.', False)
+			logger.error('[8gig] Remove the --linux flag if you want to test Windows containers instead.', False)
+			return False
 		
 		# Under Windows host systems, determine the appropriate container image base tag
 		buildArgs = [

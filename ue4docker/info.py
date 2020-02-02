@@ -26,8 +26,11 @@ def info():
 	maxSize = DockerUtils.maxsize()
 	rootDir = dockerInfo['DockerRootDir']
 	
+	# If we are communicating with a Linux Docker daemon under Windows or macOS then we can't query the available disk space
+	canQueryDisk = dockerInfo['OSType'].lower() == platform.system().lower()
+	
 	# Gather our information about the host system
-	diskSpace = shutil.disk_usage(rootDir).free
+	diskSpace = _formatSize(shutil.disk_usage(rootDir).free) if canQueryDisk == True else 'Unknown (typically means the Docker daemon is running in a Moby VM, e.g. Docker Desktop)'
 	memPhysical = psutil.virtual_memory().total
 	memVirtual = psutil.swap_memory().total
 	cpuPhysical = psutil.cpu_count(False)
@@ -47,7 +50,7 @@ def info():
 		('Docker daemon version', dockerInfo['ServerVersion']),
 		('NVIDIA Docker supported', 'Yes' if nvidiaDocker == True else 'No'),
 		('Maximum image size', '{:.0f}GB'.format(maxSize) if maxSize != -1 else 'No limit detected'),
-		('Available disk space', _formatSize(diskSpace)),
+		('Available disk space', diskSpace),
 		('Total system memory', '{} physical, {} virtual'.format(_formatSize(memPhysical), _formatSize(memVirtual))),
 		('Number of processors', '{} physical, {} logical'.format(cpuPhysical, cpuLogical))
 	]

@@ -1,4 +1,4 @@
-import datetime, humanfriendly, psutil, shutil, threading, time
+import datetime, humanfriendly, os, psutil, shutil, threading, time
 from .DockerUtils import DockerUtils
 
 class ResourceMonitor(threading.Thread):
@@ -35,6 +35,9 @@ class ResourceMonitor(threading.Thread):
 		dockerInfo = DockerUtils.info()
 		rootDir = dockerInfo['DockerRootDir']
 		
+		# If we cannot access the Docker data directory (e.g. when the daemon is in a Moby VM), don't report disk space
+		reportDisk = os.path.exists(rootDir)
+		
 		# Sample the CPU usage using an interval of 1 second the first time to prime the system
 		# (See: <https://psutil.readthedocs.io/en/latest/#psutil.cpu_percent>)
 		psutil.cpu_percent(1.0)
@@ -54,7 +57,7 @@ class ResourceMonitor(threading.Thread):
 			formatSize = lambda size: humanfriendly.format_size(size, binary=True, keep_width=True)
 			
 			# Format the current quantity of available disk space on the Docker data directory's filesystem
-			diskSpace = formatSize(shutil.disk_usage(rootDir).free)
+			diskSpace = formatSize(shutil.disk_usage(rootDir).free) if reportDisk == True else 'Unknown'
 			
 			# Format the current quantity of available system memory
 			physicalMemory = formatSize(psutil.virtual_memory().free)
