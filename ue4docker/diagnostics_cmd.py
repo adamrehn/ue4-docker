@@ -7,7 +7,8 @@ def diagnostics():
 	# The diagnostics that can be run
 	DIAGNOSTICS = {
 		'all': allDiagnostics(),
-		'8gig': diagnostic8Gig()
+		'8gig': diagnostic8Gig(),
+		'maxsize': diagnosticMaxSize()
 	}
 	
 	# Create our logger to generate coloured output on stderr

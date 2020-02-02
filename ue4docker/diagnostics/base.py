@@ -1,3 +1,5 @@
+import subprocess
+
 class DiagnosticBase(object):
 	
 	def getName(self):
@@ -17,3 +19,13 @@ class DiagnosticBase(object):
 		Runs the diagnostic
 		'''
 		raise NotImplementedError
+	
+	
+	# Helper functionality for derived classes
+	
+	def _printAndRun(self, logger, prefix, command, check=False):
+		'''
+		Prints a command and then executes it
+		'''
+		logger.info(prefix + 'Run: {}'.format(command), False)
+		subprocess.run(command, check=check)

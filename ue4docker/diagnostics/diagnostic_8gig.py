@@ -1,7 +1,7 @@
 from ..infrastructure import DockerUtils, WindowsUtils
 from .base import DiagnosticBase
 
-import os, platform, subprocess
+import os, platform
 from os.path import abspath, dirname, join
 
 class diagnostic8Gig(DiagnosticBase):
@@ -61,7 +61,7 @@ class diagnostic8Gig(DiagnosticBase):
 		try:
 			logger.action('[8gig] Attempting to build an image with an 8GiB filesystem layer...', False)
 			command = ['docker', 'build', '-t', diagnostic8Gig.IMAGE_TAG, contextDir] + buildArgs
-			self._printAndRun(logger, command, check=True)
+			self._printAndRun(logger, '[8gig] ', command, check=True)
 			built = True
 		except:
 			logger.error('[8gig] Build failed!')
@@ -70,8 +70,8 @@ class diagnostic8Gig(DiagnosticBase):
 		# Remove any built images, including intermediate images
 		logger.action('[8gig] Cleaning up...', False)
 		if built == True:
-			self._printAndRun(logger, ['docker', 'rmi', diagnostic8Gig.IMAGE_TAG])
-		self._printAndRun(logger, ['docker', 'system', 'prune', '-f'])
+			self._printAndRun(logger, '[8gig] ', ['docker', 'rmi', diagnostic8Gig.IMAGE_TAG])
+		self._printAndRun(logger, '[8gig] ', ['docker', 'system', 'prune', '-f'])
 		
 		# Inform the user of the outcome of the diagnostic
 		if built == True:
@@ -80,10 +80,3 @@ class diagnostic8Gig(DiagnosticBase):
 			logger.error('[8gig] Diagnostic failed! The Docker daemon cannot build images with 8GiB filesystem layers.\n', True)
 		
 		return built
-	
-	def _printAndRun(self, logger, command, check=False):
-		'''
-		Prints a command and then executes it
-		'''
-		logger.info('[8gig] Run: {}'.format(command), False)
-		subprocess.run(command, check=check)

@@ -1,5 +1,6 @@
 from .base import DiagnosticBase
 from .diagnostic_8gig import diagnostic8Gig
+from .diagnostic_maxsize import diagnosticMaxSize
 
 class allDiagnostics(DiagnosticBase):
 	
@@ -22,7 +23,7 @@ class allDiagnostics(DiagnosticBase):
 		
 		# Run all available diagnostics in turn, storing the results
 		results = []
-		diagnostics = [diagnostic8Gig()]
+		diagnostics = [diagnostic8Gig(), diagnosticMaxSize()]
 		for index, diagnostic in enumerate(diagnostics):
 			
 			# Run the diagnostic and report its result
