@@ -16,7 +16,7 @@ class WindowsUtils(object):
 	_validTags = ['ltsc2016', '1709', '1803', 'ltsc2019']
 	
 	# The list of Windows Server and Windows 10 releases that are blacklisted due to critical bugs
-	_blacklistedReleases = ['1903']
+	_blacklistedReleases = ['1903', '1909']
 	
 	@staticmethod
 	def _getVersionRegKey(subkey):

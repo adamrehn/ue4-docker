@@ -94,7 +94,7 @@ def build():
 			logger.info('Directory to copy DLLs from:  {}\n'.format(config.dlldir), False)
 			
 			# Verify that the host OS is not a release that is blacklisted due to critical bugs
-			if WindowsUtils.isBlacklistedWindowsVersion() == True:
+			if config.ignoreBlacklist == False and WindowsUtils.isBlacklistedWindowsVersion() == True:
 				logger.error('Error: detected blacklisted host OS version: {}'.format(WindowsUtils.systemStringShort()), False)
 				logger.error('This version of Windows contains one or more critical bugs that', False)
 				logger.error('render it incapable of successfully building UE4 container images.', False)
