@@ -6,7 +6,7 @@ FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 
 # Install ue4cli and conan-ue4cli
 RUN pip install setuptools wheel --no-warn-script-location
-RUN pip install ue4cli conan-ue4cli --no-warn-script-location
+RUN pip install ue4cli "conan-ue4cli>=0.0.17" --no-warn-script-location
 
 # Build UBT, and extract the third-party library details from UBT
 # (Remove the profile base packages to avoid a bug where Windows locks the files and breaks subsequent profile generation)
@@ -19,7 +19,7 @@ FROM ${NAMESPACE}/ue4-minimal:${TAG}-${PREREQS_TAG}
 
 # Install ue4cli conan-ue4cli, and ue4-ci-helpers
 RUN pip install setuptools wheel --no-warn-script-location
-RUN pip install ue4cli conan-ue4cli ue4-ci-helpers --no-warn-script-location
+RUN pip install ue4cli "conan-ue4cli>=0.0.17" ue4-ci-helpers --no-warn-script-location
 
 # Copy the Conan configuration settings and package cache from the builder image
 COPY --from=builder C:\Users\ContainerAdministrator\.conan C:\Users\ContainerAdministrator\.conan
