@@ -41,3 +41,7 @@ RUN Setup.bat
 # Remove the sample `XXX` example platform code, since this breaks builds from 4.24.0 onwards
 # (For details of what this is, see: <https://forums.unrealengine.com/unreal-engine/announcements-and-releases/1617783-attention-platform-changes-ahead>)
 RUN del /s /q C:\UnrealEngine\Engine\Platforms\XXX 2>NUL || exit 0
+
+# Apply our bugfix patches to UnrealBuildTool (UBT)
+COPY patch-ubt.py C:\patch-ubt.py
+RUN python C:\patch-ubt.py C:\UnrealEngine\Engine\Source\Programs\UnrealBuildTool

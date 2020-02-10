@@ -67,3 +67,7 @@ RUN python3 /tmp/linker-fixup.py /home/ue4/UnrealEngine/Engine/Extras/ThirdParty
 # Remove the sample `XXX` example platform code, since this breaks builds from 4.24.0 onwards
 # (For details of what this is, see: <https://forums.unrealengine.com/unreal-engine/announcements-and-releases/1617783-attention-platform-changes-ahead>)
 RUN rm -r -f /home/ue4/UnrealEngine/Engine/Platforms/XXX
+
+# Apply our bugfix patches to UnrealBuildTool (UBT)
+COPY --chown=ue4:ue4 patch-ubt.py /tmp/patch-ubt.py
+RUN python3 /tmp/patch-ubt.py /home/ue4/UnrealEngine/Engine/Source/Programs/UnrealBuildTool
