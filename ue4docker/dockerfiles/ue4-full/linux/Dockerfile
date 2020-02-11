@@ -61,5 +61,14 @@ RUN apt-get install -y --no-install-recommends \
 	x11-xkb-utils \
 	xauth \
 	xfonts-base \
-	xkb-data
+	xkb-data \
+	apt-file \
+	libasound2 \
+	libpangocairo-1.0-0 \
+	libcairo-5c0 \
+	libpango-1.0 \
+	libnss3 \
+	libnspr4 \
+	libatk1.0
+
 USER ue4
