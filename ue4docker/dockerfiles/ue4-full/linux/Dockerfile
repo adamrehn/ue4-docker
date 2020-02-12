@@ -44,7 +44,7 @@ USER root
 RUN apt-get install -y --no-install-recommends pulseaudio-utils
 COPY pulseaudio-client.conf /etc/pulse/client.conf
 
-# Enable X11 support (including the libraries required by CEF)
+# Enable X11 support (including the libraries required by CEF) and xvfb so we can create a dummy display if needed
 USER root
 RUN apt-get install -y --no-install-recommends \
 	libasound2 \
@@ -68,5 +68,6 @@ RUN apt-get install -y --no-install-recommends \
 	x11-xkb-utils \
 	xauth \
 	xfonts-base \
-	xkb-data
+	xkb-data \
+	xvfb
 USER ue4
