@@ -44,12 +44,19 @@ USER root
 RUN apt-get install -y --no-install-recommends pulseaudio-utils
 COPY pulseaudio-client.conf /etc/pulse/client.conf
 
-# Enable X11 support
+# Enable X11 support (including the libraries required by CEF)
 USER root
 RUN apt-get install -y --no-install-recommends \
+	libasound2 \
+	libatk1.0-0 \
+	libcairo2 \
 	libfontconfig1 \
 	libfreetype6 \
 	libglu1 \
+	libnss3 \
+	libnspr4 \
+	libpango-1.0-0 \
+	libpangocairo-1.0-0 \
 	libsm6 \
 	libxcomposite1 \
 	libxcursor1 \
