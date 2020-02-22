@@ -13,7 +13,7 @@ RUN python3 /tmp/enable-opengl.py /home/ue4/UnrealEngine/Engine/Config/BaseEngin
 
 # Patch the default settings in InstalledEngineBuild.xml and increase the output verbosity of the DDC generation step
 COPY patch-build-graph.py /tmp/patch-build-graph.py
-RUN python3 /tmp/patch-build-graph.py /home/ue4/UnrealEngine/Engine/Build/InstalledEngineBuild.xml
+RUN python3 /tmp/patch-build-graph.py /home/ue4/UnrealEngine/Engine/Build/InstalledEngineBuild.xml /home/ue4/UnrealEngine/Engine/Build/Build.version
 
 # Ensure UBT is built before we create the Installed Build, since Build.sh explicitly sets the
 # target .NET framework version, whereas InstalledEngineBuild.xml just uses the system default,
