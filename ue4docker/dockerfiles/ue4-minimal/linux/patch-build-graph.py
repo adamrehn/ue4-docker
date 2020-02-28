@@ -23,6 +23,12 @@ code = code.replace(
 	'Command Name="BuildDerivedDataCache" Arguments="-Verbose -AllowStdOutLogVerbosity '
 )
 
+# Disable building for AArch64 by default (enabled by default since 4.24.0)
+code = code.replace(
+	'Property Name="DefaultWithLinuxAArch64" Value="true"',
+	'Property Name="DefaultWithLinuxAArch64" Value="false"'
+)
+
 # Enable client and server targets by default in 4.23.0 onwards, except for 4.24.0 - 4.24.2 where Linux server builds fail
 # (See <https://issues.unrealengine.com/issue/UE-87878> for details of the bug and its fix)
 if versionData['MinorVersion'] != 24 or versionData['PatchVersion'] >= 3:
