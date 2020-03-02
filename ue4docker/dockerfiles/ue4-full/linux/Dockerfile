@@ -6,7 +6,7 @@ FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 # Install ue4cli and conan-ue4cli
 USER root
 RUN pip3 install setuptools wheel
-RUN pip3 install ue4cli 'conan-ue4cli>=0.0.17'
+RUN pip3 install 'ue4cli>=0.0.41' 'conan-ue4cli>=0.0.17'
 USER ue4
 
 # Extract the third-party library details from UBT
@@ -23,8 +23,12 @@ RUN git clone "https://github.com/adamrehn/UE4Capture.git" /home/ue4/UE4Capture
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends cmake
 RUN pip3 install setuptools wheel
-RUN pip3 install ue4cli 'conan-ue4cli>=0.0.17' ue4-ci-helpers
+RUN pip3 install 'ue4cli>=0.0.41' 'conan-ue4cli>=0.0.17' ue4-ci-helpers
 USER ue4
+
+# Explicitly set the configuration directory for ue4cli
+# (This prevents things from breaking when using CI/CD systems that override the $HOME environment variable)
+ENV UE4CLI_CONFIG_DIR /home/ue4/.config/ue4cli
 
 # Copy the Conan configuration settings and package cache from the builder image
 COPY --from=builder --chown=ue4:ue4 /home/ue4/.conan /home/ue4/.conan
