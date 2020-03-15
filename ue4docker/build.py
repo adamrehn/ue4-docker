@@ -93,6 +93,14 @@ def build():
 			logger.info('Detected max image size:      {:.0f}GB'.format(DockerUtils.maxsize()), False)
 			logger.info('Directory to copy DLLs from:  {}\n'.format(config.dlldir), False)
 			
+			# Verify that the specified base image tag is not a release that has reached End Of Life (EOL)
+			if WindowsUtils.isEndOfLifeWindowsVersion(config.basetag) == True:
+				logger.error('Error: detected EOL base OS image tag: {}'.format(config.basetag), False)
+				logger.error('This version of Windows has reached End Of Life (EOL), which means', False)
+				logger.error('Microsoft no longer supports or maintains container base images for it.', False)
+				logger.error('You will need to use a base image tag for a supported version of Windows.', False)
+				sys.exit(1)
+			
 			# Verify that the host OS is not a release that is blacklisted due to critical bugs
 			if config.ignoreBlacklist == False and WindowsUtils.isBlacklistedWindowsVersion() == True:
 				logger.error('Error: detected blacklisted host OS version: {}'.format(WindowsUtils.systemStringShort()), False)

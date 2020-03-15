@@ -12,11 +12,14 @@ class WindowsUtils(object):
 	# The latest Windows build version we recognise as a non-Insider build
 	_latestReleaseBuild = 18362
 	
-	# The list of Windows Server Core base image tags that we support, in ascending version number order
-	_validTags = ['ltsc2016', '1709', '1803', 'ltsc2019']
+	# The list of Windows Server Core base image tags that we recognise, in ascending version number order
+	_validTags = ['ltsc2016', '1709', '1803', 'ltsc2019', '1903', '1909']
 	
-	# The list of Windows Server and Windows 10 releases that are blacklisted due to critical bugs
+	# The list of Windows Server and Windows 10 host OS releases that are blacklisted due to critical bugs
 	_blacklistedReleases = ['1903', '1909']
+	
+	# The list of Windows Server Core container image releases that are unsupported due to having reached EOL
+	_eolReleases = ['1709']
 	
 	@staticmethod
 	def _getVersionRegKey(subkey):
@@ -101,11 +104,22 @@ class WindowsUtils(object):
 		return '{}.{}'.format(version, build)
 	
 	@staticmethod
-	def isBlacklistedWindowsVersion():
+	def isBlacklistedWindowsVersion(release=None):
 		'''
-		Determines if the Windows host system is a release with bugs that make it unsuitable for use
+		Determines if the specified Windows release is one with bugs that make it unsuitable for use
+		(defaults to checking the host OS release if one is not specified)
 		'''
-		return WindowsUtils.getWindowsRelease() in WindowsUtils._blacklistedReleases
+		release = WindowsUtils.getWindowsRelease() if release is None else release
+		return release in WindowsUtils._blacklistedReleases
+	
+	@staticmethod
+	def isEndOfLifeWindowsVersion(release=None):
+		'''
+		Determines if the specified Windows release is one that has reached End Of Life (EOL)
+		(defaults to checking the host OS release if one is not specified)
+		'''
+		release = WindowsUtils.getWindowsRelease() if release is None else release
+		return release in WindowsUtils._eolReleases
 	
 	@staticmethod
 	def isSupportedWindowsVersion():
