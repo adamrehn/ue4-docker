@@ -27,6 +27,7 @@ ARG EXCLUDE_TEMPLATES
 WORKDIR /home/ue4/UnrealEngine
 COPY exclude-components.py /tmp/exclude-components.py
 RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true && \
+	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC && \
 	python3 /tmp/exclude-components.py /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux $EXCLUDE_DEBUG $EXCLUDE_TEMPLATES
 
 # Ensure Client and Server targets have their `PlatformType` field set correctly in BaseEngine.ini
