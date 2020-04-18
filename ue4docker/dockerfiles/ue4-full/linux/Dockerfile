@@ -48,8 +48,20 @@ USER root
 RUN apt-get install -y --no-install-recommends pulseaudio-utils
 COPY pulseaudio-client.conf /etc/pulse/client.conf
 
+# Enable Vulkan support
+RUN apt-get install -y --no-install-recommends libvulkan1 && \
+	VULKAN_API_VERSION=`dpkg -s libvulkan1 | grep -oP 'Version: [0-9|\.]+' | grep -oP '[0-9|\.]+'` && \
+	mkdir -p /etc/vulkan/icd.d/ && \
+	echo \
+	"{\
+		\"file_format_version\" : \"1.0.0\",\
+		\"ICD\": {\
+			\"library_path\": \"libGLX_nvidia.so.0\",\
+			\"api_version\" : \"${VULKAN_API_VERSION}\"\
+		}\
+	}" > /etc/vulkan/icd.d/nvidia_icd.json
+
 # Enable X11 support (including the libraries required by CEF) and xvfb so we can create a dummy display if needed
-USER root
 RUN apt-get install -y --no-install-recommends \
 	libasound2 \
 	libatk1.0-0 \
