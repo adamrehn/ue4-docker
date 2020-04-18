@@ -104,9 +104,13 @@ def build():
 			# Verify that the host OS is not a release that is blacklisted due to critical bugs
 			if config.ignoreBlacklist == False and WindowsUtils.isBlacklistedWindowsVersion() == True:
 				logger.error('Error: detected blacklisted host OS version: {}'.format(WindowsUtils.systemStringShort()), False)
+				logger.error('', False)
 				logger.error('This version of Windows contains one or more critical bugs that', False)
 				logger.error('render it incapable of successfully building UE4 container images.', False)
 				logger.error('You will need to use an older or newer version of Windows.', False)
+				logger.error('', False)
+				logger.error('For more information, see:', False)
+				logger.error('https://unrealcontainers.com/docs/concepts/windows-containers', False)
 				sys.exit(1)
 			
 			# Verify that the user is not attempting to build images with a newer kernel version than the host OS

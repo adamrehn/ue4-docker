@@ -16,6 +16,7 @@ class WindowsUtils(object):
 	_validTags = ['ltsc2016', '1709', '1803', 'ltsc2019', '1903', '1909']
 	
 	# The list of Windows Server and Windows 10 host OS releases that are blacklisted due to critical bugs
+	# (See: <https://unrealcontainers.com/docs/concepts/windows-containers>)
 	_blacklistedReleases = ['1903', '1909']
 	
 	# The list of Windows Server Core container image releases that are unsupported due to having reached EOL
