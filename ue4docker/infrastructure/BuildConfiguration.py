@@ -33,6 +33,9 @@ class ExcludedComponent(object):
 	The different components that we support excluding from the built images
 	'''
 	
+	# Engine Derived Data Cache (DDC)
+	DDC = 'ddc'
+	
 	# Engine debug symbols
 	Debug = 'debug'
 	
@@ -47,6 +50,7 @@ class ExcludedComponent(object):
 		'''
 		return {
 			
+			ExcludedComponent.DDC: 'Derived Data Cache (DDC)',
 			ExcludedComponent.Debug: 'Debug symbols',
 			ExcludedComponent.Templates: 'Template projects and samples'
 			
@@ -70,7 +74,7 @@ class BuildConfiguration(object):
 		parser.add_argument('--no-full', action='store_true', help='Don\'t build the ue4-full image')
 		parser.add_argument('--no-cache', action='store_true', help='Disable Docker build cache')
 		parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
-		parser.add_argument('--exclude', action='append', default=[], choices=[ExcludedComponent.Debug, ExcludedComponent.Templates], help='Exclude the specified component (can be specified multiple times to exclude multiple components)')
+		parser.add_argument('--exclude', action='append', default=[], choices=[ExcludedComponent.DDC, ExcludedComponent.Debug, ExcludedComponent.Templates], help='Exclude the specified component (can be specified multiple times to exclude multiple components)')
 		parser.add_argument('--cuda', default=None, metavar='VERSION', help='Add CUDA support as well as OpenGL support when building Linux containers')
 		parser.add_argument('-username', default=None, help='Specify the username to use when cloning the git repository')
 		parser.add_argument('-password', default=None, help='Specify the password to use when cloning the git repository')
@@ -144,6 +148,8 @@ class BuildConfiguration(object):
 		
 		# Generate our flags for keeping or excluding components
 		self.exclusionFlags = [
+			
+			'--build-arg', 'BUILD_DDC={}'.format('false' if ExcludedComponent.DDC in self.excludedComponents else 'true'),
 			'--build-arg', 'EXCLUDE_DEBUG={}'.format(1 if ExcludedComponent.Debug in self.excludedComponents else 0),
 			'--build-arg', 'EXCLUDE_TEMPLATES={}'.format(1 if ExcludedComponent.Templates in self.excludedComponents else 0)
 		]

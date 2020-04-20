@@ -22,11 +22,12 @@ RUN ./Engine/Build/BatchFiles/Linux/Build.sh UE4Editor Linux Development -Clean
 
 # Create an Installed Build of the Engine
 # (We can optionally remove debug symbols and/or template projects in order to reduce the final container image size)
+ARG BUILD_DDC
 ARG EXCLUDE_DEBUG
 ARG EXCLUDE_TEMPLATES
 WORKDIR /home/ue4/UnrealEngine
 COPY exclude-components.py /tmp/exclude-components.py
-RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true && \
+RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true -set:WithDDC=$BUILD_DDC && \
 	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC && \
 	python3 /tmp/exclude-components.py /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux $EXCLUDE_DEBUG $EXCLUDE_TEMPLATES
 
