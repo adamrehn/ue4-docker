@@ -27,7 +27,7 @@ if truncateDebug == True:
 	for symbolFile in symbolFiles:
 		log('Removing debug symbol file {}...'.format(symbolFile))
 		try:
-			os.unlink(symbolFile, 0)
+			os.unlink(symbolFile)
 		except:
 			log('  Warning: failed to remove debug symbol file {}.'.format(symbolFile))
 
