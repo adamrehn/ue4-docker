@@ -27,7 +27,7 @@ def test():
 			
 			# Create the workspace directory in the container
 			workspaceDir = ContainerUtils.workspace_dir(container)
-			ContainerUtils.exec(container, ['mkdir', workspaceDir])
+			ContainerUtils.exec(container, ContainerUtils.shell_prefix(container) + ['mkdir ' + workspaceDir])
 			
 			# Copy our test scripts into the container
 			testDir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tests')
