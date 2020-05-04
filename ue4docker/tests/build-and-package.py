@@ -4,6 +4,7 @@ import os, shutil, subprocess, time, ue4cli
 
 # Runs a command, raising an error if it returns a nonzero exit code
 def run(command, **kwargs):
+	print('[RUN COMMAND] {} {}'.format(command, kwargs), flush=True)
 	return subprocess.run(command, check=True, **kwargs)
 
 # Repeatedly calls a function until it succeeds or the max number of retries has been reached

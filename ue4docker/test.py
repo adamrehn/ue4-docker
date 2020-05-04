@@ -47,6 +47,7 @@ def test():
 			
 			# Run each of our tests in turn
 			runTest('build-and-package.py')
+			runTest('consume-external-deps.py')
 			
 			# If we've reached this point then all of the tests passed
 			logger.action('All tests passed.', False)
