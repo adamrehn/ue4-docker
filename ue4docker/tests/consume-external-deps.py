@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os, subprocess, tempfile, ue4cli
+import os, platform, subprocess, tempfile, ue4cli
 
 
 # Reads data from a file
@@ -54,3 +54,7 @@ with tempfile.TemporaryDirectory() as tempDir:
 	# Verify that we can build the project with precomputed dependency data
 	run(['ue4', 'conan', 'precompute', 'host'], cwd=moduleDir)
 	run(['ue4', 'build'], cwd=projectDir)
+	
+	# Forcibly delete the .git subdirectory under Windows to avoid permissions errors when deleting the temp directory
+	if platform.system() == 'Windows':
+		run(['del', '/f', '/s', '/q', os.path.join(projectDir, '.git')], shell=True)

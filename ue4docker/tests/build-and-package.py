@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os, subprocess, tempfile, ue4cli
+import os, platform, subprocess, tempfile, ue4cli
 
 
 # Runs a command, raising an error if it returns a nonzero exit code
@@ -20,3 +20,7 @@ with tempfile.TemporaryDirectory() as tempDir:
 	projectDir = os.path.join(tempDir, 'BasicCxx')
 	run(['git', 'clone', '--depth=1', repo, projectDir])
 	run(['ue4', 'package', 'Shipping'], cwd=projectDir)
+	
+	# Forcibly delete the .git subdirectory under Windows to avoid permissions errors when deleting the temp directory
+	if platform.system() == 'Windows':
+		run(['del', '/f', '/s', '/q', os.path.join(projectDir, '.git')], shell=True)
