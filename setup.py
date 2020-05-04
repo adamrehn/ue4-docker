@@ -37,6 +37,7 @@ setup(
 	python_requires = '>=3.6',
 	install_requires = [
 		'colorama',
+		'container-utils',
 		'docker>=3.0.0',
 		'flask',
 		'humanfriendly',
@@ -52,7 +53,8 @@ setup(
 		'ue4docker': [
 			'dockerfiles/*/*/.dockerignore',
 			'dockerfiles/diagnostics/*/*/*',
-			'dockerfiles/*/*/*'
+			'dockerfiles/*/*/*',
+			'tests/*.py'
 		]
 	},
 	entry_points = {

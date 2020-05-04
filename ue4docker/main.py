@@ -5,6 +5,7 @@ from .diagnostics_cmd import diagnostics
 from .export import export
 from .info import info
 from .setup_cmd import setup
+from .test import test
 from .version_cmd import version
 import logging, os, platform, sys
 
@@ -57,6 +58,10 @@ def main():
 		'setup': {
 			'function': setup,
 			'description': 'Automatically configures the host system where possible'
+		},
+		'test': {
+			'function': test,
+			'description': 'Runs tests to verify the correctness of built container images'
 		},
 		'version': {
 			'function': version,
