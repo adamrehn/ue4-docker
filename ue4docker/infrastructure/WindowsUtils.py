@@ -1,4 +1,6 @@
+from .DockerUtils import DockerUtils
 from .PackageUtils import PackageUtils
+from pkg_resources import parse_version
 import os, platform
 
 if platform.system() == 'Windows':
@@ -110,8 +112,9 @@ class WindowsUtils(object):
 		Determines if the specified Windows release is one with bugs that make it unsuitable for use
 		(defaults to checking the host OS release if one is not specified)
 		'''
+		dockerVersion = parse_version(DockerUtils.version()['Version'])
 		release = WindowsUtils.getWindowsRelease() if release is None else release
-		return release in WindowsUtils._blacklistedReleases
+		return release in WindowsUtils._blacklistedReleases and dockerVersion < parse_version('19.03.6')
 	
 	@staticmethod
 	def isEndOfLifeWindowsVersion(release=None):
