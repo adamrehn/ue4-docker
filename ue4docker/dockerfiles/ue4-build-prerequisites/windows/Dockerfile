@@ -34,8 +34,8 @@ RUN start /wait %TEMP%\directx_redist.exe /Q /T:%TEMP% && `
 	expand %TEMP%\Jun2010_XAudio_x64.cab -F:XAudio2_7.dll C:\GatheredDlls\
 
 # Gather the Vulkan runtime library
-RUN curl --progress -L "https://sdk.lunarg.com/sdk/download/1.1.73.0/windows/VulkanSDK-1.1.73.0-Installer.exe?Human=true" --output %TEMP%\VulkanSDK.exe
-RUN 7z e %TEMP%\VulkanSDK.exe -oC:\GatheredDlls -y RunTimeInstaller\x64\vulkan-1.dll
+RUN curl --progress -L "https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-runtime-components.zip?u=" --output %TEMP%\vulkan-runtime-components.zip
+RUN 7z e %TEMP%\vulkan-runtime-components.zip -oC:\GatheredDlls -y "*\x64\vulkan-1.dll"
 
 # Gather pdbcopy.exe (needed for creating an Installed Build of the Engine)
 RUN choco install -y windbg
