@@ -161,7 +161,9 @@ class WindowsUtils(object):
 		return {
 			'1709': '1709',
 			'1803': '1803',
-			'1809': 'ltsc2019'
+			'1809': 'ltsc2019',
+			'1903': '1903',
+			'1909': '1909'
 		}.get(release, 'ltsc2016')
 	
 	@staticmethod
