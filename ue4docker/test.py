@@ -1,6 +1,6 @@
 from .infrastructure import DockerUtils, GlobalConfiguration, Logger
 from container_utils import ContainerUtils
-import docker, os, sys
+import docker, os, platform, sys
 
 def test():
 	
@@ -22,7 +22,7 @@ def test():
 		
 		# Start a container to run our tests in, automatically stopping and removing the container when we finish
 		logger.action('Starting a container using the "{}" image...'.format(image), False)
-		container = ContainerUtils.start_for_exec(client, image)
+		container = ContainerUtils.start_for_exec(client, image, isolation = 'process' if platform.system().lower() == 'windows' else None)
 		with ContainerUtils.automatically_stop(container):
 			
 			# Create the workspace directory in the container
