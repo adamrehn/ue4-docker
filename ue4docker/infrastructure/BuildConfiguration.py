@@ -85,6 +85,8 @@ class BuildConfiguration(object):
 		parser.add_argument('-dlldir', default=None, help='Set the directory to copy required Windows DLLs from (default is the host System32 directory)')
 		parser.add_argument('-suffix', default='', help='Add a suffix to the tags of the built images')
 		parser.add_argument('-m', default=None, help='Override the default memory limit under Windows (also overrides --random-memory)')
+		parser.add_argument('-ue4cli', default=None, help='Override the default version of ue4cli installed in the ue4-full image')
+		parser.add_argument('-conan-ue4cli', default=None, help='Override the default version of conan-ue4cli installed in the ue4-full image')
 		parser.add_argument('--monitor', action='store_true', help='Monitor resource usage during builds (useful for debugging)')
 		parser.add_argument('-interval', type=float, default=20.0, help='Sampling interval in seconds when resource monitoring has been enabled using --monitor (default is 20 seconds)')
 		parser.add_argument('--ignore-blacklist', action='store_true', help='Run builds even on blacklisted versions of Windows (advanced use only)')
@@ -145,6 +147,10 @@ class BuildConfiguration(object):
 		self.baseImage = None
 		self.prereqsTag = None
 		self.ignoreBlacklist = self.args.ignore_blacklist
+		
+		# If the user specified custom version strings for ue4cli and/or conan-ue4cli, process them
+		self.ue4cliVersion = self._processPackageVersion('ue4cli', self.args.ue4cli)
+		self.conanUe4cliVersion = self._processPackageVersion('conan-ue4cli', self.args.conan_ue4cli)
 		
 		# Generate our flags for keeping or excluding components
 		self.exclusionFlags = [
@@ -253,3 +259,17 @@ class BuildConfiguration(object):
 		else:
 			self.baseImage = LINUX_BASE_IMAGES['opengl']
 			self.prereqsTag = 'opengl'
+	
+	def _processPackageVersion(self, package, version):
+		
+		# Leave the version value unmodified if a blank version was specified or a fully-qualified version was specified
+		# (e.g. package==X.X.X, package>=X.X.X, git+https://url/for/package/repo.git, etc.)
+		if version is None or '/' in version or version.lower().startswith(package):
+			return version
+		
+		# If a version specifier (e.g. ==X.X.X, >=X.X.X, etc.) was specified, prefix it with the package name
+		if '=' in version:
+			return package + version
+		
+		# If a raw version number was specified, prefix the package name and a strict equality specifier
+		return '{}=={}'.format(package, version)

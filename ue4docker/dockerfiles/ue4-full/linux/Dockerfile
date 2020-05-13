@@ -1,12 +1,16 @@
 ARG NAMESPACE
 ARG TAG
 ARG PREREQS_TAG
+ARG UE4CLI_VERSION="ue4cli>=0.0.41"
+ARG CONAN_UE4CLI_VERSION="ue4cli>=0.0.41"
 FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
+ARG UE4CLI_VERSION
+ARG CONAN_UE4CLI_VERSION
 
 # Install ue4cli and conan-ue4cli
 USER root
 RUN pip3 install setuptools wheel
-RUN pip3 install 'ue4cli>=0.0.41' 'conan-ue4cli>=0.0.21'
+RUN pip3 install "$UE4CLI_VERSION" "$CONAN_UE4CLI_VERSION"
 USER ue4
 
 # Extract the third-party library details from UBT
@@ -15,6 +19,8 @@ RUN ue4 conan generate
 
 # Copy the generated Conan packages into a new image with our Installed Build
 FROM ${NAMESPACE}/ue4-minimal:${TAG}-${PREREQS_TAG}
+ARG UE4CLI_VERSION
+ARG CONAN_UE4CLI_VERSION
 
 # Clone the UE4Capture repository
 RUN git clone "https://github.com/adamrehn/UE4Capture.git" /home/ue4/UE4Capture
@@ -23,7 +29,7 @@ RUN git clone "https://github.com/adamrehn/UE4Capture.git" /home/ue4/UE4Capture
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends cmake
 RUN pip3 install setuptools wheel
-RUN pip3 install 'ue4cli>=0.0.41' 'conan-ue4cli>=0.0.21' ue4-ci-helpers
+RUN pip3 install "$UE4CLI_VERSION" "$CONAN_UE4CLI_VERSION" ue4-ci-helpers
 USER ue4
 
 # Explicitly set the configuration directory for ue4cli

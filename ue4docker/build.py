@@ -82,6 +82,12 @@ def build():
 			logger.info('Repository:   ' + config.repository, False)
 			logger.info('Branch/tag:   ' + config.branch + '\n', False)
 		
+		# Determine if we are using a custom version for ue4cli or conan-ue4cli
+		if config.ue4cliVersion is not None or config.conanUe4cliVersion is not None:
+			logger.info('CUSTOM PACKAGE VERSIONS:', False)
+			logger.info('ue4cli:        {}'.format(config.ue4cliVersion if config.ue4cliVersion is not None else 'default'), False)
+			logger.info('conan-ue4cli:  {}\n'.format(config.conanUe4cliVersion if config.conanUe4cliVersion is not None else 'default'), False)
+		
 		# Determine if we are building Windows or Linux containers
 		if config.containerPlatform == 'windows':
 			
@@ -235,7 +241,16 @@ def build():
 			# Build the full UE4 CI image, unless requested otherwise by the user
 			buildUe4Full = buildUe4Minimal == True and config.noFull == False
 			if buildUe4Full == True:
-				builder.build('ue4-full', mainTags, config.platformArgs + ue4BuildArgs)
+				
+				# If custom version strings were specified for ue4cli and/or conan-ue4cli, use them
+				infrastructureFlags = []
+				if config.ue4cliVersion is not None:
+					infrastructureFlags.extend(['--build-arg', 'UE4CLI_VERSION={}'.format(config.ue4cliVersion)])
+				if config.conanUe4cliVersion is not None:
+					infrastructureFlags.extend(['--build-arg', 'CONAN_UE4CLI_VERSION={}'.format(config.conanUe4cliVersion)])
+				
+				# Build the image
+				builder.build('ue4-full', mainTags, config.platformArgs + ue4BuildArgs + infrastructureFlags)
 			else:
 				logger.info('Not building ue4-minimal or user specified `--no-full`, skipping ue4-full image build.')
 			
