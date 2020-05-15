@@ -1,5 +1,5 @@
 from .infrastructure import DockerUtils, GlobalConfiguration, Logger
-from container_utils import ContainerUtils
+from container_utils import ContainerUtils, ImageUtils
 import docker, os, platform, sys
 
 def test():
@@ -20,9 +20,13 @@ def test():
 			logger.error('Error: the specified container image "{}" does not exist.'.format(image))
 			sys.exit(1)
 		
+		# Use process isolation mode when testing Windows containers, since running Hyper-V containers don't currently support manipulating the filesystem
+		platform = ImageUtils.image_platform(client, image)
+		isolation = 'process' if platform == 'windows' else None
+		
 		# Start a container to run our tests in, automatically stopping and removing the container when we finish
 		logger.action('Starting a container using the "{}" image...'.format(image), False)
-		container = ContainerUtils.start_for_exec(client, image, isolation = 'process' if platform.system().lower() == 'windows' else None)
+		container = ContainerUtils.start_for_exec(client, image, isolation=isolation)
 		with ContainerUtils.automatically_stop(container):
 			
 			# Create the workspace directory in the container
