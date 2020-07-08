@@ -12,10 +12,10 @@ semver = PackageUtils.importFile('semver', os.path.join(PackageUtils.getPackageL
 class WindowsUtils(object):
 	
 	# The latest Windows build version we recognise as a non-Insider build
-	_latestReleaseBuild = 18362
+	_latestReleaseBuild = 19041
 	
 	# The list of Windows Server Core base image tags that we recognise, in ascending version number order
-	_validTags = ['ltsc2016', '1709', '1803', 'ltsc2019', '1903', '1909']
+	_validTags = ['ltsc2016', '1709', '1803', 'ltsc2019', '1903', '1909', '2004']
 	
 	# The list of Windows Server and Windows 10 host OS releases that are blacklisted due to critical bugs
 	# (See: <https://unrealcontainers.com/docs/concepts/windows-containers>)
@@ -163,7 +163,8 @@ class WindowsUtils(object):
 			'1803': '1803',
 			'1809': 'ltsc2019',
 			'1903': '1903',
-			'1909': '1909'
+			'1909': '1909',
+			'2004': '2004'
 		}.get(release, 'ltsc2016')
 	
 	@staticmethod
