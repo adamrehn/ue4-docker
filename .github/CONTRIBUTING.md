@@ -12,7 +12,7 @@ Guidelines for contributing to ue4-docker
 
 When creating an issue to report a bug, please follow the provided issue template. Make sure you include the full output of the `ue4-docker info` command in the provided section, as well as the full output of the `ue4-docker build` command and the command line parameters used to invoke the build if you are reporting a problem with building the container images.
 
-If you are creating an issue for a feature request, you can disregard the default issue template. However, please make sure you have thoroughly read [the documentation](https://adamrehn.com/docs/ue4-docker/) to ensure the requested feature does not already exist before creating an issue.
+If you are creating an issue for a feature request, you can disregard the default issue template. However, please make sure you have thoroughly read [the documentation](https://docs.adamrehn.com/ue4-docker/) to ensure the requested feature does not already exist before creating an issue.
 
 
 ## Creating pull requests
