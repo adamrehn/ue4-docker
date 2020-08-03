@@ -34,9 +34,11 @@ for dll in dlls:
 	dllName = os.path.basename(dll)
 	try:
 		dllVersion = getDllVersion(dll)
-	except:
+	except Exception as err:
 		print('\nError: could not read the version string from the DLL file "{}".'.format(dllName), file=sys.stderr)
 		print('Please ensure the DLLs copied from the host are valid DLL files.', file=sys.stderr)
+		print('\nError details:', file=sys.stderr)
+		print(err, file=sys.stderr)
 		sys.exit(1)
 	
 	# Print the DLL details
