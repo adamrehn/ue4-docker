@@ -49,8 +49,10 @@ for dll in dlls:
 	try:
 		handle = win32api.LoadLibrary(dll)
 		win32api.FreeLibrary(handle)
-	except:
+	except Exception as err:
 		print('\nError: the container OS cannot load the DLL file "{}".'.format(dllName), file=sys.stderr)
 		print('This typically indicates that the DLL is from a newer version of Windows.', file=sys.stderr)
 		print('Please ensure the DLLs copied from the host match the container OS version.', file=sys.stderr)
+		print('\nError details:', file=sys.stderr)
+		print(err, file=sys.stderr)
 		sys.exit(1)
