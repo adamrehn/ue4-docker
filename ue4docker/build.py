@@ -75,12 +75,20 @@ def build():
 		# Resolve our main set of tags for the generated images
 		mainTags = ['{}{}-{}'.format(config.release, config.suffix, config.prereqsTag), config.release + config.suffix]
 		
-		# Determine if we are building a custom version of UE4
+		# Print the command-line invocation that triggered this build, masking any supplied passwords
+		args = ['*******' if config.args.password is not None and arg == config.args.password else arg for arg in sys.argv]
+		logger.info('COMMAND-LINE INVOCATION:', False)
+		logger.info(str(args), False)
+		
+		# Print the details of the Unreal Engine version being built
+		logger.info('UNREAL ENGINE VERSION SETTINGS:')
+		logger.info('Custom build:  {}'.format('Yes' if config.custom == True else 'No'), False)
 		if config.custom == True:
-			logger.info('CUSTOM ENGINE BUILD:', False)
-			logger.info('Custom name:  ' + config.release, False)
-			logger.info('Repository:   ' + config.repository, False)
-			logger.info('Branch/tag:   ' + config.branch + '\n', False)
+			logger.info('Custom name:   ' + config.release, False)
+		else:
+			logger.info('Release:       ' + config.release, False)
+		logger.info('Repository:    ' + config.repository, False)
+		logger.info('Branch/tag:    ' + config.branch + '\n', False)
 		
 		# Determine if we are using a custom version for ue4cli or conan-ue4cli
 		if config.ue4cliVersion is not None or config.conanUe4cliVersion is not None:
