@@ -28,11 +28,11 @@ class diagnostic8Gig(DiagnosticBase):
 		Returns a description of what the diagnostic does
 		'''
 		return '\n'.join([
-			'This diagnostic determines if the Docker daemon suffers from the 8GiB filesystem',
-			'layer bug reported here: https://github.com/moby/moby/issues/37581',
+			'This diagnostic determines if the Docker daemon suffers from one of the 8GiB filesystem',
+			'layer bugs reported at https://github.com/moby/moby/issues/37581 (affects all platforms) ',
+			'or https://github.com/moby/moby/issues/40444 (Windows containers only)',
 			'',
-			'This bug was fixed in Docker CE 18.09.0, but still exists in some versions of',
-			'Docker CE under Windows 10 and Docker EE under Windows Server.',
+			'#37581 was fixed in Docker CE 18.09.0, but #40444 has not been fixed as-of Docker CE 19.03.12',
 			'',
 			self._parser.format_help()
 		])
