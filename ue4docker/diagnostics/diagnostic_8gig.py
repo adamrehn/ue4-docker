@@ -14,6 +14,7 @@ class diagnostic8Gig(DiagnosticBase):
 		# Setup our argument parser so we can use its help message output in our description text
 		self._parser = argparse.ArgumentParser(prog='ue4-docker diagnostics 8gig')
 		self._parser.add_argument('--linux', action='store_true', help="Use Linux containers under Windows hosts (useful when testing Docker Desktop or LCOW support)")
+		self._parser.add_argument('--random', action='store_true', help="Create a file filled with random bytes instead of zeroes under Windows")
 		self._parser.add_argument('--isolation', default=None, choices=['hyperv', 'process'], help="Override the default isolation mode when testing Windows containers")
 		self._parser.add_argument('-basetag', default=None, choices=WindowsUtils.getValidBaseTags(), help="Override the default base image tag when testing Windows containers")
 	
@@ -28,11 +29,11 @@ class diagnostic8Gig(DiagnosticBase):
 		Returns a description of what the diagnostic does
 		'''
 		return '\n'.join([
-			'This diagnostic determines if the Docker daemon suffers from the 8GiB filesystem',
-			'layer bug reported here: https://github.com/moby/moby/issues/37581',
+			'This diagnostic determines if the Docker daemon suffers from one of the 8GiB filesystem',
+			'layer bugs reported at https://github.com/moby/moby/issues/37581 (affects all platforms)',
+			'or https://github.com/moby/moby/issues/40444 (affects Windows containers only)',
 			'',
-			'This bug was fixed in Docker CE 18.09.0, but still exists in some versions of',
-			'Docker CE under Windows 10 and Docker EE under Windows Server.',
+			'#37581 was fixed in Docker CE 18.09.0 and #40444 was fixed in Docker CE 20.10.0',
 			'',
 			self._parser.format_help()
 		])
@@ -67,7 +68,10 @@ class diagnostic8Gig(DiagnosticBase):
 			# Determine the appropriate container image base tag for the host system release unless the user specified a base tag
 			defaultBaseTag = WindowsUtils.getReleaseBaseTag(WindowsUtils.getWindowsRelease())
 			baseTag = args.basetag if args.basetag is not None else defaultBaseTag
-			buildArgs = ['--build-arg', 'BASETAG={}'.format(baseTag)]
+			buildArgs = [
+				'--build-arg', 'BASETAG={}'.format(baseTag),
+				'--build-arg', 'CREATE_RANDOM={}'.format('1' if args.random == True else '0'),
+			]
 			
 			# Use the default isolation mode unless requested otherwise
 			isolation = args.isolation if args.isolation is not None else dockerInfo['Isolation']
