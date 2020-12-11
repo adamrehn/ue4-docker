@@ -45,3 +45,7 @@ RUN del /s /q C:\UnrealEngine\Engine\Platforms\XXX 2>NUL || exit 0
 # Apply our bugfix patches to UnrealBuildTool (UBT)
 COPY patch-ubt.py C:\patch-ubt.py
 RUN python C:\patch-ubt.py C:\UnrealEngine\Engine\Source\Programs\UnrealBuildTool
+
+# Apply our bugfix patches to broken Engine releases such as 4.25.4
+COPY patch-broken-releases.py C:\patch-broken-releases.py
+RUN python C:\patch-broken-releases.py C:\UnrealEngine\Engine
