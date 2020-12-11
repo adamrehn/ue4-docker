@@ -15,6 +15,7 @@ RUN \
 		curl \
 		git \
 		python3 \
+		python3-dev \
 		python3-pip \
 		shared-mime-info \
 		tzdata \
