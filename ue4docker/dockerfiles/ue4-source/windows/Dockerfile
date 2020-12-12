@@ -48,4 +48,4 @@ RUN python C:\patch-ubt.py C:\UnrealEngine\Engine\Source\Programs\UnrealBuildToo
 
 # Apply our bugfix patches to broken Engine releases such as 4.25.4
 COPY patch-broken-releases.py C:\patch-broken-releases.py
-RUN python C:\patch-broken-releases.py C:\UnrealEngine\Engine
+RUN python C:\patch-broken-releases.py C:\UnrealEngine
