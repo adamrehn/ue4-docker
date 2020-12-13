@@ -34,6 +34,11 @@ RUN python C:\legacy-toolchain-fix.py
 COPY patch-setup-win.py C:\patch-setup-win.py
 RUN python C:\patch-setup-win.py C:\UnrealEngine\Setup.bat
 
+# Apply our bugfix patches to broken Engine releases such as 4.25.4
+# (Make sure we do this before the post-clone setup steps are run)
+COPY patch-broken-releases.py C:\patch-broken-releases.py
+RUN python C:\patch-broken-releases.py C:\UnrealEngine
+
 # Run post-clone setup steps
 WORKDIR C:\UnrealEngine
 RUN Setup.bat
@@ -45,7 +50,3 @@ RUN del /s /q C:\UnrealEngine\Engine\Platforms\XXX 2>NUL || exit 0
 # Apply our bugfix patches to UnrealBuildTool (UBT)
 COPY patch-ubt.py C:\patch-ubt.py
 RUN python C:\patch-ubt.py C:\UnrealEngine\Engine\Source\Programs\UnrealBuildTool
-
-# Apply our bugfix patches to broken Engine releases such as 4.25.4
-COPY patch-broken-releases.py C:\patch-broken-releases.py
-RUN python C:\patch-broken-releases.py C:\UnrealEngine

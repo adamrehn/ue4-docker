@@ -47,6 +47,11 @@ COPY --chown=ue4:ue4 preinstall-mono.py /tmp/preinstall-mono.py
 RUN python3 /tmp/preinstall-mono.py
 USER ue4
 
+# Apply our bugfix patches to broken Engine releases such as 4.25.4
+# (Make sure we do this before the post-clone setup steps are run)
+COPY --chown=ue4:ue4 patch-broken-releases.py /tmp/patch-broken-releases.py
+RUN python3 /tmp/patch-broken-releases.py /home/ue4/UnrealEngine
+
 # Extract the list of post-clone setup commands that require root and add them to the script,
 # running everything else as the non-root user to avoid creating files owned by root
 RUN ./Setup.sh
@@ -71,7 +76,3 @@ RUN rm -r -f /home/ue4/UnrealEngine/Engine/Platforms/XXX
 # Apply our bugfix patches to UnrealBuildTool (UBT)
 COPY --chown=ue4:ue4 patch-ubt.py /tmp/patch-ubt.py
 RUN python3 /tmp/patch-ubt.py /home/ue4/UnrealEngine/Engine/Source/Programs/UnrealBuildTool
-
-# Apply our bugfix patches to broken Engine releases such as 4.25.4
-COPY --chown=ue4:ue4 patch-broken-releases.py /tmp/patch-broken-releases.py
-RUN python3 /tmp/patch-broken-releases.py /home/ue4/UnrealEngine
