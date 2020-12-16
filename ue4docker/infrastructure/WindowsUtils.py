@@ -137,7 +137,7 @@ class WindowsUtils(object):
 		'''
 		Determines if the Windows host system is Windows Server
 		'''
-		return 'Windows Server' in WindowsUtils._getVersionRegKey('ProductName')
+		return 'Windows Server' or 'Hyper-V Server' in WindowsUtils._getVersionRegKey('ProductName')
 	
 	@staticmethod
 	def isInsiderPreview():
