@@ -1,20 +1,17 @@
 from ..infrastructure import DockerUtils, WindowsUtils
 from .base import DiagnosticBase
+import argparse, platform
 
-import argparse, os, platform
-from os.path import abspath, dirname, join
-
-class diagnostic8Gig(DiagnosticBase):
+class diagnosticNetwork(DiagnosticBase):
 	
 	# The tag we use for built images
-	IMAGE_TAG = 'adamrehn/ue4-docker/diagnostics:8gig'
+	IMAGE_TAG = 'adamrehn/ue4-docker/diagnostics:network'
 	
 	def __init__(self):
 		
 		# Setup our argument parser so we can use its help message output in our description text
-		self._parser = argparse.ArgumentParser(prog='ue4-docker diagnostics 8gig')
+		self._parser = argparse.ArgumentParser(prog='ue4-docker diagnostics network')
 		self._parser.add_argument('--linux', action='store_true', help="Use Linux containers under Windows hosts (useful when testing Docker Desktop or LCOW support)")
-		self._parser.add_argument('--random', action='store_true', help="Create a file filled with random bytes instead of zeroes under Windows")
 		self._parser.add_argument('--isolation', default=None, choices=['hyperv', 'process'], help="Override the default isolation mode when testing Windows containers")
 		self._parser.add_argument('-basetag', default=None, choices=WindowsUtils.getValidBaseTags(), help="Override the default base image tag when testing Windows containers")
 	
@@ -22,27 +19,24 @@ class diagnostic8Gig(DiagnosticBase):
 		'''
 		Returns the human-readable name of the diagnostic
 		'''
-		return 'Check for Docker 8GiB filesystem layer bug'
+		return 'Check that containers can access the internet correctly'
 	
 	def getDescription(self):
 		'''
 		Returns a description of what the diagnostic does
 		'''
 		return '\n'.join([
-			'This diagnostic determines if the Docker daemon suffers from one of the 8GiB filesystem',
-			'layer bugs reported at https://github.com/moby/moby/issues/37581 (affects all platforms)',
-			'or https://github.com/moby/moby/issues/40444 (affects Windows containers only)',
+			'This diagnostic determines if running containers are able to access the internet,',
+			'resolve DNS entries, and download remote files.',
 			'',
-			'#37581 was fixed in Docker CE 18.09.0 and #40444 was fixed in Docker CE 20.10.0',
-			'',
-			self._parser.format_help()
+			'This is primarily useful in troubleshooting network connectivity and proxy issues.'
 		])
 	
 	def getPrefix(self):
 		'''
 		Returns the short name of the diagnostic for use in log output
 		'''
-		return '8gig'
+		return 'network'
 	
 	def run(self, logger, args=[]):
 		'''
@@ -65,13 +59,14 @@ class diagnostic8Gig(DiagnosticBase):
 		buildArgs = self._generateWindowsBuildArgs(logger, args.basetag, args.isolation) if containerPlatform == 'windows' else []
 		
 		# Attempt to build the Dockerfile
-		logger.action('[8gig] Attempting to build an image with an 8GiB filesystem layer...', False)
-		built = self._buildDockerfile(logger, containerPlatform, diagnostic8Gig.IMAGE_TAG, buildArgs)
+		logger.action('[network] Attempting to build an image that accesses network resources...', False)
+		built = self._buildDockerfile(logger, containerPlatform, diagnosticNetwork.IMAGE_TAG, buildArgs)
 		
 		# Inform the user of the outcome of the diagnostic
 		if built == True:
-			logger.action('[8gig] Diagnostic succeeded! The Docker daemon can build images with 8GiB filesystem layers.\n')
+			logger.action('[network] Diagnostic succeeded! Running containers can access network resources without any issues.\n')
 		else:
-			logger.error('[8gig] Diagnostic failed! The Docker daemon cannot build images with 8GiB filesystem layers.\n', True)
+			logger.error('[network] Diagnostic failed! Running containers cannot access network resources. See the docs for troubleshooting tips:', True)
+			logger.error('[network] https://docs.adamrehn.com/ue4-docker/building-images/troubleshooting-build-issues#building-the-ue4-build-prerequisites-image-fails-with-a-network-related-error\n', False)
 		
 		return built

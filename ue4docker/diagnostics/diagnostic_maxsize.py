@@ -24,6 +24,12 @@ class diagnosticMaxSize(DiagnosticBase):
 			'but a workaround was introduced in Docker CE version 19.03.6.',
 		])
 	
+	def getPrefix(self):
+		'''
+		Returns the short name of the diagnostic for use in log output
+		'''
+		return 'maxsize'
+	
 	def run(self, logger, args=[]):
 		'''
 		Runs the diagnostic

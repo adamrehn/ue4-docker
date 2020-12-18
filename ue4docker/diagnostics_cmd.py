@@ -8,7 +8,8 @@ def diagnostics():
 	DIAGNOSTICS = {
 		'all': allDiagnostics(),
 		'8gig': diagnostic8Gig(),
-		'maxsize': diagnosticMaxSize()
+		'maxsize': diagnosticMaxSize(),
+		'network': diagnosticNetwork()
 	}
 	
 	# Create our logger to generate coloured output on stderr
