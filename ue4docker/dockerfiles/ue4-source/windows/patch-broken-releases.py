@@ -38,4 +38,4 @@ if versionDetails['MajorVersion'] == 4 and versionDetails['MinorVersion'] == 25 
 		)
 		
 		writeFile(gitdepsFile, gitdepsXml)
-		print('PATCHED {}:\n\n{}'.format(gitdepsFile, gitdepsXml), file=sys.stderr)
+		print('PATCHED {}'.format(gitdepsFile), file=sys.stderr)
