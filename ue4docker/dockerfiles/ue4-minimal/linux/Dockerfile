@@ -3,6 +3,9 @@ ARG TAG
 ARG PREREQS_TAG
 FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 
+# Remove the .git directory to disable UBT `git status` calls and speed up the build process
+RUN rm -rf /home/ue4/UnrealEngine/.git
+
 # Set the changelist number in Build.version to ensure our Build ID is generated correctly
 COPY set-changelist.py /tmp/set-changelist.py
 RUN python3 /tmp/set-changelist.py /home/ue4/UnrealEngine/Engine/Build/Build.version
