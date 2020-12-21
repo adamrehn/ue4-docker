@@ -90,6 +90,7 @@ class BuildConfiguration(object):
 		parser.add_argument('--monitor', action='store_true', help='Monitor resource usage during builds (useful for debugging)')
 		parser.add_argument('-interval', type=float, default=20.0, help='Sampling interval in seconds when resource monitoring has been enabled using --monitor (default is 20 seconds)')
 		parser.add_argument('--ignore-blacklist', action='store_true', help='Run builds even on blacklisted versions of Windows (advanced use only)')
+		parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output during builds (useful for debugging)')
 	
 	def __init__(self, parser, argv):
 		'''
@@ -147,6 +148,7 @@ class BuildConfiguration(object):
 		self.baseImage = None
 		self.prereqsTag = None
 		self.ignoreBlacklist = self.args.ignore_blacklist
+		self.verbose = self.args.verbose
 		
 		# If the user specified custom version strings for ue4cli and/or conan-ue4cli, process them
 		self.ue4cliVersion = self._processPackageVersion('ue4cli', self.args.ue4cli)

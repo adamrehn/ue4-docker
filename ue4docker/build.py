@@ -225,7 +225,8 @@ def build():
 			prereqConsumerArgs = ['--build-arg', 'PREREQS_TAG={}'.format(config.prereqsTag)]
 			ue4SourceArgs = prereqConsumerArgs + [
 				'--build-arg', 'GIT_REPO={}'.format(config.repository),
-				'--build-arg', 'GIT_BRANCH={}'.format(config.branch)
+				'--build-arg', 'GIT_BRANCH={}'.format(config.branch),
+				'--build-arg', 'VERBOSE_OUTPUT={}'.format('1' if config.verbose == True else '0')
 			]
 			builder.build('ue4-source', mainTags, config.platformArgs + ue4SourceArgs + endpoint.args())
 			

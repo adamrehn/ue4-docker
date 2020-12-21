@@ -1,6 +1,9 @@
 ARG PREREQS_TAG
 FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
 
+# Enable verbose output for steps that patch files?
+ARG VERBOSE_OUTPUT=0
+
 # The git repository that we will clone
 ARG GIT_REPO=""
 
@@ -30,8 +33,8 @@ USER ue4
 
 # Patch out all instances of `sudo` in Setup.sh, plus any commands that refuse to run as root
 COPY --chown=ue4:ue4 patch-setup-linux.py /tmp/patch-setup-linux.py
-RUN python3 /tmp/patch-setup-linux.py /home/ue4/UnrealEngine/Setup.sh
-RUN python3 /tmp/patch-setup-linux.py /home/ue4/UnrealEngine/Engine/Build/BatchFiles/Linux/Setup.sh
+RUN python3 /tmp/patch-setup-linux.py /home/ue4/UnrealEngine/Setup.sh $VERBOSE_OUTPUT
+RUN python3 /tmp/patch-setup-linux.py /home/ue4/UnrealEngine/Engine/Build/BatchFiles/Linux/Setup.sh $VERBOSE_OUTPUT
 
 # Create a script to hold the list of post-clone setup commands that require root
 WORKDIR /home/ue4/UnrealEngine
@@ -50,7 +53,7 @@ USER ue4
 # Apply our bugfix patches to broken Engine releases such as 4.25.4
 # (Make sure we do this before the post-clone setup steps are run)
 COPY --chown=ue4:ue4 patch-broken-releases.py /tmp/patch-broken-releases.py
-RUN python3 /tmp/patch-broken-releases.py /home/ue4/UnrealEngine
+RUN python3 /tmp/patch-broken-releases.py /home/ue4/UnrealEngine $VERBOSE_OUTPUT
 
 # Extract the list of post-clone setup commands that require root and add them to the script,
 # running everything else as the non-root user to avoid creating files owned by root

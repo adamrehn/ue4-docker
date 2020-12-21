@@ -11,9 +11,13 @@ def writeFile(filename, data):
 
 # Extract all commands requiring `sudo` in Setup.sh and place them in root_commands.sh
 setupScript = sys.argv[1]
+verboseOutput = len(sys.argv) > 2 and sys.argv[2] == '1'
 code = readFile(setupScript)
 code = re.sub('(\\s)sudo ([^\\n]+)\\n', '\\1echo \\2 >> /home/ue4/UnrealEngine/root_commands.sh\\n', code)
 writeFile(setupScript, code)
 
 # Print the patched code to stderr for debug purposes
-print('PATCHED {}:\n\n{}'.format(setupScript, code), file=sys.stderr)
+if verboseOutput == True:
+	print('PATCHED {}:\n\n{}'.format(setupScript, code), file=sys.stderr)
+else:
+	print('PATCHED {}'.format(setupScript), file=sys.stderr)

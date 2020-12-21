@@ -18,8 +18,13 @@ def main():
 	# Configure verbose logging if the user requested it
 	# (NOTE: in a future version of ue4-docker the `Logger` class will be properly integrated with standard logging)
 	if '-v' in sys.argv or '--verbose' in sys.argv:
-		sys.argv = list([arg for arg in sys.argv if arg not in ['-v', '--verbose']])
+		
+		# Enable verbose logging
 		logging.getLogger().setLevel(logging.DEBUG)
+		
+		# Filter out the verbose flag to avoid breaking commands that don't support it
+		if not (len(sys.argv) > 1 and sys.argv[1] in ['build']):
+			sys.argv = list([arg for arg in sys.argv if arg not in ['-v', '--verbose']])
 	
 	# Verify that Docker is installed
 	if DockerUtils.installed() == False:

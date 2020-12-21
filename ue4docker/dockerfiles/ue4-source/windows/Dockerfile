@@ -2,6 +2,9 @@
 ARG PREREQS_TAG
 FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
 
+# Enable verbose output for steps that patch files?
+ARG VERBOSE_OUTPUT=0
+
 # The git repository that we will clone
 ARG GIT_REPO=""
 
@@ -32,12 +35,12 @@ RUN python C:\legacy-toolchain-fix.py
 # Since the UE4 prerequisites installer appears to break when newer versions
 # of the VC++ runtime are present, patch out the prereqs call in Setup.bat
 COPY patch-setup-win.py C:\patch-setup-win.py
-RUN python C:\patch-setup-win.py C:\UnrealEngine\Setup.bat
+RUN python C:\patch-setup-win.py C:\UnrealEngine\Setup.bat %VERBOSE_OUTPUT%
 
 # Apply our bugfix patches to broken Engine releases such as 4.25.4
 # (Make sure we do this before the post-clone setup steps are run)
 COPY patch-broken-releases.py C:\patch-broken-releases.py
-RUN python C:\patch-broken-releases.py C:\UnrealEngine
+RUN python C:\patch-broken-releases.py C:\UnrealEngine %VERBOSE_OUTPUT%
 
 # Run post-clone setup steps
 WORKDIR C:\UnrealEngine

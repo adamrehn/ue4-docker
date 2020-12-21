@@ -12,6 +12,7 @@ def writeFile(filename, data):
 
 # Determine if we are building UE 4.25.4
 engineRoot = sys.argv[1]
+verboseOutput = len(sys.argv) > 2 and sys.argv[2] == '1'
 versionDetails = json.loads(readFile(join(engineRoot, 'Engine', 'Build', 'Build.version')))
 if versionDetails['MajorVersion'] == 4 and versionDetails['MinorVersion'] == 25 and versionDetails['PatchVersion'] == 4:
 	
@@ -38,4 +39,8 @@ if versionDetails['MajorVersion'] == 4 and versionDetails['MinorVersion'] == 25 
 		)
 		
 		writeFile(gitdepsFile, gitdepsXml)
-		print('PATCHED {}:\n\n{}'.format(gitdepsFile, gitdepsXml), file=sys.stderr)
+		
+		if verboseOutput == True:
+			print('PATCHED {}:\n\n{}'.format(gitdepsFile, gitdepsXml), file=sys.stderr)
+		else:
+			print('PATCHED {}'.format(gitdepsFile), file=sys.stderr)
