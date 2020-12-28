@@ -38,7 +38,7 @@ RUN curl --progress -L "https://sdk.lunarg.com/sdk/download/latest/windows/vulka
 RUN 7z e %TEMP%\vulkan-runtime-components.zip -oC:\GatheredDlls -y "*\x64\vulkan-1.dll"
 
 # Gather pdbcopy.exe (needed for creating an Installed Build of the Engine)
-RUN choco install -y windows-sdk-10-version-2004-windbg
+RUN choco install -y windows-sdk-10-version-1809-windbg
 RUN C:\copy.py "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\pdbcopy.exe" C:\GatheredDlls\
 
 # Copy our gathered DLLs (and pdbcopy.exe) into a clean image to reduce image size
