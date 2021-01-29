@@ -1,8 +1,5 @@
-from .PackageUtils import PackageUtils
+from packaging import version
 import os, platform
-
-# Import the `semver` package even when the conflicting `node-semver` package is present
-semver = PackageUtils.importFile('semver', os.path.join(PackageUtils.getPackageLocation('semver'), 'semver.py'))
 
 class DarwinUtils(object):
 	
@@ -38,4 +35,4 @@ class DarwinUtils(object):
 		'''
 		Verifies that the macOS host system meets our minimum version requirements
 		'''
-		return semver.compare(DarwinUtils.getMacOsVersion(), DarwinUtils.minimumRequiredVersion()) >= 0
+		return version.parse(DarwinUtils.getMacOsVersion()) >= version.parse(DarwinUtils.minimumRequiredVersion())

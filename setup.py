@@ -41,6 +41,7 @@ setup(
 		'docker>=3.0.0',
 		'flask',
 		'humanfriendly',
+		'packaging>=19.1',
 		'psutil',
 		'requests',
 		'semver>=2.7.9',
