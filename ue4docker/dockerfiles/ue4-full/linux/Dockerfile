@@ -9,6 +9,7 @@ ARG CONAN_UE4CLI_VERSION
 
 # Install ue4cli and conan-ue4cli
 USER root
+RUN pip3 install -U pip
 RUN pip3 install setuptools wheel
 RUN pip3 install "$UE4CLI_VERSION" "$CONAN_UE4CLI_VERSION"
 USER ue4
@@ -28,6 +29,7 @@ RUN git clone "https://github.com/adamrehn/UE4Capture.git" /home/ue4/UE4Capture
 # Install CMake, ue4cli, conan-ue4cli, and ue4-ci-helpers
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends cmake
+RUN pip3 install -U pip
 RUN pip3 install setuptools wheel
 RUN pip3 install "$UE4CLI_VERSION" "$CONAN_UE4CLI_VERSION" ue4-ci-helpers
 USER ue4
