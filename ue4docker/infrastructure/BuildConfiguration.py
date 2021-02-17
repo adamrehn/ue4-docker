@@ -77,7 +77,7 @@ class BuildConfiguration(object):
 		parser.add_argument('--exclude', action='append', default=[], choices=[ExcludedComponent.DDC, ExcludedComponent.Debug, ExcludedComponent.Templates], help='Exclude the specified component (can be specified multiple times to exclude multiple components)')
 		parser.add_argument('--cuda', default=None, metavar='VERSION', help='Add CUDA support as well as OpenGL support when building Linux containers')
 		parser.add_argument('-username', default=None, help='Specify the username to use when cloning the git repository')
-		parser.add_argument('-password', default=None, help='Specify the password to use when cloning the git repository')
+		parser.add_argument('-password', default=None, help='Specify the password or access token to use when cloning the git repository')
 		parser.add_argument('-repo', default=None, help='Set the custom git repository to clone when "custom" is specified as the release value')
 		parser.add_argument('-branch', default=None, help='Set the custom branch/tag to clone when "custom" is specified as the release value')
 		parser.add_argument('-isolation', default=None, help='Set the isolation mode to use for Windows containers (process or hyperv)')
@@ -87,6 +87,7 @@ class BuildConfiguration(object):
 		parser.add_argument('-m', default=None, help='Override the default memory limit under Windows (also overrides --random-memory)')
 		parser.add_argument('-ue4cli', default=None, help='Override the default version of ue4cli installed in the ue4-full image')
 		parser.add_argument('-conan-ue4cli', default=None, help='Override the default version of conan-ue4cli installed in the ue4-full image')
+		parser.add_argument('-layout', default=None, help='Copy generated Dockerfiles to the specified directory and don\'t build the images')
 		parser.add_argument('--monitor', action='store_true', help='Monitor resource usage during builds (useful for debugging)')
 		parser.add_argument('-interval', type=float, default=20.0, help='Sampling interval in seconds when resource monitoring has been enabled using --monitor (default is 20 seconds)')
 		parser.add_argument('--ignore-blacklist', action='store_true', help='Run builds even on blacklisted versions of Windows (advanced use only)')
@@ -149,6 +150,7 @@ class BuildConfiguration(object):
 		self.prereqsTag = None
 		self.ignoreBlacklist = self.args.ignore_blacklist
 		self.verbose = self.args.verbose
+		self.layoutDir = self.args.layout
 		
 		# If the user specified custom version strings for ue4cli and/or conan-ue4cli, process them
 		self.ue4cliVersion = self._processPackageVersion('ue4cli', self.args.ue4cli)

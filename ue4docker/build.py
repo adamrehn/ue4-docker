@@ -70,7 +70,7 @@ def build():
 		shutil.copytree(contextOrig, contextRoot)
 		
 		# Create the builder instance to build the Docker images
-		builder = ImageBuilder(contextRoot, config.containerPlatform, logger, config.rebuild, config.dryRun)
+		builder = ImageBuilder(contextRoot, config.containerPlatform, logger, config.rebuild, config.dryRun, config.layoutDir)
 		
 		# Resolve our main set of tags for the generated images
 		mainTags = ['{}{}-{}'.format(config.release, config.suffix, config.prereqsTag), config.release + config.suffix]
@@ -180,6 +180,13 @@ def build():
 			username = ''
 			password = ''
 			
+		elif config.layoutDir is not None:
+			
+			# Don't bother prompting the user for any credentials when we're just copying the Dockerfiles to a directory
+			logger.info('Copying generated Dockerfiles to: {}'.format(config.layoutDir), False)
+			username = ''
+			password = ''
+			
 		elif builder.willBuild('ue4-source', mainTags) == False:
 			
 			# Don't bother prompting the user for any credentials if we're not building the ue4-source image
@@ -208,6 +215,12 @@ def build():
 			
 			# Keep track of our starting time
 			startTime = time.time()
+			
+			# If we're copying Dockerfiles to an output directory then make sure it exists and is empty
+			if config.layoutDir is not None:
+				if os.path.exists(config.layoutDir):
+					shutil.rmtree(config.layoutDir)
+				os.makedirs(config.layoutDir)
 			
 			# Compute the build options for the UE4 build prerequisites image
 			# (This is the only image that does not use any user-supplied tag suffix, since the tag always reflects any customisations)

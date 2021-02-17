@@ -1,10 +1,10 @@
 from .DockerUtils import DockerUtils
 from .GlobalConfiguration import GlobalConfiguration
-import humanfriendly, os, subprocess, time
+import humanfriendly, os, shutil, subprocess, time
 
 class ImageBuilder(object):
 	
-	def __init__(self, root, platform, logger, rebuild=False, dryRun=False):
+	def __init__(self, root, platform, logger, rebuild=False, dryRun=False, layoutDir=None):
 		'''
 		Creates an ImageBuilder for the specified build parameters
 		'''
@@ -13,6 +13,7 @@ class ImageBuilder(object):
 		self.logger = logger
 		self.rebuild = rebuild
 		self.dryRun = dryRun
+		self.layoutDir = layoutDir
 	
 	def build(self, name, tags, args):
 		'''
@@ -33,6 +34,7 @@ class ImageBuilder(object):
 		imageTags = self._formatTags(name, tags)
 		self._processImage(
 			imageTags[0],
+			name,
 			DockerUtils.build(imageTags, self.context(name), args),
 			'build',
 			'built'
@@ -50,6 +52,7 @@ class ImageBuilder(object):
 		'''
 		self._processImage(
 			image,
+			None,
 			DockerUtils.pull(image),
 			'pull',
 			'pulled'
@@ -74,7 +77,7 @@ class ImageBuilder(object):
 		'''
 		return self.rebuild == True or DockerUtils.exists(image) == False
 	
-	def _processImage(self, image, command, actionPresentTense, actionPastTense):
+	def _processImage(self, image, name, command, actionPresentTense, actionPastTense):
 		'''
 		Processes the specified image by running the supplied command if it doesn't exist (use rebuild=True to force processing)
 		'''
@@ -89,6 +92,15 @@ class ImageBuilder(object):
 		if self.dryRun == True:
 			print(command)
 			self.logger.action('Completed dry run for image "{}".'.format(image), newline=False)
+			return
+		
+		# Determine if we're just copying the Dockerfile to an output directory
+		if self.layoutDir is not None:
+			source = self.context(name)
+			dest = os.path.join(self.layoutDir, os.path.basename(name))
+			self.logger.action('Copying "{}" to "{}"...'.format(source, dest), newline=False)
+			shutil.copytree(source, dest)
+			self.logger.action('Copied Dockerfile for image "{}".'.format(image), newline=False)
 			return
 		
 		# Attempt to process the image using the supplied command
