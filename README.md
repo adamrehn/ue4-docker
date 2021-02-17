@@ -31,7 +31,7 @@ See the file [CONTRIBUTING.md](https://github.com/adamrehn/ue4-docker/blob/maste
 
 ## Legal
 
-Copyright &copy; 2018 - 2019, Adam Rehn. Licensed under the MIT License, see the file [LICENSE](https://github.com/adamrehn/ue4-docker/blob/master/LICENSE) for details.
+Copyright &copy; 2018 - 2021, Adam Rehn. Licensed under the MIT License, see the file [LICENSE](https://github.com/adamrehn/ue4-docker/blob/master/LICENSE) for details.
 
 Unreal and its logo are Epic Games' trademarks or registered trademarks in the US and elsewhere.
 
