@@ -72,7 +72,7 @@ def build():
 		shutil.copytree(contextOrig, contextRoot)
 		
 		# Create the builder instance to build the Docker images
-		builder = ImageBuilder(contextRoot, config.containerPlatform, logger, config.rebuild, config.dryRun, config.layoutDir)
+		builder = ImageBuilder(contextRoot, config.containerPlatform, logger, config.rebuild, config.dryRun, config.layoutDir, config.opts)
 		
 		# Resolve our main set of tags for the generated images
 		mainTags = ['{}{}-{}'.format(config.release, config.suffix, config.prereqsTag), config.release + config.suffix]
@@ -97,6 +97,13 @@ def build():
 			logger.info('CUSTOM PACKAGE VERSIONS:', False)
 			logger.info('ue4cli:        {}'.format(config.ue4cliVersion if config.ue4cliVersion is not None else 'default'), False)
 			logger.info('conan-ue4cli:  {}\n'.format(config.conanUe4cliVersion if config.conanUe4cliVersion is not None else 'default'), False)
+		
+		# Report any advanced configuration options that were specified
+		if len(config.opts) > 0:
+			logger.info('ADVANCED CONFIGURATION OPTIONS:', False)
+			for key, value in config.opts.items():
+				logger.info('{}: {}'.format(key, value), False)
+			print('', file=sys.stderr, flush=True)
 		
 		# Determine if we are building Windows or Linux containers
 		if config.containerPlatform == 'windows':

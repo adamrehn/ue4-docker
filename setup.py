@@ -41,6 +41,7 @@ setup(
 		'docker>=3.0.0',
 		'flask',
 		'humanfriendly',
+		'Jinja2>=2.11.3',
 		'packaging>=19.1',
 		'psutil',
 		'requests',

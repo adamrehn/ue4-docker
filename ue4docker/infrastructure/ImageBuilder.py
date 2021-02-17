@@ -1,10 +1,12 @@
 from .DockerUtils import DockerUtils
+from .FilesystemUtils import FilesystemUtils
 from .GlobalConfiguration import GlobalConfiguration
 import humanfriendly, os, shutil, subprocess, time
+from jinja2 import Environment, Template
 
 class ImageBuilder(object):
 	
-	def __init__(self, root, platform, logger, rebuild=False, dryRun=False, layoutDir=None):
+	def __init__(self, root, platform, logger, rebuild=False, dryRun=False, layoutDir=None, templateContext=None):
 		'''
 		Creates an ImageBuilder for the specified build parameters
 		'''
@@ -14,14 +16,21 @@ class ImageBuilder(object):
 		self.rebuild = rebuild
 		self.dryRun = dryRun
 		self.layoutDir = layoutDir
+		self.templateContext = templateContext if templateContext is not None else {}
 	
 	def build(self, name, tags, args):
 		'''
 		Builds the specified image if it doesn't exist or if we're forcing a rebuild
 		'''
 		
-		# Inject our filesystem layer commit message after each RUN directive in the Dockerfile
+		# Create a Jinja template environment and render the Dockerfile template
+		environment = Environment(autoescape=False)
 		dockerfile = os.path.join(self.context(name), 'Dockerfile')
+		templateInstance = environment.from_string(FilesystemUtils.readFile(dockerfile))
+		rendered = templateInstance.render(self.templateContext)
+		FilesystemUtils.writeFile(dockerfile, rendered)
+		
+		# Inject our filesystem layer commit message after each RUN directive in the Dockerfile
 		DockerUtils.injectPostRunMessage(dockerfile, self.platform, [
 			'',
 			'RUN directive complete. Docker will now commit the filesystem layer to disk.',

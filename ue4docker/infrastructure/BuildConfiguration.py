@@ -75,6 +75,7 @@ class BuildConfiguration(object):
 		parser.add_argument('--no-cache', action='store_true', help='Disable Docker build cache')
 		parser.add_argument('--random-memory', action='store_true', help='Use a random memory limit for Windows containers')
 		parser.add_argument('--exclude', action='append', default=[], choices=[ExcludedComponent.DDC, ExcludedComponent.Debug, ExcludedComponent.Templates], help='Exclude the specified component (can be specified multiple times to exclude multiple components)')
+		parser.add_argument('--opt', action='append', default=[], help='Set an advanced configuration option (can be specified multiple times to specify multiple options)')
 		parser.add_argument('--cuda', default=None, metavar='VERSION', help='Add CUDA support as well as OpenGL support when building Linux containers')
 		parser.add_argument('-username', default=None, help='Specify the username to use when cloning the git repository')
 		parser.add_argument('-password', default=None, help='Specify the password or access token to use when cloning the git repository')
@@ -155,6 +156,15 @@ class BuildConfiguration(object):
 		# If the user specified custom version strings for ue4cli and/or conan-ue4cli, process them
 		self.ue4cliVersion = self._processPackageVersion('ue4cli', self.args.ue4cli)
 		self.conanUe4cliVersion = self._processPackageVersion('conan-ue4cli', self.args.conan_ue4cli)
+		
+		# Process any specified advanced configuration options (which we use directly as context values for the Jinja templating system)
+		self.opts = {}
+		for o in self.args.opt:
+			if '=' in o:
+				key, value = o.split('=', 1)
+				self.opts[key] = value
+			else:
+				self.opts[o] = True
 		
 		# Generate our flags for keeping or excluding components
 		self.exclusionFlags = [
