@@ -34,7 +34,7 @@ def _setupLinux():
 		print('Creating firewall rule for credential endpoint...')
 		
 		# Create the firewall rule
-		subprocess.run(['iptables', '-A', 'INPUT', '-p', 'tcp', '--dport', '9876', '-j', 'ACCEPT'], check=True)
+		subprocess.run(['iptables', '-I', 'INPUT', '-p', 'tcp', '--dport', '9876', '-j', 'ACCEPT'], check=True)
 		
 		# Ensure the firewall rule persists after reboot
 		# (Requires the `iptables-persistent` service to be installed and running)
