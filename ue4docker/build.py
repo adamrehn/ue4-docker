@@ -51,15 +51,17 @@ def build():
 		sys.exit(1)
 	
 	# Verify that we aren't trying to build Windows containers under Windows 10 when in Linux container mode (or vice versa)
-	dockerPlatform = DockerUtils.info()['OSType'].lower()
-	if config.containerPlatform == 'windows' and dockerPlatform == 'linux':
-		logger.error('Error: cannot build Windows containers when Docker Desktop is in Linux container', False)
-		logger.error('mode. Use the --linux flag if you want to build Linux containers instead.', False)
-		sys.exit(1)
-	elif config.containerPlatform == 'linux' and dockerPlatform == 'windows':
-		logger.error('Error: cannot build Linux containers when Docker Desktop is in Windows container', False)
-		logger.error('mode. Remove the --linux flag if you want to build Windows containers instead.', False)
-		sys.exit(1)
+	# (Note that we don't bother performing this check when we're just copying Dockerfiles to an output directory)
+	if config.layoutDir is None:
+		dockerPlatform = DockerUtils.info()['OSType'].lower()
+		if config.containerPlatform == 'windows' and dockerPlatform == 'linux':
+			logger.error('Error: cannot build Windows containers when Docker Desktop is in Linux container', False)
+			logger.error('mode. Use the --linux flag if you want to build Linux containers instead.', False)
+			sys.exit(1)
+		elif config.containerPlatform == 'linux' and dockerPlatform == 'windows':
+			logger.error('Error: cannot build Linux containers when Docker Desktop is in Windows container', False)
+			logger.error('mode. Remove the --linux flag if you want to build Windows containers instead.', False)
+			sys.exit(1)
 	
 	# Create an auto-deleting temporary directory to hold our build context
 	with tempfile.TemporaryDirectory() as tempDir:
