@@ -50,13 +50,7 @@ FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
 
 # Copy the Installed Build files from the builder image
 COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux /home/ue4/UnrealEngine
-COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/root_commands.sh /tmp/root_commands.sh
 WORKDIR /home/ue4/UnrealEngine
-
-# Run the post-setup commands that were previously extracted from `Setup.sh`
-USER root
-RUN /tmp/root_commands.sh
-USER ue4
 
 # Add labels to the built image to identify which components (if any) were excluded from the build that it contains
 # (Note that we need to redeclare the relevant ARG directives here because they are scoped to each individual stage in a multi-stage build)

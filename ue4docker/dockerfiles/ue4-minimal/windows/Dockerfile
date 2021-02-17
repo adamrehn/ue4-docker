@@ -43,10 +43,6 @@ FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
 COPY --from=builder C:\UnrealEngine\LocalBuilds\Engine\Windows C:\UnrealEngine
 WORKDIR C:\UnrealEngine
 
-# Install legacy toolchain components if we're building UE4.19
-# (This call is a no-op under newer Engine versions)
-RUN python C:\UnrealEngine\legacy-toolchain-fix.py
-
 # Add labels to the built image to identify which components (if any) were excluded from the build that it contains
 # (Note that we need to redeclare the relevant ARG directives here because they are scoped to each individual stage in a multi-stage build)
 ARG EXCLUDE_DEBUG

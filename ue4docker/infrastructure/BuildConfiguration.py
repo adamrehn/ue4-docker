@@ -64,7 +64,7 @@ class BuildConfiguration(object):
 		'''
 		Registers our supported command-line arguments with the supplied argument parser
 		'''
-		parser.add_argument('release', help='UE4 release to build, in semver format (e.g. 4.19.0) or "custom" for a custom repo and branch')
+		parser.add_argument('release', help='UE4 release to build, in semver format (e.g. 4.20.0) or "custom" for a custom repo and branch')
 		parser.add_argument('--linux', action='store_true', help='Build Linux container images under Windows')
 		parser.add_argument('--rebuild', action='store_true', help='Rebuild images even if they already exist')
 		parser.add_argument('--dry-run', action='store_true', help='Print `docker build` commands instead of running them')
@@ -129,7 +129,7 @@ class BuildConfiguration(object):
 					raise Exception()
 				self.release = semver.format_version(ue4Version['major'], ue4Version['minor'], ue4Version['patch'])
 			except:
-				raise RuntimeError('invalid UE4 release number "{}", full semver format required (e.g. "4.19.0")'.format(self.args.release))
+				raise RuntimeError('invalid UE4 release number "{}", full semver format required (e.g. "4.20.0")'.format(self.args.release))
 			
 			# Use the default repository and the release tag for the specified version
 			self.repository = DEFAULT_GIT_REPO
