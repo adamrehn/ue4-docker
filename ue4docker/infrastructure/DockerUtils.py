@@ -51,6 +51,14 @@ class DockerUtils(object):
 		return ['docker', 'build'] + list(itertools.chain.from_iterable(tagArgs)) + [context] + args
 	
 	@staticmethod
+	def buildx(tags, context, args, secrets):
+		'''
+		Returns the `docker buildx` command to build an image with the BuildKit backend
+		'''
+		tagArgs = [['-t', tag] for tag in tags]
+		return ['docker', 'buildx', 'build'] + list(itertools.chain.from_iterable(tagArgs)) + [context] + ['--progress=plain'] + args + list(itertools.chain.from_iterable([['--secret', s] for s in secrets]))
+	
+	@staticmethod
 	def pull(image):
 		'''
 		Returns the `docker pull` command to pull an image from a remote registry

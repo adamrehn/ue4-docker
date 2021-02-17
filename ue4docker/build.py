@@ -243,14 +243,23 @@ def build():
 			else:
 				builder.build('adamrehn/ue4-build-prerequisites', [config.prereqsTag], config.platformArgs + prereqsArgs)
 			
+			# If we're using build secrets then pass the Git username and password to the UE4 source image as secrets
+			secrets = {}
+			if config.opts.get('use_build_secrets', False) == True:
+				secrets = {
+					'username': username,
+					'password': password
+				}
+			
 			# Build the UE4 source image
 			prereqConsumerArgs = ['--build-arg', 'PREREQS_TAG={}'.format(config.prereqsTag)]
+			credentialArgs = [] if len(secrets) > 0 else endpoint.args()
 			ue4SourceArgs = prereqConsumerArgs + [
 				'--build-arg', 'GIT_REPO={}'.format(config.repository),
 				'--build-arg', 'GIT_BRANCH={}'.format(config.branch),
 				'--build-arg', 'VERBOSE_OUTPUT={}'.format('1' if config.verbose == True else '0')
 			]
-			builder.build('ue4-source', mainTags, config.platformArgs + ue4SourceArgs + endpoint.args())
+			builder.build('ue4-source', mainTags, config.platformArgs + ue4SourceArgs + credentialArgs, secrets)
 			
 			# Build the UE4 Engine source build image, unless requested otherwise by the user
 			ue4BuildArgs = prereqConsumerArgs + [

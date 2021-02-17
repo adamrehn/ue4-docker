@@ -1,7 +1,7 @@
 from .DockerUtils import DockerUtils
 from .FilesystemUtils import FilesystemUtils
 from .GlobalConfiguration import GlobalConfiguration
-import humanfriendly, os, shutil, subprocess, time
+import humanfriendly, os, shutil, subprocess, tempfile, time
 from jinja2 import Environment, Template
 
 class ImageBuilder(object):
@@ -18,7 +18,7 @@ class ImageBuilder(object):
 		self.layoutDir = layoutDir
 		self.templateContext = templateContext if templateContext is not None else {}
 	
-	def build(self, name, tags, args):
+	def build(self, name, tags, args, secrets=None):
 		'''
 		Builds the specified image if it doesn't exist or if we're forcing a rebuild
 		'''
@@ -39,15 +39,32 @@ class ImageBuilder(object):
 			''
 		])
 		
-		# Build the image if it doesn't already exist
-		imageTags = self._formatTags(name, tags)
-		self._processImage(
-			imageTags[0],
-			name,
-			DockerUtils.build(imageTags, self.context(name), args),
-			'build',
-			'built'
-		)
+		# Create a temporary directory to hold any files needed for the build
+		with tempfile.TemporaryDirectory() as tempDir:
+			
+			# Determine whether we are building using `docker buildx` with build secrets
+			imageTags = self._formatTags(name, tags)
+			command = DockerUtils.build(imageTags, self.context(name), args)
+			if self.platform == 'linux' and secrets is not None and len(secrets) > 0:
+				
+				# Create temporary files to store the contents of each of our secrets
+				secretFlags = []
+				for secret, contents in secrets.items():
+					secretFile = os.path.join(tempDir, secret)
+					FilesystemUtils.writeFile(secretFile, contents)
+					secretFlags.append('id={},src={}'.format(secret, secretFile))
+				
+				# Generate the `docker buildx` command to use our build secrets
+				command = DockerUtils.buildx(imageTags, self.context(name), args, secretFlags)
+			
+			# Build the image if it doesn't already exist
+			self._processImage(
+				imageTags[0],
+				name,
+				command,
+				'build',
+				'built'
+			)
 	
 	def context(self, name):
 		'''

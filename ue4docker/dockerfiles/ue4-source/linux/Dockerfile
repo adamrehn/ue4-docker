@@ -14,17 +14,33 @@ ARG GIT_BRANCH=""
 ARG HOST_ADDRESS_ARG=""
 ENV HOST_ADDRESS=${HOST_ADDRESS_ARG}
 
+{% if use_build_secrets %}
+
+# Install our git credential helper that retrieves credentials from build secrets
+COPY --chown=ue4:ue4 git-credential-helper-secrets.sh /tmp/git-credential-helper-secrets.sh
+ENV GIT_ASKPASS=/tmp/git-credential-helper-secrets.sh
+RUN chmod +x /tmp/git-credential-helper-secrets.sh
+
+# Clone the UE4 git repository using the build secret credentials
+RUN --mount=type=secret,id=username,uid=1000,required \
+	--mount=type=secret,id=password,uid=1000,required \
+	git clone --progress --depth=1 -b $GIT_BRANCH $GIT_REPO /home/ue4/UnrealEngine
+
+{% else %}
+
 # Retrieve the security token for communicating with the credential supplier
 ARG HOST_TOKEN_ARG=""
 ENV HOST_TOKEN=${HOST_TOKEN_ARG}
 
-# Install our git credential helper that forwards requests to the host
-COPY --chown=ue4:ue4 git-credential-helper.sh /tmp/git-credential-helper.sh
-ENV GIT_ASKPASS=/tmp/git-credential-helper.sh
-RUN chmod +x /tmp/git-credential-helper.sh
+# Install our git credential helper that forwards requests to the credential HTTP endpoint on the host
+COPY --chown=ue4:ue4 git-credential-helper-endpoint.sh /tmp/git-credential-helper-endpoint.sh
+ENV GIT_ASKPASS=/tmp/git-credential-helper-endpoint.sh
+RUN chmod +x /tmp/git-credential-helper-endpoint.sh
 
-# Clone the UE4 git repository using the host-supplied credentials
+# Clone the UE4 git repository using the endpoint-supplied credentials
 RUN git clone --progress --depth=1 -b $GIT_BRANCH $GIT_REPO /home/ue4/UnrealEngine
+
+{% endif %}
 
 # Ensure our package lists are up to date, since Setup.sh doesn't call `apt-get update`
 USER root
