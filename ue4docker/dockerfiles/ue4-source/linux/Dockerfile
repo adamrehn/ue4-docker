@@ -10,10 +10,6 @@ ARG GIT_REPO=""
 # The git branch/tag that we will checkout
 ARG GIT_BRANCH=""
 
-# Retrieve the address for the host that will supply git credentials
-ARG HOST_ADDRESS_ARG=""
-ENV HOST_ADDRESS=${HOST_ADDRESS_ARG}
-
 {% if use_build_secrets %}
 
 # Install our git credential helper that retrieves credentials from build secrets
@@ -27,6 +23,10 @@ RUN --mount=type=secret,id=username,uid=1000,required \
 	git clone --progress --depth=1 -b $GIT_BRANCH $GIT_REPO /home/ue4/UnrealEngine
 
 {% else %}
+
+# Retrieve the address for the host that will supply git credentials
+ARG HOST_ADDRESS_ARG=""
+ENV HOST_ADDRESS=${HOST_ADDRESS_ARG}
 
 # Retrieve the security token for communicating with the credential supplier
 ARG HOST_TOKEN_ARG=""
