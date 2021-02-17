@@ -30,16 +30,6 @@ if truncateDebug == True:
 			os.truncate(pdbFile, 0)
 		except:
 			log('  Warning: failed to truncate PDB file {}.'.format(pdbFile))
-	
-	# Under UE4.19, we need to delete the PDB files for AutomationTool entirely, since truncated files cause issues
-	if version['MinorVersion'] < 20:
-		pdbFiles = glob.glob(join(rootDir, 'Engine', 'Source', 'Programs', 'AutomationTool', '**', '*.pdb'), recursive=True)
-		for pdbFile in pdbFiles:
-			log('Removing PDB file {}...'.format(pdbFile))
-			try:
-				os.unlink(pdbFile)
-			except:
-				log('  Warning: failed to remove PDB file {}.'.format(pdbFile))
 
 # Determine if we are excluding the Engine's template projects and samples
 excludeTemplates = len(sys.argv) > 3 and sys.argv[3] == '1'

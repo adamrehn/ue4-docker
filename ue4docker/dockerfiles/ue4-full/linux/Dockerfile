@@ -46,9 +46,6 @@ RUN ue4 conan generate --profile-only
 # Build the Conan packages for the UE4Capture dependencies
 RUN ue4 conan build MediaIPC-ue4
 
-# Patch the problematic UE4 header files under 4.19.x (this call is a no-op under newer Engine versions)
-RUN python3 /home/ue4/UE4Capture/scripts/patch-headers.py
-
 # Enable PulseAudio support
 USER root
 RUN apt-get install -y --no-install-recommends pulseaudio-utils
