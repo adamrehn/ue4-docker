@@ -27,10 +27,12 @@ ENV GIT_ASKPASS=C:\git-credential-helper.bat
 WORKDIR C:\
 RUN git clone --progress --depth=1 -b %GIT_BRANCH% %GIT_REPO% C:\UnrealEngine
 
+{% if not disable_legacy_patches %}
 # Install legacy toolchain components if we're building UE4.19
 # (This call is a no-op under newer Engine versions)
 COPY legacy-toolchain-fix.py C:\legacy-toolchain-fix.py
 RUN python C:\legacy-toolchain-fix.py
+{% endif %}
 
 # Since the UE4 prerequisites installer appears to break when newer versions
 # of the VC++ runtime are present, patch out the prereqs call in Setup.bat

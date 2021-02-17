@@ -162,9 +162,9 @@ class BuildConfiguration(object):
 		for o in self.args.opt:
 			if '=' in o:
 				key, value = o.split('=', 1)
-				self.opts[key] = value
+				self.opts[key.replace('-', '_')] = self._processTemplateValue(value)
 			else:
-				self.opts[o] = True
+				self.opts[o.replace('-', '_')] = True
 		
 		# Generate our flags for keeping or excluding components
 		self.exclusionFlags = [
@@ -289,3 +289,13 @@ class BuildConfiguration(object):
 		
 		# If a raw version number was specified, prefix the package name and a strict equality specifier
 		return '{}=={}'.format(package, version)
+	
+	def _processTemplateValue(self, value):
+		
+		# If the value is a boolean (either raw or represented by zero or one) then parse it
+		if value.lower() in ['true', '1']:
+			return True
+		elif value.lower() in ['false', '0']:
+			return False
+		
+		return value

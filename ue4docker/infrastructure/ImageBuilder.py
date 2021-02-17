@@ -24,7 +24,7 @@ class ImageBuilder(object):
 		'''
 		
 		# Create a Jinja template environment and render the Dockerfile template
-		environment = Environment(autoescape=False)
+		environment = Environment(autoescape=False, trim_blocks=True, lstrip_blocks=True)
 		dockerfile = os.path.join(self.context(name), 'Dockerfile')
 		templateInstance = environment.from_string(FilesystemUtils.readFile(dockerfile))
 		rendered = templateInstance.render(self.templateContext)

@@ -43,12 +43,14 @@ RUN echo "set -x" >> ./root_commands.sh
 RUN echo "apt-get update" >> ./root_commands.sh
 RUN chmod a+x ./root_commands.sh
 
+{% if not disable_legacy_patches %}
 # Preinstall mono for 4.19 so the GitDependencies.exe call triggered by Setup.sh works correctly
 # (this is a no-op for newer Engine versions)
 USER root
 COPY --chown=ue4:ue4 preinstall-mono.py /tmp/preinstall-mono.py
 RUN python3 /tmp/preinstall-mono.py
 USER ue4
+{% endif %}
 
 # Apply our bugfix patches to broken Engine releases such as 4.25.4
 # (Make sure we do this before the post-clone setup steps are run)
