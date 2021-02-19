@@ -3,8 +3,10 @@ ARG BASEIMAGE
 FROM ${BASEIMAGE} AS dlls
 SHELL ["cmd", "/S", "/C"]
 
+{% if not disable_labels %}
 # Include our sentinel so `ue4-docker clean` can find this intermediate image
 LABEL com.adamrehn.ue4-docker.sentinel="1"
+{% endif %}
 
 # Create a directory in which to gather the DLL files we need 
 RUN mkdir C:\GatheredDlls
@@ -46,8 +48,10 @@ FROM ${BASEIMAGE}
 SHELL ["cmd", "/S", "/C"]
 COPY --from=dlls C:\GatheredDlls\ C:\Windows\System32\
 
+{% if not disable_labels %}
 # Add a sentinel label so we can easily identify all derived images, including intermediate images
 LABEL com.adamrehn.ue4-docker.sentinel="1"
+{% endif %}
 
 # Enable long path support
 RUN reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem /v LongPathsEnabled /t REG_DWORD /d 1 /f

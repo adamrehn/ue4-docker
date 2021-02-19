@@ -1,15 +1,16 @@
 ARG BASEIMAGE
 FROM ${BASEIMAGE}
 
+{% if not disable_labels %}
 # Add a sentinel label so we can easily identify all derived images, including intermediate images
 LABEL com.adamrehn.ue4-docker.sentinel="1"
+{% endif %}
 
 # Disable interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install our build prerequisites
-RUN \
-	apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
 		build-essential \
 		ca-certificates \
 		curl \

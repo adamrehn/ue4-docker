@@ -28,6 +28,12 @@ class ImageBuilder(object):
 		dockerfile = os.path.join(self.context(name), 'Dockerfile')
 		templateInstance = environment.from_string(FilesystemUtils.readFile(dockerfile))
 		rendered = templateInstance.render(self.templateContext)
+		
+		# Compress excess whitespace introduced during Jinja rendering and save the contents back to disk
+		# (Ensure that we still have a single trailing newline at the end of the Dockerfile)
+		while '\n\n\n' in rendered:
+			rendered = rendered.replace('\n\n\n', '\n\n')
+		rendered = rendered.rstrip('\n') + '\n'
 		FilesystemUtils.writeFile(dockerfile, rendered)
 		
 		# Inject our filesystem layer commit message after each RUN directive in the Dockerfile
