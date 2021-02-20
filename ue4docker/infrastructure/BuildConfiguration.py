@@ -1,7 +1,7 @@
 from .DockerUtils import DockerUtils
 from .PackageUtils import PackageUtils
 from .WindowsUtils import WindowsUtils
-import humanfriendly, os, platform, random
+import humanfriendly, json, os, platform, random
 from pkg_resources import parse_version
 
 # Import the `semver` package even when the conflicting `node-semver` package is present
@@ -298,4 +298,12 @@ class BuildConfiguration(object):
 		elif value.lower() in ['false', '0']:
 			return False
 		
+		# If the value is a JSON object or array then attempt to parse it
+		if (value.startswith('{') and value.endswith('}')) or (value.startswith('[') and value.endswith(']')):
+			try:
+				return json.loads(value)
+			except:
+				print('Warning: could not parse option value "{}" as JSON, treating value as a string'.format(value))
+		
+		# Treat all other values as strings
 		return value

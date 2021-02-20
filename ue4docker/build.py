@@ -1,4 +1,4 @@
-import argparse, getpass, humanfriendly, os, shutil, sys, tempfile, time
+import argparse, getpass, humanfriendly, json, os, shutil, sys, tempfile, time
 from .infrastructure import *
 from os.path import join
 
@@ -102,7 +102,7 @@ def build():
 		if len(config.opts) > 0:
 			logger.info('ADVANCED CONFIGURATION OPTIONS:', False)
 			for key, value in config.opts.items():
-				logger.info('{}: {}'.format(key, value), False)
+				logger.info('{}: {}'.format(key, json.dumps(value)), False)
 			print('', file=sys.stderr, flush=True)
 		
 		# Determine if we are building Windows or Linux containers
