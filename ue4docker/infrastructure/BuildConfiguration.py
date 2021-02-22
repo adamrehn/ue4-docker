@@ -166,6 +166,20 @@ class BuildConfiguration(object):
 			else:
 				self.opts[o.replace('-', '_')] = True
 		
+		# If the user requested an option that is only compatible with generated Dockerfiles then ensure `-layout` was specified
+		if self.layoutDir is None and self.opts.get('source_mode', 'git') != 'git':
+			raise RuntimeError('the `-layout` flag must be used when specifying a non-default value for the `source_mode` option')
+		
+		# Verify that the value for `source_mode` is valid if specified
+		validSourceModes = ['git', 'copy']
+		if self.opts.get('source_mode', 'git') not in validSourceModes:
+			raise RuntimeError('invalid value specified for the `source_mode` option, valid values are {}'.format(validSourceModes))
+		
+		# Verify that the value for `credential_mode` is valid if specified
+		validCredentialModes = ['endpoint', 'secrets'] if self.containerPlatform == 'linux' else ['endpoint']
+		if self.opts.get('credential_mode', 'endpoint') not in validCredentialModes:
+			raise RuntimeError('invalid value specified for the `credential_mode` option, valid values are {} when building {} containers'.format(validCredentialModes, self.containerPlatform.title()))
+		
 		# Generate our flags for keeping or excluding components
 		self.exclusionFlags = [
 			

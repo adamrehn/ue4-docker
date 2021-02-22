@@ -6,13 +6,21 @@ FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
 ARG VERBOSE_OUTPUT=0
 {% endif %}
 
+{% if source_mode == "copy" %}
+
+# Copy the Unreal Engine source code from the host system
+ARG SOURCE_LOCATION
+COPY ${SOURCE_LOCATION} /home/ue4/UnrealEngine
+
+{% else %}
+
 # The git repository that we will clone
 ARG GIT_REPO=""
 
 # The git branch/tag that we will checkout
 ARG GIT_BRANCH=""
 
-{% if use_build_secrets %}
+{% if credential_mode == "secrets" %}
 
 # Install our git credential helper that retrieves credentials from build secrets
 COPY --chown=ue4:ue4 git-credential-helper-secrets.sh /tmp/git-credential-helper-secrets.sh
@@ -41,6 +49,8 @@ RUN chmod +x /tmp/git-credential-helper-endpoint.sh
 
 # Clone the UE4 git repository using the endpoint-supplied credentials
 RUN git clone --progress --depth=1 -b $GIT_BRANCH $GIT_REPO /home/ue4/UnrealEngine
+
+{% endif %}
 
 {% endif %}
 

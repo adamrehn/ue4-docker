@@ -7,6 +7,14 @@ FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
 ARG VERBOSE_OUTPUT=0
 {% endif %}
 
+{% if source_mode == "copy" %}
+
+# Copy the Unreal Engine source code from the host system
+ARG SOURCE_LOCATION
+COPY ${SOURCE_LOCATION} C:\UnrealEngine
+
+{% else %}
+
 # The git repository that we will clone
 ARG GIT_REPO=""
 
@@ -28,6 +36,8 @@ ENV GIT_ASKPASS=C:\git-credential-helper.bat
 # Clone the UE4 git repository using the host-supplied credentials
 WORKDIR C:\
 RUN git clone --progress --depth=1 -b %GIT_BRANCH% %GIT_REPO% C:\UnrealEngine
+
+{% endif %}
 
 {% if (not disable_all_patches) and (not disable_prerequisites_patch) %}
 # Since the UE4 prerequisites installer appears to break when newer versions
