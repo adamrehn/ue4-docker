@@ -39,7 +39,7 @@ RUN git clone --progress --depth=1 -b %GIT_BRANCH% %GIT_REPO% C:\UnrealEngine
 
 {% endif %}
 
-{% if (not disable_all_patches) and (not disable_prerequisites_patch) %}
+{% if (not disable_all_patches) and (not disable_windows_setup_patch) %}
 # Since the UE4 prerequisites installer appears to break when newer versions
 # of the VC++ runtime are present, patch out the prereqs call in Setup.bat
 COPY patch-setup-win.py C:\patch-setup-win.py
