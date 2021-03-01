@@ -38,7 +38,7 @@ ARG EXCLUDE_DEBUG
 ARG EXCLUDE_TEMPLATES
 WORKDIR /home/ue4/UnrealEngine
 COPY exclude-components.py /tmp/exclude-components.py
-RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true -set:WithDDC=$BUILD_DDC && \
+RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true -set:WithDDC=$BUILD_DDC {{ buildgraph_args }} && \
 	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC{%+ if not separate_exclude_step %} && \
 	{%+ else %}
 

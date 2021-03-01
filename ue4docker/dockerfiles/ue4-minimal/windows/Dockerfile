@@ -32,7 +32,7 @@ ARG EXCLUDE_DEBUG
 ARG EXCLUDE_TEMPLATES
 WORKDIR C:\UnrealEngine
 COPY exclude-components.py C:\exclude-components.py
-RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph -target="Make Installed Build Win64" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true -set:WithDDC=%BUILD_DDC% && `
+RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph -target="Make Installed Build Win64" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true -set:WithDDC=%BUILD_DDC% {{ buildgraph_args }} && `
 	del /s /q C:\UnrealEngine\LocalBuilds\InstalledDDC 2>NUL{%+ if not separate_exclude_step %} && `
 	{%+ else %}
 
