@@ -32,17 +32,16 @@ RUN python3 /tmp/patch-build-graph.py /home/ue4/UnrealEngine/Engine/Build/Instal
 RUN ./Engine/Build/BatchFiles/Linux/Build.sh UE4Editor Linux Development -Clean
 
 # Create an Installed Build of the Engine
-# (We can optionally remove debug symbols and/or template projects in order to reduce the final container image size)
 ARG BUILD_DDC
-ARG EXCLUDE_DEBUG
-ARG EXCLUDE_TEMPLATES
 WORKDIR /home/ue4/UnrealEngine
 COPY exclude-components.py /tmp/exclude-components.py
 RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true -set:WithDDC=$BUILD_DDC {{ buildgraph_args }} && \
-	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC{%+ if not separate_exclude_step %} && \
-	{%+ else %}
+	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC
 
-RUN {%+ endif %}python3 /tmp/exclude-components.py /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux $EXCLUDE_DEBUG $EXCLUDE_TEMPLATES
+# Determine if we are removing debug symbols and/or template projects in order to reduce the final container image size
+ARG EXCLUDE_DEBUG
+ARG EXCLUDE_TEMPLATES
+RUN python3 /tmp/exclude-components.py /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux $EXCLUDE_DEBUG $EXCLUDE_TEMPLATES
 
 {% if (not disable_all_patches) and (not disable_target_patches) %}
 # Ensure Client and Server targets have their `PlatformType` field set correctly in BaseEngine.ini

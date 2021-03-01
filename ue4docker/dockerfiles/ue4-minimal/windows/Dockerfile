@@ -26,17 +26,16 @@ RUN python C:\patch-build-graph.py C:\UnrealEngine\Engine\Build\InstalledEngineB
 {% endif %}
 
 # Create an Installed Build of the Engine
-# (We can optionally remove debug symbols and/or template projects in order to reduce the final container image size)
 ARG BUILD_DDC
-ARG EXCLUDE_DEBUG
-ARG EXCLUDE_TEMPLATES
 WORKDIR C:\UnrealEngine
 COPY exclude-components.py C:\exclude-components.py
 RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph -target="Make Installed Build Win64" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true -set:WithDDC=%BUILD_DDC% {{ buildgraph_args }} && `
-	del /s /q C:\UnrealEngine\LocalBuilds\InstalledDDC 2>NUL{%+ if not separate_exclude_step %} && `
-	{%+ else %}
+	del /s /q C:\UnrealEngine\LocalBuilds\InstalledDDC 2>NUL
 
-RUN {%+ endif %}python C:\exclude-components.py C:\UnrealEngine\LocalBuilds\Engine\Windows %EXCLUDE_DEBUG% %EXCLUDE_TEMPLATES%
+# Determine if we are removing debug symbols and/or template projects in order to reduce the final container image size
+ARG EXCLUDE_DEBUG
+ARG EXCLUDE_TEMPLATES
+RUN python C:\exclude-components.py C:\UnrealEngine\LocalBuilds\Engine\Windows %EXCLUDE_DEBUG% %EXCLUDE_TEMPLATES%
 
 {% if (not disable_all_patches) and (not disable_target_patches) %}
 # Ensure Client and Server targets have their `PlatformType` field set correctly in BaseEngine.ini
