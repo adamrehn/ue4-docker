@@ -72,7 +72,7 @@ def build():
 		shutil.copytree(contextOrig, contextRoot)
 		
 		# Create the builder instance to build the Docker images
-		builder = ImageBuilder(contextRoot, config.containerPlatform, logger, config.rebuild, config.dryRun, config.layoutDir, config.opts)
+		builder = ImageBuilder(contextRoot, config.containerPlatform, logger, config.rebuild, config.dryRun, config.layoutDir, config.opts, config.combine)
 		
 		# Resolve our main set of tags for the generated images
 		mainTags = ['{}{}-{}'.format(config.release, config.suffix, config.prereqsTag), config.release + config.suffix]

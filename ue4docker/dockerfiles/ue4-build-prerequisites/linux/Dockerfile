@@ -1,5 +1,5 @@
 ARG BASEIMAGE
-FROM ${BASEIMAGE}
+FROM ${BASEIMAGE} as prerequisites
 
 {% if not disable_labels %}
 # Add a sentinel label so we can easily identify all derived images, including intermediate images

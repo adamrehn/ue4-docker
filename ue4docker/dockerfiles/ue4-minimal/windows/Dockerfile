@@ -1,8 +1,12 @@
 # escape=`
+{% if combine %}
+FROM source as builder
+{% else %}
 ARG NAMESPACE
 ARG TAG
 ARG PREREQS_TAG
 FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
+{% endif %}
 
 # Remove the .git directory to disable UBT `git status` calls and speed up the build process
 RUN del /s /q C:\UnrealEngine\.git
@@ -39,7 +43,11 @@ RUN python C:\fix-targets.py C:\UnrealEngine\LocalBuilds\Engine\Windows\Engine\C
 {% endif %}
 
 # Copy the Installed Build into a clean image, discarding the source tree
+{% if combine %}
+FROM prerequisites as minimal
+{% else %}
 FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
+{% endif %}
 COPY --from=builder C:\UnrealEngine\LocalBuilds\Engine\Windows C:\UnrealEngine
 WORKDIR C:\UnrealEngine
 

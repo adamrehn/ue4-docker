@@ -1,7 +1,11 @@
+{% if combine %}
+FROM source as builder
+{% else %}
 ARG NAMESPACE
 ARG TAG
 ARG PREREQS_TAG
 FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
+{% endif %}
 
 # Remove the .git directory to disable UBT `git status` calls and speed up the build process
 RUN rm -rf /home/ue4/UnrealEngine/.git
@@ -56,7 +60,11 @@ RUN python3 /tmp/copy-toolchain.py /home/ue4/UnrealEngine
 {% endif %}
 
 # Copy the Installed Build into a clean image, discarding the source build
+{% if combine %}
+FROM prerequisites as minimal
+{% else %}
 FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
+{% endif %}
 
 # Copy the Installed Build files from the builder image
 COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux /home/ue4/UnrealEngine

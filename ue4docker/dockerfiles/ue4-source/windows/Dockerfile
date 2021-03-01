@@ -1,6 +1,10 @@
 # escape=`
+{% if combine %}
+FROM prerequisites as source
+{% else %}
 ARG PREREQS_TAG
 FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
+{% endif %}
 
 {% if not disable_all_patches %}
 # Enable verbose output for steps that patch files?

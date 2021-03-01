@@ -1,12 +1,13 @@
 from .DockerUtils import DockerUtils
 from .FilesystemUtils import FilesystemUtils
 from .GlobalConfiguration import GlobalConfiguration
-import humanfriendly, os, shutil, subprocess, tempfile, time
+import glob, humanfriendly, os, shutil, subprocess, tempfile, time
+from os.path import basename, exists, join
 from jinja2 import Environment, Template
 
 class ImageBuilder(object):
 	
-	def __init__(self, root, platform, logger, rebuild=False, dryRun=False, layoutDir=None, templateContext=None):
+	def __init__(self, root, platform, logger, rebuild=False, dryRun=False, layoutDir=None, templateContext=None, combine=False):
 		'''
 		Creates an ImageBuilder for the specified build parameters
 		'''
@@ -17,6 +18,7 @@ class ImageBuilder(object):
 		self.dryRun = dryRun
 		self.layoutDir = layoutDir
 		self.templateContext = templateContext if templateContext is not None else {}
+		self.combine = combine
 	
 	def build(self, name, tags, args, secrets=None):
 		'''
@@ -25,7 +27,7 @@ class ImageBuilder(object):
 		
 		# Create a Jinja template environment and render the Dockerfile template
 		environment = Environment(autoescape=False, trim_blocks=True, lstrip_blocks=True)
-		dockerfile = os.path.join(self.context(name), 'Dockerfile')
+		dockerfile = join(self.context(name), 'Dockerfile')
 		templateInstance = environment.from_string(FilesystemUtils.readFile(dockerfile))
 		rendered = templateInstance.render(self.templateContext)
 		
@@ -33,7 +35,7 @@ class ImageBuilder(object):
 		# (Ensure that we still have a single trailing newline at the end of the Dockerfile)
 		while '\n\n\n' in rendered:
 			rendered = rendered.replace('\n\n\n', '\n\n')
-		rendered = rendered.rstrip('\n') + '\n'
+		rendered = rendered.strip('\n') + '\n'
 		FilesystemUtils.writeFile(dockerfile, rendered)
 		
 		# Inject our filesystem layer commit message after each RUN directive in the Dockerfile
@@ -56,7 +58,7 @@ class ImageBuilder(object):
 				# Create temporary files to store the contents of each of our secrets
 				secretFlags = []
 				for secret, contents in secrets.items():
-					secretFile = os.path.join(tempDir, secret)
+					secretFile = join(tempDir, secret)
 					FilesystemUtils.writeFile(secretFile, contents)
 					secretFlags.append('id={},src={}'.format(secret, secretFile))
 				
@@ -76,7 +78,7 @@ class ImageBuilder(object):
 		'''
 		Resolve the full path to the build context for the specified image
 		'''
-		return os.path.join(self.root, os.path.basename(name), self.platform)
+		return join(self.root, basename(name), self.platform)
 	
 	def pull(self, image):
 		'''
@@ -128,11 +130,42 @@ class ImageBuilder(object):
 		
 		# Determine if we're just copying the Dockerfile to an output directory
 		if self.layoutDir is not None:
+			
+			# Determine whether we're performing a simple copy or combining generated Dockerfiles
 			source = self.context(name)
-			dest = os.path.join(self.layoutDir, os.path.basename(name))
-			self.logger.action('Copying "{}" to "{}"...'.format(source, dest), newline=False)
-			shutil.copytree(source, dest)
-			self.logger.action('Copied Dockerfile for image "{}".'.format(image), newline=False)
+			if self.combine == True:
+				
+				# Ensure the destination directory exists
+				dest = join(self.layoutDir, 'combined')
+				self.logger.action('Merging "{}" into "{}"...'.format(source, dest), newline=False)
+				os.makedirs(dest, exist_ok=True)
+				
+				# Merge the source Dockerfile with any existing Dockerfile contents in the destination directory
+				# (Insert a single newline between merged file contents and ensure we have a single trailing newline)
+				sourceDockerfile = join(source, 'Dockerfile')
+				destDockerfile = join(dest, 'Dockerfile')
+				dockerfileContents = FilesystemUtils.readFile(destDockerfile) if exists(destDockerfile) else ''
+				dockerfileContents = dockerfileContents + '\n' + FilesystemUtils.readFile(sourceDockerfile)
+				dockerfileContents = dockerfileContents.strip('\n') + '\n'
+				FilesystemUtils.writeFile(destDockerfile, dockerfileContents)
+				
+				# Copy any supplemental files from the source directory to the destination directory
+				# (Exclude any extraneous files which are not referenced in the Dockerfile contents)
+				for file in glob.glob(join(source, '*.*')):
+					if basename(file) in dockerfileContents:
+						shutil.copy(file, join(dest, basename(file)))
+				
+				# Report our success
+				self.logger.action('Merged Dockerfile for image "{}".'.format(image), newline=False)
+				
+			else:
+				
+				# Copy the source directory to the destination
+				dest = join(self.layoutDir, basename(name))
+				self.logger.action('Copying "{}" to "{}"...'.format(source, dest), newline=False)
+				shutil.copytree(source, dest)
+				self.logger.action('Copied Dockerfile for image "{}".'.format(image), newline=False)
+				
 			return
 		
 		# Attempt to process the image using the supplied command

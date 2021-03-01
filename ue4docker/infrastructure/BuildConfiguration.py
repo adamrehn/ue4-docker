@@ -89,6 +89,7 @@ class BuildConfiguration(object):
 		parser.add_argument('-ue4cli', default=None, help='Override the default version of ue4cli installed in the ue4-full image')
 		parser.add_argument('-conan-ue4cli', default=None, help='Override the default version of conan-ue4cli installed in the ue4-full image')
 		parser.add_argument('-layout', default=None, help='Copy generated Dockerfiles to the specified directory and don\'t build the images')
+		parser.add_argument('--combine', action='store_true', help='Combine generated Dockerfiles into a single multi-stage build Dockerfile')
 		parser.add_argument('--monitor', action='store_true', help='Monitor resource usage during builds (useful for debugging)')
 		parser.add_argument('-interval', type=float, default=20.0, help='Sampling interval in seconds when resource monitoring has been enabled using --monitor (default is 20 seconds)')
 		parser.add_argument('--ignore-blacklist', action='store_true', help='Run builds even on blacklisted versions of Windows (advanced use only)')
@@ -152,6 +153,7 @@ class BuildConfiguration(object):
 		self.ignoreBlacklist = self.args.ignore_blacklist
 		self.verbose = self.args.verbose
 		self.layoutDir = self.args.layout
+		self.combine = self.args.combine
 		
 		# If the user specified custom version strings for ue4cli and/or conan-ue4cli, process them
 		self.ue4cliVersion = self._processPackageVersion('ue4cli', self.args.ue4cli)
@@ -166,9 +168,19 @@ class BuildConfiguration(object):
 			else:
 				self.opts[o.replace('-', '_')] = True
 		
+		# If we are generating Dockerfiles then generate them for all images that have not been explicitly excluded
+		if self.layoutDir is not None:
+			self.rebuild = True
+		
+		# If we are generating Dockerfiles and combining them then set the corresponding Jinja context value
+		if self.layoutDir is not None and self.combine == True:
+			self.opts['combine'] = True
+		
 		# If the user requested an option that is only compatible with generated Dockerfiles then ensure `-layout` was specified
 		if self.layoutDir is None and self.opts.get('source_mode', 'git') != 'git':
 			raise RuntimeError('the `-layout` flag must be used when specifying a non-default value for the `source_mode` option')
+		if self.layoutDir is None and self.combine == True:
+			raise RuntimeError('the `-layout` flag must be used when specifying the `--combine` flag')
 		
 		# Verify that the value for `source_mode` is valid if specified
 		validSourceModes = ['git', 'copy']

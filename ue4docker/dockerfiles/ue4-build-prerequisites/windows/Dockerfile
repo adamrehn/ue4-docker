@@ -44,7 +44,7 @@ RUN choco install -y windows-sdk-10-version-1809-windbg
 RUN C:\copy.py "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\pdbcopy.exe" C:\GatheredDlls\
 
 # Copy our gathered DLLs (and pdbcopy.exe) into a clean image to reduce image size
-FROM ${BASEIMAGE}
+FROM ${BASEIMAGE} as prerequisites
 SHELL ["cmd", "/S", "/C"]
 COPY --from=dlls C:\GatheredDlls\ C:\Windows\System32\
 

@@ -1,9 +1,13 @@
+ARG UE4CLI_VERSION="ue4cli>=0.0.45"
+ARG CONAN_UE4CLI_VERSION="conan-ue4cli>=0.0.27"
+{% if combine %}
+FROM source as conan
+{% else %}
 ARG NAMESPACE
 ARG TAG
 ARG PREREQS_TAG
-ARG UE4CLI_VERSION="ue4cli>=0.0.45"
-ARG CONAN_UE4CLI_VERSION="conan-ue4cli>=0.0.27"
-FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
+FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS conan
+{% endif %}
 ARG UE4CLI_VERSION
 ARG CONAN_UE4CLI_VERSION
 
@@ -18,7 +22,11 @@ RUN ue4 setroot /home/ue4/UnrealEngine
 RUN ue4 conan generate
 
 # Copy the generated Conan packages into a new image with our Installed Build
+{% if combine %}
+FROM minimal as full
+{% else %}
 FROM ${NAMESPACE}/ue4-minimal:${TAG}-${PREREQS_TAG}
+{% endif %}
 ARG UE4CLI_VERSION
 ARG CONAN_UE4CLI_VERSION
 
@@ -36,8 +44,8 @@ USER ue4
 # (This prevents things from breaking when using CI/CD systems that override the $HOME environment variable)
 ENV UE4CLI_CONFIG_DIR /home/ue4/.config/ue4cli
 
-# Copy the Conan configuration settings and package cache from the builder image
-COPY --from=builder --chown=ue4:ue4 /home/ue4/.conan /home/ue4/.conan
+# Copy the Conan configuration settings and package cache from the previous build stage
+COPY --from=conan --chown=ue4:ue4 /home/ue4/.conan /home/ue4/.conan
 
 # Install conan-ue4cli (just generate the profile, since we've already copied the generated packages)
 RUN ue4 setroot /home/ue4/UnrealEngine
