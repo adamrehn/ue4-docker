@@ -33,8 +33,10 @@ ARG EXCLUDE_TEMPLATES
 WORKDIR C:\UnrealEngine
 COPY exclude-components.py C:\exclude-components.py
 RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph -target="Make Installed Build Win64" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true -set:WithDDC=%BUILD_DDC% && `
-	del /s /q C:\UnrealEngine\LocalBuilds\InstalledDDC 2>NUL && `
-	python C:\exclude-components.py C:\UnrealEngine\LocalBuilds\Engine\Windows %EXCLUDE_DEBUG% %EXCLUDE_TEMPLATES%
+	del /s /q C:\UnrealEngine\LocalBuilds\InstalledDDC 2>NUL{%+ if not separate_exclude_step %} && `
+	{%+ else %}
+
+RUN {%+ endif %}python C:\exclude-components.py C:\UnrealEngine\LocalBuilds\Engine\Windows %EXCLUDE_DEBUG% %EXCLUDE_TEMPLATES%
 
 {% if (not disable_all_patches) and (not disable_target_patches) %}
 # Ensure Client and Server targets have their `PlatformType` field set correctly in BaseEngine.ini
