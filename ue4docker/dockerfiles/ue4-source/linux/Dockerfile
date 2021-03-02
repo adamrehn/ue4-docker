@@ -67,8 +67,9 @@ RUN python3 /tmp/patch-broken-releases.py /home/ue4/UnrealEngine $VERBOSE_OUTPUT
 
 # Run post-clone setup steps, ensuring our package lists are up to date since Setup.sh doesn't call `apt-get update`
 WORKDIR /home/ue4/UnrealEngine
+# -no-cache disables GitDependencies.exe saving a copy of all dependencies in .git/ue4-gitdeps (around 9GB)
 RUN sudo apt-get update && \
-	./Setup.sh && \
+	./Setup.sh -no-cache && \
 	sudo rm -rf /var/lib/apt/lists/*
 
 {% if (not disable_all_patches) and (not disable_linker_fixup) %}
