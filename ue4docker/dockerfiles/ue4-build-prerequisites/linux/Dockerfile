@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		ca-certificates \
 		curl \
 		git \
+		git-lfs \
 		python3 \
 		python3-dev \
 		python3-pip \
@@ -34,3 +35,6 @@ RUN useradd --create-home --home /home/ue4 --shell /bin/bash --uid 1000 ue4 && \
 	passwd -d ue4 && \
 	usermod -a -G audio,video,sudo ue4
 USER ue4
+
+# Enable Git Large File Storage (LFS) support
+RUN git lfs install
