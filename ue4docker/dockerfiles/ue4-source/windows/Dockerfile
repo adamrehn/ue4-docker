@@ -58,8 +58,8 @@ RUN python C:\patch-broken-releases.py C:\UnrealEngine %VERBOSE_OUTPUT%
 {% endif %}
 
 # Run post-clone setup steps
+# (Note that the `-no-cache` flag disables caching of dependency data in `.git/ue4-gitdeps`, saving disk space)
 WORKDIR C:\UnrealEngine
-# -no-cache disables GitDependencies.exe saving a copy of all dependencies in .git/ue4-gitdeps (around 9GB)
 RUN Setup.bat -no-cache
 
 {% if (not disable_all_patches) and (not disable_example_platform_cleanup) %}
