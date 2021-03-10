@@ -45,7 +45,7 @@ setup(
 		'packaging>=19.1',
 		'psutil',
 		'requests',
-		'semver>=2.7.9',
+		'semver>=2.7.9,<3.0.0',
 		'setuptools>=38.6.0',
 		'termcolor',
 		'twine>=1.11.0',
