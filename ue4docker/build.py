@@ -162,7 +162,7 @@ def build():
 				logger.error('SETUP REQUIRED:')
 				logger.error('The max image size for Windows containers must be set to at least {}GB.'.format(requiredLimit))
 				logger.error('See the Microsoft documentation for configuration instructions:')
-				logger.error('https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container#step-4-expand-maximum-container-disk-size')
+				logger.error('https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/container-storage#storage-limits')
 				logger.error('Under Windows Server, the command `{} setup` can be used to automatically configure the system.'.format(sys.argv[0]))
 				sys.exit(1)
 			
