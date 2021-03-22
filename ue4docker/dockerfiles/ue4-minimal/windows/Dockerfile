@@ -30,7 +30,7 @@ ARG BUILD_DDC
 WORKDIR C:\UnrealEngine
 COPY exclude-components.py C:\exclude-components.py
 RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph -target="Make Installed Build Win64" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true -set:WithDDC=%BUILD_DDC% {{ buildgraph_args }} && `
-	rmdir /s /q C:\UnrealEngine\LocalBuilds\InstalledDDC 2>NUL
+	(if exist C:\UnrealEngine\LocalBuilds\InstalledDDC rmdir /s /q C:\UnrealEngine\LocalBuilds\InstalledDDC)
 
 # Determine if we are removing debug symbols and/or template projects in order to reduce the final container image size
 ARG EXCLUDE_DEBUG
