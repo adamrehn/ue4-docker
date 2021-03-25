@@ -79,3 +79,10 @@ ARG EXCLUDE_TEMPLATES
 LABEL com.adamrehn.ue4-docker.excluded.debug=${EXCLUDE_DEBUG}
 LABEL com.adamrehn.ue4-docker.excluded.templates=${EXCLUDE_TEMPLATES}
 {% endif %}
+
+# Perform first-run setup for Mono, UnrealBuildTool and AutomationTool, which makes it possible to build Unreal projects and plugins as users other than `ue4`
+# (Note that this will only work with 4.26.0 and newer, older Engine versions will always require write access to `/home/ue4/UnrealEngine`)
+# See the comments on this issue for details, including the need to ensure $HOME is set correctly: <https://github.com/adamrehn/ue4-docker/issues/141>
+RUN ./Engine/Build/BatchFiles/Linux/Build.sh UE4Editor Linux Development -NoUBTMakefiles -SkipBuild && \
+	mkdir -p ./Engine/Programs/AutomationTool/Saved && \
+	chmod a+rw ./Engine/Programs/AutomationTool/Saved
