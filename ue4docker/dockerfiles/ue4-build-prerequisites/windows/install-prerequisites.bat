@@ -10,7 +10,7 @@ call refreshenv
 @rem Forcibly disable the git credential manager
 git config --system credential.helper "" || goto :error
 
-@rem Install the Visual Studio 2017 Build Tools workloads and components we need, excluding components with known issues in containers
+@rem Install the Visual Studio 2017 Build Tools workloads and components we need
 @rem (Note that we use the Visual Studio 2019 installer here because the old installer now breaks, but explicitly install the VS2017 Build Tools)
 curl --progress -L "https://aka.ms/vs/16/release/vs_buildtools.exe" --output %TEMP%\vs_buildtools.exe || goto :error
 %TEMP%\vs_buildtools.exe --quiet --wait --norestart --nocache ^
@@ -19,12 +19,14 @@ curl --progress -L "https://aka.ms/vs/16/release/vs_buildtools.exe" --output %TE
 	--installChannelUri "https://aka.ms/vs/15/release/channel" ^
 	--channelId VisualStudio.15.Release ^
 	--productId Microsoft.VisualStudio.Product.BuildTools ^
-	--add Microsoft.VisualStudio.Workload.VCTools;includeRecommended ^
-	--add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools;includeRecommended ^
-	--add Microsoft.VisualStudio.Workload.UniversalBuildTools ^
-	--add Microsoft.VisualStudio.Workload.NetCoreBuildTools ^
+	--add Microsoft.VisualStudio.Workload.VCTools ^
 	--add Microsoft.VisualStudio.Workload.MSBuildTools ^
-	--add Microsoft.VisualStudio.Component.NuGet
+	--add Microsoft.VisualStudio.Component.NuGet ^
+	--add Microsoft.VisualStudio.Component.Roslyn.Compiler ^
+	--add Microsoft.VisualStudio.Component.Windows10SDK.17763 ^
+	--add Microsoft.Net.Component.4.5.TargetingPack ^
+	--add Microsoft.Net.Component.4.6.2.SDK ^
+	--add Microsoft.Net.Component.4.6.2.TargetingPack
 python C:\buildtools-exitcode.py %ERRORLEVEL% || goto :error
 
 @rem Copy pdbcopy.exe to the expected location(s)
