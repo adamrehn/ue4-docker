@@ -22,7 +22,7 @@ class WindowsUtils(object):
 	_blacklistedReleases = ['1903', '1909']
 	
 	# The list of Windows Server Core container image releases that are unsupported due to having reached EOL
-	_eolReleases = ['1709']
+	_eolReleases = ['1709', '1803', '1903']
 	
 	@staticmethod
 	def _getVersionRegKey(subkey):
