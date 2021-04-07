@@ -7,4 +7,4 @@ SHELL ["cmd", "/S", "/C"]
 LABEL com.adamrehn.ue4-docker.sentinel="1"
 
 # Attempt to download the Chocolatey installation script
-RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "(New-Object System.Net.WebClient).DownloadFile('https://chocolatey.org/install.ps1', 'install.ps1')"
+RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; (New-Object System.Net.WebClient).DownloadFile('https://chocolatey.org/install.ps1', 'install.ps1')"
