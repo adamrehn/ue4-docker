@@ -27,7 +27,7 @@ RUN C:\copy.py "C:\GatheredDlls\*.dll" C:\Windows\System32\
 RUN python C:\verify-host-dlls.py %HOST_VERSION% C:\GatheredDlls
 
 # Gather the required DirectX runtime files, since Windows Server Core does not include them
-RUN curl --progress -L "https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe" --output %TEMP%\directx_redist.exe
+RUN curl --progress-bar -L "https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe" --output %TEMP%\directx_redist.exe
 RUN start /wait %TEMP%\directx_redist.exe /Q /T:%TEMP% && `
 	expand %TEMP%\APR2007_xinput_x64.cab -F:xinput1_3.dll C:\GatheredDlls\ && `
 	expand %TEMP%\Jun2010_D3DCompiler_43_x64.cab -F:D3DCompiler_43.dll C:\GatheredDlls\ && `
@@ -36,7 +36,7 @@ RUN start /wait %TEMP%\directx_redist.exe /Q /T:%TEMP% && `
 	expand %TEMP%\Jun2010_XAudio_x64.cab -F:XAudio2_7.dll C:\GatheredDlls\
 
 # Gather the Vulkan runtime library
-RUN curl --progress -L "https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-runtime-components.zip?u=" --output %TEMP%\vulkan-runtime-components.zip
+RUN curl --progress-bar -L "https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-runtime-components.zip?u=" --output %TEMP%\vulkan-runtime-components.zip
 RUN 7z e %TEMP%\vulkan-runtime-components.zip -oC:\GatheredDlls -y "*\x64\vulkan-1.dll"
 
 # Gather pdbcopy.exe (needed for creating an Installed Build of the Engine)
