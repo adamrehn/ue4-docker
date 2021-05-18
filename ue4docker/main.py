@@ -27,8 +27,9 @@ def main():
 			sys.argv = list([arg for arg in sys.argv if arg not in ['-v', '--verbose']])
 	
 	# Verify that Docker is installed
-	if DockerUtils.installed() == False:
-		_exitWithError('Error: could not detect Docker daemon version. Please ensure Docker is installed.')
+	installed, error = DockerUtils.installed()
+	if installed == False:
+		_exitWithError('Error: could not detect Docker daemon version. Please ensure Docker is installed.\n\nError details: {}'.format(error))
 	
 	# Under Windows, verify that the host is a supported version
 	if platform.system() == 'Windows' and WindowsUtils.isSupportedWindowsVersion() == False:

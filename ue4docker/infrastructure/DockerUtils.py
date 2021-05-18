@@ -9,10 +9,10 @@ class DockerUtils(object):
 		Determines if Docker is installed
 		'''
 		try:
-			return DockerUtils.version() is not None
+			return (DockerUtils.version() is not None), None
 		except Exception as e:
 			logging.debug(str(e))
-			return False
+			return False, e
 	
 	@staticmethod
 	def version():
