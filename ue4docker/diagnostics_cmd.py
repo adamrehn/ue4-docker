@@ -8,6 +8,7 @@ def diagnostics():
 	DIAGNOSTICS = {
 		'all': allDiagnostics(),
 		'8gig': diagnostic8Gig(),
+		'20gig': diagnostic20Gig(),
 		'maxsize': diagnosticMaxSize(),
 		'network': diagnosticNetwork()
 	}
