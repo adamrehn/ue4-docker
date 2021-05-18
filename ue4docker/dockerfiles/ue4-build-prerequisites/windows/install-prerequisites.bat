@@ -12,7 +12,7 @@ git config --system credential.helper "" || goto :error
 
 @rem Install the Visual Studio 2017 Build Tools workloads and components we need, excluding components with known issues in containers
 @rem (Note that we use the Visual Studio 2019 installer here because the old installer now breaks, but explicitly install the VS2017 Build Tools)
-curl --progress -L "https://aka.ms/vs/16/release/vs_buildtools.exe" --output %TEMP%\vs_buildtools.exe || goto :error
+curl --progress-bar -L "https://aka.ms/vs/16/release/vs_buildtools.exe" --output %TEMP%\vs_buildtools.exe || goto :error
 %TEMP%\vs_buildtools.exe --quiet --wait --norestart --nocache ^
 	--installPath C:\BuildTools ^
 	--channelUri "https://aka.ms/vs/15/release/channel" ^
