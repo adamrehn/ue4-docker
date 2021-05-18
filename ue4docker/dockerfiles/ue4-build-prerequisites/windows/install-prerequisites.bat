@@ -19,6 +19,7 @@ curl --progress-bar -L "https://aka.ms/vs/16/release/vs_buildtools.exe" --output
 	--installChannelUri "https://aka.ms/vs/15/release/channel" ^
 	--channelId VisualStudio.15.Release ^
 	--productId Microsoft.VisualStudio.Product.BuildTools ^
+	--locale en-US ^
 	--add Microsoft.VisualStudio.Workload.VCTools ^
 	--add Microsoft.VisualStudio.Workload.MSBuildTools ^
 	--add Microsoft.VisualStudio.Component.NuGet ^
