@@ -1,6 +1,8 @@
+.idea/
 .vscode/
 __pycache__/
 build
 dist
+venv/
 *.egg-info
 *.pyc
