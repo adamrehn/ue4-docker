@@ -17,19 +17,19 @@ rootDir = sys.argv[1]
 version = json.loads(readFile(join(rootDir, 'Engine', 'Build', 'Build.version')))
 
 # Determine if we are excluding debug symbols
-truncateDebug = len(sys.argv) > 2 and sys.argv[2] == '1'
-if truncateDebug == True:
+excludeDebug = len(sys.argv) > 2 and sys.argv[2] == '1'
+if excludeDebug == True:
 	
-	# Truncate all PDB files to save space whilst avoiding the issues that would be caused by the files being missing
-	log('User opted to exclude debug symbols, truncating all PDB files.')
+	# Remove all PDB files to save space
+	log('User opted to exclude debug symbols, removing all PDB files.')
 	log('Scanning for PDB files in directory {}...'.format(rootDir))
 	pdbFiles = glob.glob(join(rootDir, '**', '*.pdb'), recursive=True)
 	for pdbFile in pdbFiles:
-		log('Truncating PDB file {}...'.format(pdbFile))
+		log('Removing PDB file {}...'.format(pdbFile))
 		try:
-			os.truncate(pdbFile, 0)
+			os.remove(pdbFile)
 		except:
-			log('  Warning: failed to truncate PDB file {}.'.format(pdbFile))
+			log('  Warning: failed to remove PDB file {}.'.format(pdbFile))
 
 # Determine if we are excluding the Engine's template projects and samples
 excludeTemplates = len(sys.argv) > 3 and sys.argv[3] == '1'
