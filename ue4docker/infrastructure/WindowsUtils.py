@@ -1,17 +1,11 @@
 from .DockerUtils import DockerUtils
 from pkg_resources import parse_version
-import platform, sys
+import platform, requests, sys
 
 if platform.system() == 'Windows':
 	import winreg
 
 class WindowsUtils(object):
-
-	# The latest Windows build version we recognise as a non-Insider build
-	_latestReleaseBuild = 19042
-
-	# The list of Windows Server Core base image tags that we recognise, in ascending version number order
-	_validTags = ['ltsc2016', '1709', '1803', 'ltsc2019', '1903', '1909', '2004', '20H2']
 
 	# The list of Windows Server and Windows 10 host OS releases that are blacklisted due to critical bugs
 	# (See: <https://unrealcontainers.com/docs/concepts/windows-containers>)
@@ -76,7 +70,13 @@ class WindowsUtils(object):
 		'''
 		Determines the Windows 10 / Windows Server release (1607, 1709, 1803, etc.) of the Windows host system
 		'''
-		return WindowsUtils._getVersionRegKey('ReleaseId')
+		try:
+			# Starting with Windows 20H2 (also known as 2009), Microsoft stopped updating ReleaseId
+			# and instead updates DisplayVersion
+			return WindowsUtils._getVersionRegKey('DisplayVersion')
+		except FileNotFoundError:
+			# Fallback to ReleaseId for pre-20H2 releases that didn't have DisplayVersion
+			return WindowsUtils._getVersionRegKey('ReleaseId')
 
 	@staticmethod
 	def getWindowsBuild() -> int:
@@ -113,54 +113,11 @@ class WindowsUtils(object):
 		return 'Windows Server' in WindowsUtils._getVersionRegKey('ProductName')
 
 	@staticmethod
-	def isInsiderPreview() -> bool:
-		'''
-		Determines if the Windows host system is a Windows Insider preview build
-		'''
-		return WindowsUtils.getWindowsBuild() > WindowsUtils._latestReleaseBuild
-
-	@staticmethod
-	def getReleaseBaseTag(release: str) -> str:
-		'''
-		Retrieves the tag for the Windows Server Core base image matching the specified Windows 10 / Windows Server release
-		'''
-
-		# For Windows Insider preview builds, build the latest release tag
-		if WindowsUtils.isInsiderPreview():
-			return WindowsUtils._validTags[-1]
-
-		# This lookup table is based on the list of valid tags from <https://hub.docker.com/r/microsoft/windowsservercore/>
-		return {
-			'1709': '1709',
-			'1803': '1803',
-			'1809': 'ltsc2019',
-			'1903': '1903',
-			'1909': '1909',
-			'2004': '2004',
-			'2009': '20H2',
-			'20H2': '20H2'
-		}.get(release, 'ltsc2016')
-
-	@staticmethod
 	def getValidBaseTags() -> [str]:
 		'''
 		Returns the list of valid tags for the Windows Server Core base image, in ascending chronological release order
 		'''
-		return WindowsUtils._validTags
-
-	@staticmethod
-	def isValidBaseTag(tag: str) -> bool:
-		'''
-		Determines if the specified tag is a valid Windows Server Core base image tag
-		'''
-		return tag in WindowsUtils._validTags
-
-	@staticmethod
-	def isNewerBaseTag(older: str, newer: str) -> bool:
-		'''
-		Determines if the base tag `newer` is chronologically newer than the base tag `older`
-		'''
-		return WindowsUtils._validTags.index(newer) > WindowsUtils._validTags.index(older)
+		return requests.get('https://mcr.microsoft.com/v2/windows/servercore/tags/list').json()['tags']
 
 	@staticmethod
 	def supportsProcessIsolation() -> bool:

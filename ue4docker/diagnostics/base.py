@@ -60,8 +60,7 @@ class DiagnosticBase(object):
 		'''
 		
 		# Determine the appropriate container image base tag for the host system release unless the user specified a base tag
-		buildArgs = []
-		defaultBaseTag = WindowsUtils.getReleaseBaseTag(WindowsUtils.getWindowsRelease())
+		defaultBaseTag = WindowsUtils.getWindowsRelease()
 		baseTag = basetagOverride if basetagOverride is not None else defaultBaseTag
 		buildArgs = ['--build-arg', 'BASETAG={}'.format(baseTag)]
 		

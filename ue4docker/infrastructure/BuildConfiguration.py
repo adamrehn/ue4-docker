@@ -228,21 +228,22 @@ class BuildConfiguration(object):
 		self.dlldir = self.args.dlldir if self.args.dlldir is not None else self.defaultDllDir
 		
 		# Determine base tag for the Windows release of the host system
-		self.hostRelease = WindowsUtils.getWindowsRelease()
-		self.hostBasetag = WindowsUtils.getReleaseBaseTag(self.hostRelease)
+		self.hostBasetag = WindowsUtils.getWindowsRelease()
 		
 		# Store the tag for the base Windows Server Core image
 		self.basetag = self.args.basetag if self.args.basetag is not None else self.hostBasetag
 		self.baseImage = 'mcr.microsoft.com/windows/servercore:' + self.basetag
 		self.prereqsTag = self.basetag
 
+		validBaseTags = WindowsUtils.getValidBaseTags()
+
 		# Verify that any user-specified base tag is valid
-		if WindowsUtils.isValidBaseTag(self.basetag) == False:
-			raise RuntimeError('unrecognised Windows Server Core base image tag "{}", supported tags are {}'.format(self.basetag, WindowsUtils.getValidBaseTags()))
+		if self.basetag not in validBaseTags:
+			raise RuntimeError('unrecognised Windows Server Core base image tag "{}", supported tags are {}'.format(self.basetag, validBaseTags))
 
 		# Verify that any user-specified tag suffix does not collide with our base tags
-		if WindowsUtils.isValidBaseTag(self.suffix) == True:
-			raise RuntimeError('tag suffix cannot be any of the Windows Server Core base image tags: {}'.format(WindowsUtils.getValidBaseTags()))
+		if self.suffix in validBaseTags:
+			raise RuntimeError('tag suffix cannot be any of the Windows Server Core base image tags: {}'.format(validBaseTags))
 
 		# If the user has explicitly specified an isolation mode then use it, otherwise auto-detect
 		if self.args.isolation is not None:
@@ -250,7 +251,7 @@ class BuildConfiguration(object):
 		else:
 			
 			# If we are able to use process isolation mode then use it, otherwise fallback to the Docker daemon's default isolation mode
-			differentKernels = WindowsUtils.isInsiderPreview() or self.basetag != self.hostBasetag
+			differentKernels = self.basetag != self.hostBasetag
 			hostSupportsProcess = WindowsUtils.supportsProcessIsolation()
 			dockerSupportsProcess = parse_version(DockerUtils.version()['Version']) >= parse_version('18.09.0')
 			if not differentKernels and hostSupportsProcess and dockerSupportsProcess:

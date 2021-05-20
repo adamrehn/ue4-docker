@@ -138,13 +138,8 @@ def build():
 				logger.error('https://unrealcontainers.com/docs/concepts/windows-containers', False)
 				sys.exit(1)
 
-			# Verify that the user is not attempting to build images with a newer kernel version than the host OS
-			if WindowsUtils.isNewerBaseTag(config.hostBasetag, config.basetag):
-				logger.error('Error: cannot build container images with a newer kernel version than that of the host OS!')
-				sys.exit(1)
-
 			# Check if the user is building a different kernel version to the host OS but is still copying DLLs from System32
-			differentKernels = WindowsUtils.isInsiderPreview() or config.basetag != config.hostBasetag
+			differentKernels = config.basetag != config.hostBasetag
 			if config.pullPrerequisites == False and differentKernels == True and config.dlldir == config.defaultDllDir:
 				logger.error('Error: building images with a different kernel version than the host,', False)
 				logger.error('but a custom DLL directory has not specified via the `-dlldir=DIR` arg.', False)
