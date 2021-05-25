@@ -4,7 +4,7 @@ from .infrastructure import *
 
 def _osName(dockerInfo):
 	if platform.system() == 'Windows':
-		return WindowsUtils.systemStringLong()
+		return WindowsUtils.systemString()
 	elif platform.system() == 'Darwin':
 		return DarwinUtils.systemString()
 	else:

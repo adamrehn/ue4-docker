@@ -47,7 +47,7 @@ class diagnosticMaxSize(DiagnosticBase):
 			return False
 		
 		# Verify that we are running Windows Server or Windows 10 version 1903 or newer
-		if WindowsUtils.getWindowsVersion()['patch'] < 18362:
+		if WindowsUtils.getWindowsBuild() < 18362:
 			logger.info('[maxsize] This diagnostic only applies to Windows Server and Windows 10 version 1903 and newer.', False)
 			return True
 		

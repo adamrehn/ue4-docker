@@ -20,11 +20,11 @@ RUN choco install -y 7zip curl && choco install -y python --version=3.7.5
 COPY *.dll C:\GatheredDlls\
 
 # Verify that the DLL files copied from the host can be loaded by the container OS
-ARG HOST_VERSION
+ARG HOST_BUILD
 RUN pip install pywin32
 COPY copy.py verify-host-dlls.py C:\
 RUN C:\copy.py "C:\GatheredDlls\*.dll" C:\Windows\System32\
-RUN python C:\verify-host-dlls.py %HOST_VERSION% C:\GatheredDlls
+RUN python C:\verify-host-dlls.py %HOST_BUILD% C:\GatheredDlls
 
 # Gather the required DirectX runtime files, since Windows Server Core does not include them
 RUN curl --progress-bar -L "https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe" --output %TEMP%\directx_redist.exe

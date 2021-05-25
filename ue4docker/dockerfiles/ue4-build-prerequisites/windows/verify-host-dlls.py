@@ -1,4 +1,5 @@
-import glob, os, platform, sys, win32api, winreg
+import glob, os, sys, win32api
+
 
 # Adapted from the code in this SO answer: <https://stackoverflow.com/a/7993095>
 def getDllVersion(dllPath):
@@ -10,20 +11,10 @@ def getDllVersion(dllPath):
 		info['FileVersionLS'] % 65536
 	)
 
-def getVersionRegKey(subkey):
-	key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion')
-	value = winreg.QueryValueEx(key, subkey)
-	winreg.CloseKey(key)
-	return value[0]
-
-def getOsVersion():
-	version = platform.win32_ver()[1]
-	build = getVersionRegKey('BuildLabEx').split('.')[1]
-	return '{}.{}'.format(version, build)
 
 # Print the host and container OS build numbers
 print('Host OS build number:      {}'.format(sys.argv[1]))
-print('Container OS build number: {}'.format(getOsVersion()))
+print('Container OS build number: {}'.format(sys.getwindowsversion().build))
 sys.stdout.flush()
 
 # Verify each DLL file in the directory specified by our command-line argument
