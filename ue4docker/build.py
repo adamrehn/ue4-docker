@@ -112,11 +112,12 @@ def build():
 			# Provide the user with feedback so they are aware of the Windows-specific values being used
 			logger.info('WINDOWS CONTAINER SETTINGS', False)
 			logger.info('Isolation mode:               {}'.format(config.isolation), False)
-			logger.info('Base OS image tag:            {} (host OS is {})'.format(config.basetag, WindowsUtils.systemStringShort()), False)
+			logger.info('Base OS image tag:            {}'.format(config.basetag), False)
+			logger.info('Host OS:                      {}'.format(WindowsUtils.systemString()), False)
 			logger.info('Memory limit:                 {}'.format('No limit' if config.memLimit is None else '{:.2f}GB'.format(config.memLimit)), False)
 			logger.info('Detected max image size:      {:.0f}GB'.format(DockerUtils.maxsize()), False)
 			logger.info('Directory to copy DLLs from:  {}\n'.format(config.dlldir), False)
-			
+
 			# Verify that the specified base image tag is not a release that has reached End Of Life (EOL)
 			if WindowsUtils.isEndOfLifeWindowsVersion(config.basetag) == True:
 				logger.error('Error: detected EOL base OS image tag: {}'.format(config.basetag), False)
@@ -124,10 +125,10 @@ def build():
 				logger.error('Microsoft no longer supports or maintains container base images for it.', False)
 				logger.error('You will need to use a base image tag for a supported version of Windows.', False)
 				sys.exit(1)
-			
+
 			# Verify that the host OS is not a release that is blacklisted due to critical bugs
 			if config.ignoreBlacklist == False and WindowsUtils.isBlacklistedWindowsVersion() == True:
-				logger.error('Error: detected blacklisted host OS version: {}'.format(WindowsUtils.systemStringShort()), False)
+				logger.error('Error: detected blacklisted host OS version: {}'.format(WindowsUtils.systemString()), False)
 				logger.error('', False)
 				logger.error('This version of Windows contains one or more critical bugs that', False)
 				logger.error('render it incapable of successfully building UE4 container images.', False)
@@ -136,12 +137,12 @@ def build():
 				logger.error('For more information, see:', False)
 				logger.error('https://unrealcontainers.com/docs/concepts/windows-containers', False)
 				sys.exit(1)
-			
+
 			# Verify that the user is not attempting to build images with a newer kernel version than the host OS
 			if WindowsUtils.isNewerBaseTag(config.hostBasetag, config.basetag):
 				logger.error('Error: cannot build container images with a newer kernel version than that of the host OS!')
 				sys.exit(1)
-			
+
 			# Check if the user is building a different kernel version to the host OS but is still copying DLLs from System32
 			differentKernels = WindowsUtils.isInsiderPreview() or config.basetag != config.hostBasetag
 			if config.pullPrerequisites == False and differentKernels == True and config.dlldir == config.defaultDllDir:
@@ -239,7 +240,7 @@ def build():
 			# (This is the only image that does not use any user-supplied tag suffix, since the tag always reflects any customisations)
 			prereqsArgs = ['--build-arg', 'BASEIMAGE=' + config.baseImage]
 			if config.containerPlatform == 'windows':
-				prereqsArgs = prereqsArgs + ['--build-arg', 'HOST_VERSION=' + WindowsUtils.getWindowsBuild()]
+				prereqsArgs = prereqsArgs + ['--build-arg', 'HOST_BUILD=' + str(WindowsUtils.getWindowsBuild())]
 			
 			# Build or pull the UE4 build prerequisites image (don't pull it if we're copying Dockerfiles to an output directory)
 			if config.layoutDir is None and config.pullPrerequisites == True:
