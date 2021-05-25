@@ -92,6 +92,7 @@ class BuildConfiguration(object):
 		parser.add_argument('--combine', action='store_true', help='Combine generated Dockerfiles into a single multi-stage build Dockerfile')
 		parser.add_argument('--monitor', action='store_true', help='Monitor resource usage during builds (useful for debugging)')
 		parser.add_argument('-interval', type=float, default=20.0, help='Sampling interval in seconds when resource monitoring has been enabled using --monitor (default is 20 seconds)')
+		parser.add_argument('--ignore-eol', action='store_true', help='Run builds even on EOL versions of Windows (advanced use only)')
 		parser.add_argument('--ignore-blacklist', action='store_true', help='Run builds even on blacklisted versions of Windows (advanced use only)')
 		parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output during builds (useful for debugging)')
 	
@@ -150,6 +151,7 @@ class BuildConfiguration(object):
 		self.excludedComponents = set(self.args.exclude)
 		self.baseImage = None
 		self.prereqsTag = None
+		self.ignoreEOL = self.args.ignore_eol
 		self.ignoreBlacklist = self.args.ignore_blacklist
 		self.verbose = self.args.verbose
 		self.layoutDir = self.args.layout

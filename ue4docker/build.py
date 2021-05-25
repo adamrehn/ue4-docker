@@ -119,7 +119,7 @@ def build():
 			logger.info('Directory to copy DLLs from:  {}\n'.format(config.dlldir), False)
 
 			# Verify that the specified base image tag is not a release that has reached End Of Life (EOL)
-			if WindowsUtils.isEndOfLifeWindowsVersion(config.basetag) == True:
+			if not config.ignoreEOL and WindowsUtils.isEndOfLifeWindowsVersion(config.basetag):
 				logger.error('Error: detected EOL base OS image tag: {}'.format(config.basetag), False)
 				logger.error('This version of Windows has reached End Of Life (EOL), which means', False)
 				logger.error('Microsoft no longer supports or maintains container base images for it.', False)
