@@ -116,6 +116,7 @@ def build():
 			logger.info('Host OS:                      {}'.format(WindowsUtils.systemString()), False)
 			logger.info('Memory limit:                 {}'.format('No limit' if config.memLimit is None else '{:.2f}GB'.format(config.memLimit)), False)
 			logger.info('Detected max image size:      {:.0f}GB'.format(DockerUtils.maxsize()), False)
+			logger.info('Visual Studio:                {}'.format(config.visualStudio), False)
 			logger.info('Directory to copy DLLs from:  {}\n'.format(config.dlldir), False)
 
 			# Verify that the specified base image tag is not a release that has reached End Of Life (EOL)
@@ -240,7 +241,10 @@ def build():
 			# (This is the only image that does not use any user-supplied tag suffix, since the tag always reflects any customisations)
 			prereqsArgs = ['--build-arg', 'BASEIMAGE=' + config.baseImage]
 			if config.containerPlatform == 'windows':
-				prereqsArgs = prereqsArgs + ['--build-arg', 'HOST_BUILD=' + str(WindowsUtils.getWindowsBuild())]
+				prereqsArgs = prereqsArgs + [
+					'--build-arg', 'HOST_BUILD=' + str(WindowsUtils.getWindowsBuild()),
+					'--build-arg', 'VISUAL_STUDIO_BUILD_NUMBER=' + config.visualStudioBuildNumber,
+				]
 			
 			# Build or pull the UE4 build prerequisites image (don't pull it if we're copying Dockerfiles to an output directory)
 			if config.layoutDir is None and config.pullPrerequisites == True:
@@ -282,7 +286,7 @@ def build():
 			# Build the minimal UE4 CI image, unless requested otherwise by the user
 			buildUe4Minimal = config.noMinimal == False
 			if buildUe4Minimal == True:
-				builder.build('ue4-minimal', mainTags, config.platformArgs + config.exclusionFlags + ue4BuildArgs)
+				builder.build('ue4-minimal', mainTags, config.platformArgs + config.exclusionFlags + ue4BuildArgs + config.uatBuildFlags)
 				builtImages.append('ue4-minimal')
 			else:
 				logger.info('User specified `--no-minimal`, skipping ue4-minimal image build.')

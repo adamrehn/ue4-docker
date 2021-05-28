@@ -27,6 +27,23 @@ DEFAULT_CUDA_VERSION = '9.2'
 # The default memory limit (in GB) under Windows
 DEFAULT_MEMORY_LIMIT = 10.0
 
+class VisualStudio(object):
+	VS2017 = '2017'
+	VS2019 = '2019'
+
+	BuildNumbers = {
+		VS2017 : '15',
+		VS2019 : '16',
+	}
+
+	MinSupportedUnreal = {
+		# Unreal Engine 4.23.1 is the first that successfully builds with Visual Studio v16.3
+		# See https://github.com/EpicGames/UnrealEngine/commit/2510d4fd07a35ba5bff6ac2c7becaa6e8b7f11fa
+		#
+		# Unreal Engine 4.25 is the first that works with .NET SDK 4.7+
+		# See https://github.com/EpicGames/UnrealEngine/commit/5256eedbdef30212ab69fdf4c09e898098959683
+		VS2019 : semver.VersionInfo(4, 25)
+	}
 
 class ExcludedComponent(object):
 	'''
@@ -77,6 +94,7 @@ class BuildConfiguration(object):
 		parser.add_argument('--exclude', action='append', default=[], choices=[ExcludedComponent.DDC, ExcludedComponent.Debug, ExcludedComponent.Templates], help='Exclude the specified component (can be specified multiple times to exclude multiple components)')
 		parser.add_argument('--opt', action='append', default=[], help='Set an advanced configuration option (can be specified multiple times to specify multiple options)')
 		parser.add_argument('--cuda', default=None, metavar='VERSION', help='Add CUDA support as well as OpenGL support when building Linux containers')
+		parser.add_argument('--visual-studio', default=VisualStudio.VS2017, choices=VisualStudio.BuildNumbers.keys(), help='Specify Visual Studio Build Tools version to use for Windows containers')
 		parser.add_argument('-username', default=None, help='Specify the username to use when cloning the git repository')
 		parser.add_argument('-password', default=None, help='Specify the password or access token to use when cloning the git repository')
 		parser.add_argument('-repo', default=None, help='Set the custom git repository to clone when "custom" is specified as the release value')
@@ -201,6 +219,8 @@ class BuildConfiguration(object):
 			'--build-arg', 'EXCLUDE_DEBUG={}'.format(1 if ExcludedComponent.Debug in self.excludedComponents else 0),
 			'--build-arg', 'EXCLUDE_TEMPLATES={}'.format(1 if ExcludedComponent.Templates in self.excludedComponents else 0)
 		]
+
+		self.uatBuildFlags = []
 		
 		# If we're building Windows containers, generate our Windows-specific configuration settings
 		if self.containerPlatform == 'windows':
@@ -226,7 +246,19 @@ class BuildConfiguration(object):
 		hostSystem32 = os.path.join(os.environ['SystemRoot'], 'System32')
 		self.defaultDllDir = hostSysnative if os.path.exists(hostSysnative) else hostSystem32
 		self.dlldir = self.args.dlldir if self.args.dlldir is not None else self.defaultDllDir
-		
+
+		self.visualStudio = self.args.visual_studio
+
+		if not self.custom:
+			# Check whether specified Unreal Engine release is compatible with specified Visual Studio
+			vsMinSupportedUnreal = VisualStudio.MinSupportedUnreal.get(self.visualStudio, None)
+			if vsMinSupportedUnreal is not None and semver.VersionInfo.parse(self.release) < vsMinSupportedUnreal:
+				raise RuntimeError('specified version of Unreal Engine cannot be built with Visual Studio {}, oldest supported is {}'.format(self.visualStudio, vsMinSupportedUnreal))
+
+		self.visualStudioBuildNumber = VisualStudio.BuildNumbers[self.visualStudio]
+		# See https://github.com/EpicGames/UnrealEngine/commit/72585138472785e2ee58aab9950a7260275ee2ac
+		self.uatBuildFlags += ['--build-arg', 'USE_VS2019={}'.format('true' if self.visualStudio == VisualStudio.VS2019 else 'false')]
+
 		# Determine base tag for the Windows release of the host system
 		self.hostRelease = WindowsUtils.getWindowsRelease()
 		self.hostBasetag = WindowsUtils.getReleaseBaseTag(self.hostRelease)
@@ -234,7 +266,7 @@ class BuildConfiguration(object):
 		# Store the tag for the base Windows Server Core image
 		self.basetag = self.args.basetag if self.args.basetag is not None else self.hostBasetag
 		self.baseImage = 'mcr.microsoft.com/windows/servercore:' + self.basetag
-		self.prereqsTag = self.basetag
+		self.prereqsTag = self.basetag + '-vs' + self.visualStudio
 
 		# Verify that any user-specified base tag is valid
 		if WindowsUtils.isValidBaseTag(self.basetag) == False:
