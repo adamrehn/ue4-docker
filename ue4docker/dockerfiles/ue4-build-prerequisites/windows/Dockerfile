@@ -61,4 +61,5 @@ RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "Set-ExecutionPolicy 
 
 # Install the rest of our build prerequisites and clean up afterwards to minimise image size
 COPY buildtools-exitcode.py copy.py copy-pdbcopy.py install-prerequisites.bat C:\
-RUN C:\install-prerequisites.bat
+ARG VISUAL_STUDIO_BUILD_NUMBER
+RUN C:\install-prerequisites.bat %VISUAL_STUDIO_BUILD_NUMBER%

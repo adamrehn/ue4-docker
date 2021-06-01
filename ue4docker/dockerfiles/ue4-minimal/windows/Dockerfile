@@ -27,8 +27,9 @@ RUN python C:\patch-build-graph.py C:\UnrealEngine\Engine\Build\InstalledEngineB
 
 # Create an Installed Build of the Engine
 ARG BUILD_DDC
+ARG USE_VS2019
 WORKDIR C:\UnrealEngine
-RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph -target="Make Installed Build Win64" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true -set:WithDDC=%BUILD_DDC% {{ buildgraph_args }} && `
+RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph -target="Make Installed Build Win64" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true -set:WithDDC=%BUILD_DDC% -set:VS2019=%USE_VS2019% {{ buildgraph_args }} && `
 	(if exist C:\UnrealEngine\LocalBuilds\InstalledDDC rmdir /s /q C:\UnrealEngine\LocalBuilds\InstalledDDC)
 
 # Determine if we are removing debug symbols and/or template projects in order to reduce the final container image size
