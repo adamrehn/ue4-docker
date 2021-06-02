@@ -41,6 +41,11 @@ python C:\copy-pdbcopy.py || goto :error
 rmdir /S /Q \\?\%TEMP%
 mkdir %TEMP%
 
+@rem Something that gets installed in ue4-build-prerequisites creates a bogus NuGet config file
+@rem Just remove it, so a proper one will be generated on next NuGet run
+@rem See https://github.com/adamrehn/ue4-docker/issues/171#issuecomment-852136034
+if exist %APPDATA%\NuGet rmdir /s /q %APPDATA%\NuGet
+
 @rem Display a human-readable completion message
 @echo off
 @echo Finished installing build prerequisites and cleaning up temporary files.
