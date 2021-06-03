@@ -29,7 +29,7 @@ RUN python3 /tmp/patch-build-graph.py /home/ue4/UnrealEngine/Engine/Build/Instal
 # Ensure UBT is built before we create the Installed Build, since Build.sh explicitly sets the
 # target .NET framework version, whereas InstalledEngineBuild.xml just uses the system default,
 # which can result in errors when running the built UBT due to the wrong version being targeted
-RUN ./Engine/Build/BatchFiles/Linux/Build.sh UE4Editor Linux Development -Clean
+RUN ./Engine/Build/BatchFiles/Linux/Build.sh ShaderCompileWorker Linux Development -Clean
 
 # Create an Installed Build of the Engine
 ARG BUILD_DDC
