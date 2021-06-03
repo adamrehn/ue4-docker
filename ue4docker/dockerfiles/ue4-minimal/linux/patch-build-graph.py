@@ -31,7 +31,7 @@ code = code.replace(
 
 # Enable client and server targets by default in 4.23.0 onwards, except for 4.24.0 - 4.24.2 where Linux server builds fail
 # (See <https://issues.unrealengine.com/issue/UE-87878> for details of the bug and its fix)
-if versionData['MajorVersion'] == 4 and (versionData['MinorVersion'] != 24 or versionData['PatchVersion'] >= 3):
+if versionData['MajorVersion'] != 4 or versionData['MinorVersion'] != 24 or versionData['PatchVersion'] >= 3:
 	code = code.replace(
 		'Option Name="WithClient" Restrict="true|false" DefaultValue="false"',
 		'Option Name="WithClient" Restrict="true|false" DefaultValue="true"'
