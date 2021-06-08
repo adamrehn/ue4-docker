@@ -60,6 +60,7 @@ RUN apt-get install -y --no-install-recommends pulseaudio-utils
 COPY pulseaudio-client.conf /etc/pulse/client.conf
 
 # Enable X11 support (including the libraries required by CEF) and xvfb so we can create a dummy display if needed
+ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES},display
 RUN apt-get install -y --no-install-recommends \
 	libasound2 \
 	libatk1.0-0 \
