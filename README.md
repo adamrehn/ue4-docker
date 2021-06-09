@@ -22,6 +22,7 @@ Resources:
 - **Package on PyPI:** <https://pypi.org/project/ue4-docker/>
 - **Related articles:** <https://adamrehn.com/articles/tag/Unreal%20Engine/>
 - **Unreal Containers community hub:** <https://unrealcontainers.com/>
+- **Development channel on the Unreal Containers Community Discord server**: <https://discord.gg/46CJg9fyJ9>
 
 
 ## Contributing
