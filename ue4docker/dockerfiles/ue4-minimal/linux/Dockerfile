@@ -32,7 +32,7 @@ RUN python3 /tmp/patch-build-graph.py /home/ue4/UnrealEngine/Engine/Build/Instal
 # Ensure UBT is built before we create the Installed Build, since Build.sh explicitly sets the
 # target .NET framework version, whereas InstalledEngineBuild.xml just uses the system default,
 # which can result in errors when running the built UBT due to the wrong version being targeted
-RUN ./Engine/Build/BatchFiles/Linux/Build.sh ShaderCompileWorker Linux Development -Clean
+RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealHeaderTool Linux Development -SkipBuild
 
 # Create an Installed Build of the Engine
 ARG BUILD_DDC
@@ -86,7 +86,7 @@ LABEL com.adamrehn.ue4-docker.excluded.templates=${EXCLUDE_TEMPLATES}
 # Perform first-run setup for Mono, UnrealBuildTool and AutomationTool, which makes it possible to build Unreal projects and plugins as users other than `ue4`
 # (Note that this will only work with 4.26.0 and newer, older Engine versions will always require write access to `/home/ue4/UnrealEngine`)
 # See the comments on this issue for details, including the need to ensure $HOME is set correctly: <https://github.com/adamrehn/ue4-docker/issues/141>
-RUN ./Engine/Build/BatchFiles/Linux/Build.sh UE4Editor Linux Development -NoUBTMakefiles -SkipBuild && \
+RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealHeaderTool Linux Development -SkipBuild && \
 	mkdir -p ./Engine/Programs/AutomationTool/Saved && \
 	chmod a+rw ./Engine/Programs/AutomationTool/Saved
 
