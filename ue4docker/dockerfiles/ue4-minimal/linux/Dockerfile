@@ -21,6 +21,9 @@ RUN python3 /tmp/enable-opengl.py /home/ue4/UnrealEngine/Engine/Config/BaseEngin
 {% endif %}
 
 {% if (not disable_all_patches) and (not disable_buildgraph_patches) %}
+COPY patch-filters-xml.py /tmp/patch-filters-xml.py
+RUN python3 /tmp/patch-filters-xml.py /home/ue4/UnrealEngine/Engine/Build/InstalledEngineFilters.xml
+
 # Patch the default settings in InstalledEngineBuild.xml and increase the output verbosity of the DDC generation step
 COPY patch-build-graph.py /tmp/patch-build-graph.py
 RUN python3 /tmp/patch-build-graph.py /home/ue4/UnrealEngine/Engine/Build/InstalledEngineBuild.xml /home/ue4/UnrealEngine/Engine/Build/Build.version
