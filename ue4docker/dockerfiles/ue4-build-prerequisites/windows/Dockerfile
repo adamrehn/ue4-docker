@@ -39,11 +39,7 @@ RUN start /wait %TEMP%\directx_redist.exe /Q /T:%TEMP% && `
 RUN curl --progress-bar -L "https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-runtime-components.zip?u=" --output %TEMP%\vulkan-runtime-components.zip
 RUN 7z e %TEMP%\vulkan-runtime-components.zip -oC:\GatheredDlls -y "*\x64\vulkan-1.dll"
 
-# Gather pdbcopy.exe (needed for creating an Installed Build of the Engine)
-RUN choco install -y windows-sdk-10-version-1809-windbg
-RUN C:\copy.py "C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\pdbcopy.exe" C:\GatheredDlls\
-
-# Copy our gathered DLLs (and pdbcopy.exe) into a clean image to reduce image size
+# Copy our gathered DLLs into a clean image to reduce image size
 FROM ${BASEIMAGE} as prerequisites
 SHELL ["cmd", "/S", "/C"]
 COPY --from=dlls C:\GatheredDlls\ C:\Windows\System32\
@@ -60,6 +56,6 @@ RUN reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem /v Lo
 RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 
 # Install the rest of our build prerequisites and clean up afterwards to minimise image size
-COPY buildtools-exitcode.py copy.py copy-pdbcopy.py install-prerequisites.bat C:\
+COPY buildtools-exitcode.py copy.py install-prerequisites.bat C:\
 ARG VISUAL_STUDIO_BUILD_NUMBER
 RUN C:\install-prerequisites.bat %VISUAL_STUDIO_BUILD_NUMBER%

@@ -1,6 +1,7 @@
 @rem Install the chocolatey packages we need
 choco install -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'" || goto :error
-choco install -y curl vcredist2010 vcredist140 || goto :error
+@rem pdbcopy.exe from Windows SDK is needed for creating an Installed Build of the Engine
+choco install -y curl vcredist2010 vcredist140 windows-sdk-10-version-1809-windbg || goto :error
 choco install -y python --version=3.7.5 || goto :error
 
 @rem Reload our environment variables from the registry so the `git` command works
@@ -34,9 +35,6 @@ curl --progress-bar -L "https://aka.ms/vs/16/release/vs_buildtools.exe" --output
 	--add Microsoft.NetCore.Component.SDK
 
 python C:\buildtools-exitcode.py %ERRORLEVEL% || goto :error
-
-@rem Copy pdbcopy.exe to the expected location(s)
-python C:\copy-pdbcopy.py || goto :error
 
 @rem Clean up any temp files generated during prerequisite installation
 rmdir /S /Q \\?\%TEMP%
