@@ -35,9 +35,9 @@ RUN python3 /tmp/patch-build-graph.py /home/ue4/UnrealEngine/Engine/Build/Instal
 RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealHeaderTool Linux Development -SkipBuild
 
 # Create an Installed Build of the Engine
-ARG BUILD_DDC
+ARG BUILDGRAPH_ARGS
 WORKDIR /home/ue4/UnrealEngine
-RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true -set:WithDDC=$BUILD_DDC {{ buildgraph_args }} && \
+RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true ${BUILDGRAPH_ARGS} {{ buildgraph_args }} && \
 	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC
 
 # Determine if we are removing debug symbols and/or template projects in order to reduce the final container image size

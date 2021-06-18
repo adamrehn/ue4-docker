@@ -213,15 +213,14 @@ class BuildConfiguration(object):
 			raise RuntimeError('invalid value specified for the `credential_mode` option, valid values are {} when building {} containers'.format(validCredentialModes, self.containerPlatform.title()))
 		
 		# Generate our flags for keeping or excluding components
+		self.buildGraphArgs = [
+			'-set:WithDDC={}'.format('false' if ExcludedComponent.DDC in self.excludedComponents else 'true')
+		]
 		self.exclusionFlags = [
-			
-			'--build-arg', 'BUILD_DDC={}'.format('false' if ExcludedComponent.DDC in self.excludedComponents else 'true'),
 			'--build-arg', 'EXCLUDE_DEBUG={}'.format(1 if ExcludedComponent.Debug in self.excludedComponents else 0),
 			'--build-arg', 'EXCLUDE_TEMPLATES={}'.format(1 if ExcludedComponent.Templates in self.excludedComponents else 0)
 		]
 
-		self.uatBuildFlags = []
-		
 		# If we're building Windows containers, generate our Windows-specific configuration settings
 		if self.containerPlatform == 'windows':
 			self._generateWindowsConfig()
@@ -257,7 +256,10 @@ class BuildConfiguration(object):
 
 		self.visualStudioBuildNumber = VisualStudio.BuildNumbers[self.visualStudio]
 		# See https://github.com/EpicGames/UnrealEngine/commit/72585138472785e2ee58aab9950a7260275ee2ac
-		self.uatBuildFlags += ['--build-arg', 'USE_VS2019={}'.format('true' if self.visualStudio == VisualStudio.VS2019 else 'false')]
+		# Note: We must not pass VS2019 arg for older UE4 versions that didn't have VS2019 variable in their build graph xml.
+		# Otherwise, UAT errors out with "Unknown argument: VS2019".
+		if self.visualStudio != VisualStudio.VS2017:
+			self.buildGraphArgs += [f'-set:VS{self.visualStudio}=true']
 
 		# Determine base tag for the Windows release of the host system
 		self.hostRelease = WindowsUtils.getWindowsRelease()

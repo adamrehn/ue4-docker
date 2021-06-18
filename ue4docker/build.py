@@ -286,7 +286,8 @@ def build():
 			# Build the minimal UE4 CI image, unless requested otherwise by the user
 			buildUe4Minimal = config.noMinimal == False
 			if buildUe4Minimal == True:
-				builder.build('ue4-minimal', mainTags, config.platformArgs + config.exclusionFlags + ue4BuildArgs + config.uatBuildFlags)
+				buildGraphArg = ['--build-arg', 'BUILDGRAPH_ARGS=' + ' '.join(config.buildGraphArgs)]
+				builder.build('ue4-minimal', mainTags, config.platformArgs + config.exclusionFlags + ue4BuildArgs + buildGraphArg)
 				builtImages.append('ue4-minimal')
 			else:
 				logger.info('User specified `--no-minimal`, skipping ue4-minimal image build.')
