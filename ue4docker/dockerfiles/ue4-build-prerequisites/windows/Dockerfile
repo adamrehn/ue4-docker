@@ -22,8 +22,8 @@ COPY *.dll C:\GatheredDlls\
 # Verify that the DLL files copied from the host can be loaded by the container OS
 ARG HOST_BUILD
 RUN pip install pywin32
-COPY copy.py verify-host-dlls.py C:\
-RUN C:\copy.py "C:\GatheredDlls\*.dll" C:\Windows\System32\
+COPY verify-host-dlls.py C:\
+RUN xcopy /y "C:\GatheredDlls\*.dll" C:\Windows\System32\
 RUN python C:\verify-host-dlls.py %HOST_BUILD% C:\GatheredDlls
 
 # Gather the required DirectX runtime files, since Windows Server Core does not include them
@@ -56,6 +56,6 @@ RUN reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem /v Lo
 RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 
 # Install the rest of our build prerequisites and clean up afterwards to minimise image size
-COPY buildtools-exitcode.py copy.py install-prerequisites.bat C:\
+COPY buildtools-exitcode.py install-prerequisites.bat C:\
 ARG VISUAL_STUDIO_BUILD_NUMBER
 RUN C:\install-prerequisites.bat %VISUAL_STUDIO_BUILD_NUMBER%

@@ -65,7 +65,7 @@ def exportPackages(image, destination, extraArgs):
 		'windows': {
 			'rootCommand':  ['timeout', '/t', '99999', '/nobreak'],
 			'mkdirCommand': ['cmd', '/S', '/C', 'mkdir'],
-			'copyCommand':  ['python', 'C:\\copy.py'],
+			'copyCommand':  ['xcopy', '/y'],
 			
 			'dataDir':   'C:\\Users\\ContainerAdministrator\\.conan_server\\data',
 			'configDir': 'C:\\Users\\ContainerAdministrator\\.conan_server\\',
