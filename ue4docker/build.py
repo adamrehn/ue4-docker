@@ -146,17 +146,16 @@ def build():
 
 			# Check if the user is building a different kernel version to the host OS but is still copying DLLs from System32
 			differentKernels = WindowsUtils.isInsiderPreview() or config.basetag != config.hostBasetag
-			if config.pullPrerequisites == False and differentKernels == True and config.dlldir == config.defaultDllDir:
+			if differentKernels == True and config.dlldir == config.defaultDllDir:
 				logger.error('Error: building images with a different kernel version than the host,', False)
 				logger.error('but a custom DLL directory has not specified via the `-dlldir=DIR` arg.', False)
 				logger.error('The DLL files will be the incorrect version and the container OS will', False)
 				logger.error('refuse to load them, preventing the built Engine from running correctly.', False)
 				sys.exit(1)
 			
-			# Attempt to copy the required DLL files from the host system if we are building the prerequisites image
-			if config.pullPrerequisites == False:
-				for dll in WindowsUtils.requiredHostDlls(config.basetag):
-					shutil.copy2(join(config.dlldir, dll), join(builder.context('ue4-build-prerequisites'), dll))
+			# Attempt to copy the required DLL files from the host system
+			for dll in WindowsUtils.requiredHostDlls(config.basetag):
+				shutil.copy2(join(config.dlldir, dll), join(builder.context('ue4-build-prerequisites'), dll))
 			
 			# Ensure the Docker daemon is configured correctly
 			requiredLimit = WindowsUtils.requiredSizeLimit()
@@ -236,6 +235,10 @@ def build():
 			
 			# Keep track of the images we've built
 			builtImages = []
+
+			commonArgs = [
+				'--build-arg', 'NAMESPACE={}'.format(GlobalConfiguration.getTagNamespace()),
+			]
 			
 			# Compute the build options for the UE4 build prerequisites image
 			# (This is the only image that does not use any user-supplied tag suffix, since the tag always reflects any customisations)
@@ -246,12 +249,9 @@ def build():
 					'--build-arg', 'VISUAL_STUDIO_BUILD_NUMBER=' + config.visualStudioBuildNumber,
 				]
 			
-			# Build or pull the UE4 build prerequisites image (don't pull it if we're copying Dockerfiles to an output directory)
-			if config.layoutDir is None and config.pullPrerequisites == True:
-				builder.pull('adamrehn/ue4-build-prerequisites:{}'.format(config.prereqsTag))
-			else:
-				builder.build('adamrehn/ue4-build-prerequisites', [config.prereqsTag], config.platformArgs + prereqsArgs)
-				builtImages.append('ue4-build-prerequisites')
+			# Build the UE4 build prerequisites image
+			builder.build('ue4-build-prerequisites', [config.prereqsTag], commonArgs + config.platformArgs + prereqsArgs)
+			builtImages.append('ue4-build-prerequisites')
 			
 			# If we're using build secrets then pass the Git username and password to the UE4 source image as secrets
 			secrets = {}
@@ -269,16 +269,15 @@ def build():
 				'--build-arg', 'GIT_BRANCH={}'.format(config.branch),
 				'--build-arg', 'VERBOSE_OUTPUT={}'.format('1' if config.verbose == True else '0')
 			]
-			builder.build('ue4-source', mainTags, config.platformArgs + ue4SourceArgs + credentialArgs, secrets)
+			builder.build('ue4-source', mainTags, commonArgs + config.platformArgs + ue4SourceArgs + credentialArgs, secrets)
 			builtImages.append('ue4-source')
 			
 			# Build the UE4 Engine source build image, unless requested otherwise by the user
 			ue4BuildArgs = prereqConsumerArgs + [
 				'--build-arg', 'TAG={}'.format(mainTags[1]),
-				'--build-arg', 'NAMESPACE={}'.format(GlobalConfiguration.getTagNamespace())
 			]
 			if config.noEngine == False:
-				builder.build('ue4-engine', mainTags, config.platformArgs + ue4BuildArgs)
+				builder.build('ue4-engine', mainTags, commonArgs + config.platformArgs + ue4BuildArgs)
 				builtImages.append('ue4-engine')
 			else:
 				logger.info('User specified `--no-engine`, skipping ue4-engine image build.')
@@ -287,7 +286,7 @@ def build():
 			buildUe4Minimal = config.noMinimal == False
 			if buildUe4Minimal == True:
 				buildGraphArg = ['--build-arg', 'BUILDGRAPH_ARGS=' + ' '.join(config.buildGraphArgs)]
-				builder.build('ue4-minimal', mainTags, config.platformArgs + config.exclusionFlags + ue4BuildArgs + buildGraphArg)
+				builder.build('ue4-minimal', mainTags, commonArgs + config.platformArgs + config.exclusionFlags + ue4BuildArgs + buildGraphArg)
 				builtImages.append('ue4-minimal')
 			else:
 				logger.info('User specified `--no-minimal`, skipping ue4-minimal image build.')
@@ -304,7 +303,7 @@ def build():
 					infrastructureFlags.extend(['--build-arg', 'CONAN_UE4CLI_VERSION={}'.format(config.conanUe4cliVersion)])
 				
 				# Build the image
-				builder.build('ue4-full', mainTags, config.platformArgs + ue4BuildArgs + infrastructureFlags)
+				builder.build('ue4-full', mainTags, commonArgs + config.platformArgs + ue4BuildArgs + infrastructureFlags)
 				builtImages.append('ue4-full')
 			else:
 				logger.info('Not building ue4-minimal or user specified `--no-full`, skipping ue4-full image build.')

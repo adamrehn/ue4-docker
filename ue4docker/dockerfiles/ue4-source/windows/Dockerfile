@@ -2,8 +2,9 @@
 {% if combine %}
 FROM prerequisites as source
 {% else %}
+ARG NAMESPACE
 ARG PREREQS_TAG
-FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
+FROM ${NAMESPACE}/ue4-build-prerequisites:${PREREQS_TAG}
 {% endif %}
 
 {% if not disable_all_patches %}

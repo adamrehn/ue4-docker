@@ -47,7 +47,8 @@ RUN python C:\fix-targets.py C:\UnrealEngine\LocalBuilds\Engine\Windows\Engine\C
 {% if combine %}
 FROM prerequisites as minimal
 {% else %}
-FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
+ARG NAMESPACE
+FROM ${NAMESPACE}/ue4-build-prerequisites:${PREREQS_TAG}
 {% endif %}
 COPY --from=builder C:\UnrealEngine\LocalBuilds\Engine\Windows C:\UnrealEngine
 WORKDIR C:\UnrealEngine

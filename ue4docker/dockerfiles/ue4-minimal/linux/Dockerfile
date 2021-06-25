@@ -67,7 +67,8 @@ RUN python3 /tmp/copy-toolchain.py /home/ue4/UnrealEngine
 {% if combine %}
 FROM prerequisites as minimal
 {% else %}
-FROM adamrehn/ue4-build-prerequisites:${PREREQS_TAG}
+ARG NAMESPACE
+FROM ${NAMESPACE}/ue4-build-prerequisites:${PREREQS_TAG}
 {% endif %}
 
 # Copy the Installed Build files from the builder image

@@ -85,7 +85,6 @@ class BuildConfiguration(object):
 		parser.add_argument('--linux', action='store_true', help='Build Linux container images under Windows')
 		parser.add_argument('--rebuild', action='store_true', help='Rebuild images even if they already exist')
 		parser.add_argument('--dry-run', action='store_true', help='Print `docker build` commands instead of running them')
-		parser.add_argument('--pull-prerequisites', action='store_true', help='Pull the ue4-build-prerequisites image from Docker Hub instead of building it')
 		parser.add_argument('--no-engine', action='store_true', help='Don\'t build the ue4-engine image')
 		parser.add_argument('--no-minimal', action='store_true', help='Don\'t build the ue4-minimal image')
 		parser.add_argument('--no-full', action='store_true', help='Don\'t build the ue4-full image')
@@ -160,7 +159,6 @@ class BuildConfiguration(object):
 		self.containerPlatform = 'windows' if platform.system() == 'Windows' and self.args.linux == False else 'linux'
 		self.dryRun = self.args.dry_run
 		self.rebuild = self.args.rebuild
-		self.pullPrerequisites = self.args.pull_prerequisites
 		self.noEngine = self.args.no_engine
 		self.noMinimal = self.args.no_minimal
 		self.noFull = self.args.no_full
