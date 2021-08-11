@@ -35,16 +35,13 @@ RUN python3 /tmp/patch-build-graph.py /home/ue4/UnrealEngine/Engine/Build/Instal
 RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealHeaderTool Linux Development -SkipBuild
 
 # Create an Installed Build of the Engine
-ARG BUILDGRAPH_ARGS
 WORKDIR /home/ue4/UnrealEngine
-RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true ${BUILDGRAPH_ARGS} {{ buildgraph_args }} && \
+RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true -set:WithDDC={% if excluded_components.ddc == true %}false{% else %}true{% endif %} {{ buildgraph_args }} && \
 	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC
 
-# Determine if we are removing debug symbols and/or template projects in order to reduce the final container image size
-COPY exclude-components.py /tmp/exclude-components.py
-ARG EXCLUDE_DEBUG
-ARG EXCLUDE_TEMPLATES
-RUN python3 /tmp/exclude-components.py /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux $EXCLUDE_DEBUG $EXCLUDE_TEMPLATES
+# Split out components (DDC, debug symbols, template projects) so they can be copied into the final container image as separate filesystem layers
+COPY split-components.py /tmp/split-components.py
+RUN python3 /tmp/split-components.py /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux /home/ue4/UnrealEngine/Components
 
 {% if (not disable_all_patches) and (not disable_target_patches) %}
 # Ensure Client and Server targets have their `PlatformType` field set correctly in BaseEngine.ini
@@ -73,15 +70,22 @@ FROM ${NAMESPACE}/ue4-build-prerequisites:${PREREQS_TAG}
 
 # Copy the Installed Build files from the builder image
 COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux /home/ue4/UnrealEngine
+{% if excluded_components.ddc == false %}
+COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/DDC /home/ue4/UnrealEngine
+{% endif %}
+{% if excluded_components.debug == false %}
+COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/DebugSymbols /home/ue4/UnrealEngine
+{% endif %}
+{% if excluded_components.templates == false %}
+COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/TemplatesAndSamples /home/ue4/UnrealEngine
+{% endif %}
 WORKDIR /home/ue4/UnrealEngine
 
 {% if not disable_labels %}
 # Add labels to the built image to identify which components (if any) were excluded from the build that it contains
-# (Note that we need to redeclare the relevant ARG directives here because they are scoped to each individual stage in a multi-stage build)
-ARG EXCLUDE_DEBUG
-ARG EXCLUDE_TEMPLATES
-LABEL com.adamrehn.ue4-docker.excluded.debug=${EXCLUDE_DEBUG}
-LABEL com.adamrehn.ue4-docker.excluded.templates=${EXCLUDE_TEMPLATES}
+LABEL com.adamrehn.ue4-docker.excluded.ddc={% if excluded_components.ddc == true %}1{% else %}0{% endif %} 
+LABEL com.adamrehn.ue4-docker.excluded.debug={% if excluded_components.debug == true %}1{% else %}0{% endif %} 
+LABEL com.adamrehn.ue4-docker.excluded.templates={% if excluded_components.templates == true %}1{% else %}0{% endif %} 
 {% endif %}
 
 # Perform first-run setup for Mono, UnrealBuildTool and AutomationTool, which makes it possible to build Unreal projects and plugins as users other than `ue4`
