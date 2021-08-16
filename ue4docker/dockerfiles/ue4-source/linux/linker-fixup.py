@@ -6,7 +6,11 @@ sdkRoot = sys.argv[1]
 systemLd = sys.argv[2]
 
 # Locate the bundled version(s) of ld and replace them with symlinks to the system ld
-for bundled in glob.glob(os.path.join(sdkRoot, '*', 'x86_64-unknown-linux-gnu', 'bin', 'x86_64-unknown-linux-gnu-ld')):
-	os.unlink(bundled)
-	os.symlink(systemLd, bundled)
-	print('{} => {}'.format(bundled, systemLd), file=sys.stderr)
+for bundled in glob.glob(
+    os.path.join(
+        sdkRoot, "*", "x86_64-unknown-linux-gnu", "bin", "x86_64-unknown-linux-gnu-ld"
+    )
+):
+    os.unlink(bundled)
+    os.symlink(systemLd, bundled)
+    print("{} => {}".format(bundled, systemLd), file=sys.stderr)
