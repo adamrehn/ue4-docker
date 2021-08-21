@@ -11,6 +11,26 @@ call refreshenv
 @rem Forcibly disable the git credential manager
 git config --system credential.helper "" || goto :error
 
+@rem Gather the required DirectX runtime files, since Windows Server Core does not include them
+curl --progress-bar -L "https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe" --output %TEMP%\directx_redist.exe && ^
+start /wait %TEMP%\directx_redist.exe /Q /T:%TEMP% && ^
+expand %TEMP%\APR2007_xinput_x64.cab -F:xinput1_3.dll C:\Windows\System32\ && ^
+expand %TEMP%\Jun2010_D3DCompiler_43_x64.cab -F:D3DCompiler_43.dll C:\Windows\System32\ && ^
+expand %TEMP%\Feb2010_X3DAudio_x64.cab -F:X3DAudio1_7.dll C:\Windows\System32\ && ^
+expand %TEMP%\Jun2010_XAudio_x64.cab -F:XAPOFX1_5.dll C:\Windows\System32\ && ^
+expand %TEMP%\Jun2010_XAudio_x64.cab -F:XAudio2_7.dll C:\Windows\System32\ || goto :error
+
+@rem Retrieve the DirectX shader compiler files needed for DirectX Raytracing (DXR)
+curl --progress -L "https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.6.2104/dxc_2021_04-20.zip" --output %TEMP%\dxc.zip && ^
+powershell -Command "Expand-Archive -Path \"$env:TEMP\dxc.zip\" -DestinationPath $env:TEMP" && ^
+xcopy /y %TEMP%\bin\x64\dxcompiler.dll C:\Windows\System32\ && ^
+xcopy /y %TEMP%\bin\x64\dxil.dll C:\Windows\System32\ || goto :error
+
+@rem Gather the Vulkan runtime library
+curl --progress-bar -L "https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-runtime-components.zip?u=" --output %TEMP%\vulkan-runtime-components.zip && ^
+powershell -Command "Expand-Archive -Path \"$env:TEMP\vulkan-runtime-components.zip\" -DestinationPath $env:TEMP" && ^
+powershell -Command "Copy-Item -Path \"*\x64\vulkan-1.dll\" -Destination C:\Windows\System32" || goto :error
+
 set VISUAL_STUDIO_BUILD_NUMBER=%~1
 
 @rem Install the Visual Studio Build Tools workloads and components we need

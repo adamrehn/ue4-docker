@@ -100,7 +100,6 @@ class BuildConfiguration(object):
 		parser.add_argument('-branch', default=None, help='Set the custom branch/tag to clone when "custom" is specified as the release value')
 		parser.add_argument('-isolation', default=None, help='Set the isolation mode to use for Windows containers (process or hyperv)')
 		parser.add_argument('-basetag', default=None, help='Windows Server Core base image tag to use for Windows containers (default is the host OS version)')
-		parser.add_argument('-dlldir', default=None, help='Set the directory to copy required Windows DLLs from (default is the host System32 directory)')
 		parser.add_argument('-suffix', default='', help='Add a suffix to the tags of the built images')
 		parser.add_argument('-m', default=None, help='Override the default memory limit under Windows (also overrides --random-memory)')
 		parser.add_argument('-ue4cli', default=None, help='Override the default version of ue4cli installed in the ue4-full image')
@@ -235,13 +234,6 @@ class BuildConfiguration(object):
 		return sorted([ExcludedComponent.description(component) for component in self.excludedComponents])
 	
 	def _generateWindowsConfig(self):
-		
-		# Store the path to the directory containing our required Windows DLL files
-		hostSysnative = os.path.join(os.environ['SystemRoot'], 'Sysnative')
-		hostSystem32 = os.path.join(os.environ['SystemRoot'], 'System32')
-		self.defaultDllDir = hostSysnative if os.path.exists(hostSysnative) else hostSystem32
-		self.dlldir = self.args.dlldir if self.args.dlldir is not None else self.defaultDllDir
-
 		self.visualStudio = self.args.visual_studio
 
 		if not self.custom:
@@ -264,6 +256,7 @@ class BuildConfiguration(object):
 		# Store the tag for the base Windows Server Core image
 		self.basetag = self.args.basetag if self.args.basetag is not None else self.hostBasetag
 		self.baseImage = 'mcr.microsoft.com/windows/servercore:' + self.basetag
+		self.dllSrcImage = WindowsUtils.getDllSrcImage(self.basetag)
 		self.prereqsTag = self.basetag + '-vs' + self.visualStudio
 
 		# Verify that any user-specified base tag is valid
@@ -281,9 +274,8 @@ class BuildConfiguration(object):
 			
 			# If we are able to use process isolation mode then use it, otherwise fallback to the Docker daemon's default isolation mode
 			differentKernels = WindowsUtils.isInsiderPreview() or self.basetag != self.hostBasetag
-			hostSupportsProcess = WindowsUtils.supportsProcessIsolation()
 			dockerSupportsProcess = parse_version(DockerUtils.version()['Version']) >= parse_version('18.09.0')
-			if not differentKernels and hostSupportsProcess and dockerSupportsProcess:
+			if not differentKernels and dockerSupportsProcess:
 				self.isolation = 'process'
 			else:
 				self.isolation = DockerUtils.info()['Isolation']

@@ -112,12 +112,12 @@ def build():
 			# Provide the user with feedback so they are aware of the Windows-specific values being used
 			logger.info('WINDOWS CONTAINER SETTINGS', False)
 			logger.info('Isolation mode:               {}'.format(config.isolation), False)
-			logger.info('Base OS image tag:            {}'.format(config.basetag), False)
+			logger.info('Base OS image:                {}'.format(config.baseImage), False)
+			logger.info('Dll source image:             {}'.format(config.dllSrcImage), False)
 			logger.info('Host OS:                      {}'.format(WindowsUtils.systemString()), False)
 			logger.info('Memory limit:                 {}'.format('No limit' if config.memLimit is None else '{:.2f}GB'.format(config.memLimit)), False)
 			logger.info('Detected max image size:      {:.0f}GB'.format(DockerUtils.maxsize()), False)
 			logger.info('Visual Studio:                {}'.format(config.visualStudio), False)
-			logger.info('Directory to copy DLLs from:  {}\n'.format(config.dlldir), False)
 
 			# Verify that the specified base image tag is not a release that has reached End Of Life (EOL)
 			if not config.ignoreEOL and WindowsUtils.isEndOfLifeWindowsVersion(config.basetag):
@@ -144,19 +144,6 @@ def build():
 				logger.error('Error: cannot build container images with a newer kernel version than that of the host OS!')
 				sys.exit(1)
 
-			# Check if the user is building a different kernel version to the host OS but is still copying DLLs from System32
-			differentKernels = WindowsUtils.isInsiderPreview() or config.basetag != config.hostBasetag
-			if differentKernels == True and config.dlldir == config.defaultDllDir:
-				logger.error('Error: building images with a different kernel version than the host,', False)
-				logger.error('but a custom DLL directory has not specified via the `-dlldir=DIR` arg.', False)
-				logger.error('The DLL files will be the incorrect version and the container OS will', False)
-				logger.error('refuse to load them, preventing the built Engine from running correctly.', False)
-				sys.exit(1)
-			
-			# Attempt to copy the required DLL files from the host system
-			for dll in WindowsUtils.requiredHostDlls(config.basetag):
-				shutil.copy2(join(config.dlldir, dll), join(builder.context('ue4-build-prerequisites'), dll))
-			
 			# Ensure the Docker daemon is configured correctly
 			requiredLimit = WindowsUtils.requiredSizeLimit()
 			if DockerUtils.maxsize() < requiredLimit:
@@ -245,7 +232,7 @@ def build():
 			prereqsArgs = ['--build-arg', 'BASEIMAGE=' + config.baseImage]
 			if config.containerPlatform == 'windows':
 				prereqsArgs = prereqsArgs + [
-					'--build-arg', 'HOST_BUILD=' + str(WindowsUtils.getWindowsBuild()),
+					'--build-arg', 'DLLSRCIMAGE=' + config.dllSrcImage,
 					'--build-arg', 'VISUAL_STUDIO_BUILD_NUMBER=' + config.visualStudioBuildNumber,
 				]
 			
