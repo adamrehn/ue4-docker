@@ -13,7 +13,7 @@ class diagnosticNetwork(DiagnosticBase):
 		self._parser = argparse.ArgumentParser(prog='ue4-docker diagnostics network')
 		self._parser.add_argument('--linux', action='store_true', help="Use Linux containers under Windows hosts (useful when testing Docker Desktop or LCOW support)")
 		self._parser.add_argument('--isolation', default=None, choices=['hyperv', 'process'], help="Override the default isolation mode when testing Windows containers")
-		self._parser.add_argument('-basetag', default=None, choices=WindowsUtils.getValidBaseTags(), help="Override the default base image tag when testing Windows containers")
+		self._parser.add_argument('-basetag', default=None, choices=WindowsUtils.getKnownBaseTags(), help="Override the default base image tag when testing Windows containers")
 	
 	def getName(self):
 		'''

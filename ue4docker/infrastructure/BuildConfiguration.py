@@ -108,7 +108,6 @@ class BuildConfiguration(object):
 		parser.add_argument('--combine', action='store_true', help='Combine generated Dockerfiles into a single multi-stage build Dockerfile')
 		parser.add_argument('--monitor', action='store_true', help='Monitor resource usage during builds (useful for debugging)')
 		parser.add_argument('-interval', type=float, default=20.0, help='Sampling interval in seconds when resource monitoring has been enabled using --monitor (default is 20 seconds)')
-		parser.add_argument('--ignore-eol', action='store_true', help='Run builds even on EOL versions of Windows (advanced use only)')
 		parser.add_argument('--ignore-blacklist', action='store_true', help='Run builds even on blacklisted versions of Windows (advanced use only)')
 		parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output during builds (useful for debugging)')
 	
@@ -166,7 +165,6 @@ class BuildConfiguration(object):
 		self.excludedComponents = set(self.args.exclude)
 		self.baseImage = None
 		self.prereqsTag = None
-		self.ignoreEOL = self.args.ignore_eol
 		self.ignoreBlacklist = self.args.ignore_blacklist
 		self.verbose = self.args.verbose
 		self.layoutDir = self.args.layout
@@ -250,22 +248,17 @@ class BuildConfiguration(object):
 			self.opts['buildgraph_args'] = self.opts.get('buildgraph_args', '') + f' -set:VS{self.visualStudio}=true'
 		
 		# Determine base tag for the Windows release of the host system
-		self.hostRelease = WindowsUtils.getWindowsRelease()
-		self.hostBasetag = WindowsUtils.getReleaseBaseTag(self.hostRelease)
+		self.hostBasetag = WindowsUtils.getHostBaseTag()
 		
 		# Store the tag for the base Windows Server Core image
 		self.basetag = self.args.basetag if self.args.basetag is not None else self.hostBasetag
+
+		if self.basetag is None:
+			raise RuntimeError('unable to determine Windows Server Core base image tag from host system. Specify it explicitly using -basetag command-line flag')
+
 		self.baseImage = 'mcr.microsoft.com/windows/servercore:' + self.basetag
 		self.dllSrcImage = WindowsUtils.getDllSrcImage(self.basetag)
 		self.prereqsTag = self.basetag + '-vs' + self.visualStudio
-
-		# Verify that any user-specified base tag is valid
-		if WindowsUtils.isValidBaseTag(self.basetag) == False:
-			raise RuntimeError('unrecognised Windows Server Core base image tag "{}", supported tags are {}'.format(self.basetag, WindowsUtils.getValidBaseTags()))
-
-		# Verify that any user-specified tag suffix does not collide with our base tags
-		if WindowsUtils.isValidBaseTag(self.suffix) == True:
-			raise RuntimeError('tag suffix cannot be any of the Windows Server Core base image tags: {}'.format(WindowsUtils.getValidBaseTags()))
 
 		# If the user has explicitly specified an isolation mode then use it, otherwise auto-detect
 		if self.args.isolation is not None:
@@ -273,7 +266,7 @@ class BuildConfiguration(object):
 		else:
 			
 			# If we are able to use process isolation mode then use it, otherwise fallback to the Docker daemon's default isolation mode
-			differentKernels = WindowsUtils.isInsiderPreview() or self.basetag != self.hostBasetag
+			differentKernels = self.basetag != self.hostBasetag
 			dockerSupportsProcess = parse_version(DockerUtils.version()['Version']) >= parse_version('18.09.0')
 			if not differentKernels and dockerSupportsProcess:
 				self.isolation = 'process'

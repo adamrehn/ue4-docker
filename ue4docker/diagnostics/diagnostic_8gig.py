@@ -16,7 +16,7 @@ class diagnostic8Gig(DiagnosticBase):
 		self._parser.add_argument('--linux', action='store_true', help="Use Linux containers under Windows hosts (useful when testing Docker Desktop or LCOW support)")
 		self._parser.add_argument('--random', action='store_true', help="Create a file filled with random bytes instead of zeroes under Windows")
 		self._parser.add_argument('--isolation', default=None, choices=['hyperv', 'process'], help="Override the default isolation mode when testing Windows containers")
-		self._parser.add_argument('-basetag', default=None, choices=WindowsUtils.getValidBaseTags(), help="Override the default base image tag when testing Windows containers")
+		self._parser.add_argument('-basetag', default=None, choices=WindowsUtils.getKnownBaseTags(), help="Override the default base image tag when testing Windows containers")
 	
 	def getName(self):
 		'''
