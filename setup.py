@@ -8,7 +8,7 @@ with open(abspath(join(dirname(__file__), "README.md")), "rb") as readmeFile:
 # Read the version number from version.py
 with open(abspath(join(dirname(__file__), "ue4docker", "version.py"))) as versionFile:
     __version__ = (
-        versionFile.read().strip().replace("__version__ = ", "").replace("\"", "")
+        versionFile.read().strip().replace("__version__ = ", "").replace('"', "")
     )
 
 setup(
