@@ -1,7 +1,11 @@
 @rem Install the chocolatey packages we need
 choco install -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'" || goto :error
-@rem pdbcopy.exe from Windows SDK is needed for creating an Installed Build of the Engine
-choco install -y choco-cleaner curl vcredist-all windows-sdk-10-version-1809-windbg || goto :error
+
+@rem We're installing Windows SDK here instead of through VS installer for several reasons:
+@rem 1. pdbcopy.exe is needed for creating an Installed Build of the Engine and it isn't installed through VS
+@rem 2. UE-4.27 failts to compile against Windows SDK older than 18362 and 18362 isn't available through VS2017 installer
+choco install -y choco-cleaner curl vcredist-all windows-sdk-10.1 || goto :error
+
 choco install -y python --version=3.7.5 || goto :error
 
 @rem Reload our environment variables from the registry so the `git` command works
@@ -49,7 +53,6 @@ curl --progress-bar -L "https://aka.ms/vs/16/release/vs_buildtools.exe" --output
 	--add Microsoft.VisualStudio.Workload.MSBuildTools ^
 	--add Microsoft.VisualStudio.Component.NuGet ^
 	--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 ^
-	--add Microsoft.VisualStudio.Component.Windows10SDK.17763 ^
 	--add Microsoft.Net.Component.4.5.TargetingPack ^
 	--add Microsoft.Net.ComponentGroup.4.6.2.DeveloperTools ^
 	--add Microsoft.NetCore.Component.SDK
