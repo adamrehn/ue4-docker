@@ -1,4 +1,5 @@
 from .version import __version__
 
+
 def version():
-	print(__version__)
+    print(__version__)

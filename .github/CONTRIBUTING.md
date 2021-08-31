@@ -18,3 +18,12 @@ If you are creating an issue for a feature request, you can disregard the defaul
 ## Creating pull requests
 
 Before creating a pull request, please ensure sure you have tested your changes on all platforms to which the change applies (Linux / Windows Server / Windows 10 / macOS).
+
+## Autoformatting your changes
+
+ue4-docker uses [Black](https://github.com/psf/black) for its code formatting.
+If you are submitting changes, make sure to install and run Black:
+
+- `pip install --user black`
+- `black .` (invoked in repository root)
+- Now your code is properly formatted
