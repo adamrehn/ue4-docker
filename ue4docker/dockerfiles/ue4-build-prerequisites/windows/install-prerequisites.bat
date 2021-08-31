@@ -1,7 +1,7 @@
 @rem Install the chocolatey packages we need
 choco install -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'" || goto :error
 @rem pdbcopy.exe from Windows SDK is needed for creating an Installed Build of the Engine
-choco install -y curl vcredist-all windows-sdk-10-version-1809-windbg || goto :error
+choco install -y choco-cleaner curl vcredist-all windows-sdk-10-version-1809-windbg || goto :error
 choco install -y python --version=3.7.5 || goto :error
 
 @rem Reload our environment variables from the registry so the `git` command works
@@ -59,6 +59,9 @@ python C:\buildtools-exitcode.py %ERRORLEVEL% || goto :error
 @rem Clean up any temp files generated during prerequisite installation
 rmdir /S /Q \\?\%TEMP%
 mkdir %TEMP%
+
+@rem This shaves off ~300MB as of 2021-08-31
+choco-cleaner || goto :error
 
 @rem Something that gets installed in ue4-build-prerequisites creates a bogus NuGet config file
 @rem Just remove it, so a proper one will be generated on next NuGet run
