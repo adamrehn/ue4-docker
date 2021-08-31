@@ -1,6 +1,7 @@
 from .DockerUtils import DockerUtils
 from pkg_resources import parse_version
 import platform, sys
+from typing import Optional
 
 if platform.system() == 'Windows':
 	import winreg
@@ -10,18 +11,22 @@ class WindowsUtils(object):
 	# The oldest Windows build we support
 	_minimumRequiredBuild = 17763
 
-	# The latest Windows build version we recognise as a non-Insider build
-	_latestReleaseBuild = 19042
+	# This lookup table is based on the list of valid tags from <https://hub.docker.com/r/microsoft/windowsservercore/>
+	# and list of build-to-release mapping from https://docs.microsoft.com/en-us/windows/release-health/release-information
+	_knownTagsByBuildNumber = {
+		17763: 'ltsc2019',
+		18362: '1903',
+		18363: '1909',
+		19041: '2004',
+		19042: '20H2',
+		19043: '21H1',
+	}
 
-	# The list of Windows Server Core base image tags that we recognise, in ascending version number order
-	_validTags = ['ltsc2019', '1903', '1909', '2004', '20H2']
+	_knownTags = list(_knownTagsByBuildNumber.values())
 
 	# The list of Windows Server and Windows 10 host OS releases that are blacklisted due to critical bugs
 	# (See: <https://unrealcontainers.com/docs/concepts/windows-containers>)
-	_blacklistedReleases = ['1903', '1909']
-
-	# The list of Windows Server Core container image releases that are unsupported due to having reached EOL
-	_eolReleases = ['1903', '1909']
+	_blacklistedHosts = [18362, 18363]
 
 	@staticmethod
 	def _getVersionRegKey(subkey : str) -> str:
@@ -54,25 +59,21 @@ class WindowsUtils(object):
 		'''
 		Generates a verbose human-readable version string for the Windows host system
 		'''
-		return '{} Version {} (Build {}.{})'.format(
+		return '{} (Build {}.{})'.format(
 			WindowsUtils._getVersionRegKey('ProductName'),
-			WindowsUtils.getWindowsRelease(),
 			WindowsUtils.getWindowsBuild(),
 			WindowsUtils._getVersionRegKey('UBR')
 		)
 
 	@staticmethod
-	def getWindowsRelease() -> str:
+	def getHostBaseTag() -> Optional[str]:
 		'''
-		Determines the Windows 10 / Windows Server release (1607, 1709, 1803, etc.) of the Windows host system
+		Retrieves the tag for the Windows Server Core base image matching the host Windows system
 		'''
-		try:
-			# Starting with Windows 20H2 (also known as 2009), Microsoft stopped updating ReleaseId
-			# and instead updates DisplayVersion
-			return WindowsUtils._getVersionRegKey('DisplayVersion')
-		except FileNotFoundError:
-			# Fallback to ReleaseId for pre-20H2 releases that didn't have DisplayVersion
-			return WindowsUtils._getVersionRegKey('ReleaseId')
+
+		hostBuild = WindowsUtils.getWindowsBuild()
+
+		return WindowsUtils._knownTagsByBuildNumber.get(hostBuild)
 
 	@staticmethod
 	def getWindowsBuild() -> int:
@@ -82,23 +83,14 @@ class WindowsUtils(object):
 		return sys.getwindowsversion().build
 
 	@staticmethod
-	def isBlacklistedWindowsVersion(release=None):
+	def isBlacklistedWindowsHost() -> bool:
 		'''
-		Determines if the specified Windows release is one with bugs that make it unsuitable for use
+		Determines if host Windows version is one with bugs that make it unsuitable for use
 		(defaults to checking the host OS release if one is not specified)
 		'''
 		dockerVersion = parse_version(DockerUtils.version()['Version'])
-		release = WindowsUtils.getWindowsRelease() if release is None else release
-		return release in WindowsUtils._blacklistedReleases and dockerVersion < parse_version('19.03.6')
-
-	@staticmethod
-	def isEndOfLifeWindowsVersion(release=None):
-		'''
-		Determines if the specified Windows release is one that has reached End Of Life (EOL)
-		(defaults to checking the host OS release if one is not specified)
-		'''
-		release = WindowsUtils.getWindowsRelease() if release is None else release
-		return release in WindowsUtils._eolReleases
+		build = WindowsUtils.getWindowsBuild()
+		return build in WindowsUtils._blacklistedHosts and dockerVersion < parse_version('19.03.6')
 
 	@staticmethod
 	def isWindowsServer() -> bool:
@@ -107,28 +99,6 @@ class WindowsUtils(object):
 		'''
 		# TODO: Replace this with something more reliable
 		return 'Windows Server' in WindowsUtils._getVersionRegKey('ProductName')
-
-	@staticmethod
-	def isInsiderPreview() -> bool:
-		'''
-		Determines if the Windows host system is a Windows Insider preview build
-		'''
-		return WindowsUtils.getWindowsBuild() > WindowsUtils._latestReleaseBuild
-
-	@staticmethod
-	def getReleaseBaseTag(release: str) -> str:
-		'''
-		Retrieves the tag for the Windows Server Core base image matching the specified Windows 10 / Windows Server release
-		'''
-
-		# For Windows Insider preview builds, build the latest release tag
-		if WindowsUtils.isInsiderPreview():
-			return WindowsUtils._validTags[-1]
-
-		# This lookup table is based on the list of valid tags from <https://hub.docker.com/r/microsoft/windowsservercore/>
-		return {
-			'1809': 'ltsc2019',
-		}.get(release, release)
 
 	@staticmethod
 	def getDllSrcImage(basetag: str) -> str:
@@ -142,22 +112,18 @@ class WindowsUtils(object):
 		return f'mcr.microsoft.com/windows:{tag}'
 
 	@staticmethod
-	def getValidBaseTags() -> [str]:
+	def getKnownBaseTags() -> [str]:
 		'''
-		Returns the list of valid tags for the Windows Server Core base image, in ascending chronological release order
+		Returns the list of known tags for the Windows Server Core base image, in ascending chronological release order
 		'''
-		return WindowsUtils._validTags
+		return WindowsUtils._knownTags
 
 	@staticmethod
-	def isValidBaseTag(tag: str) -> bool:
-		'''
-		Determines if the specified tag is a valid Windows Server Core base image tag
-		'''
-		return tag in WindowsUtils._validTags
-
-	@staticmethod
-	def isNewerBaseTag(older: str, newer: str) -> bool:
+	def isNewerBaseTag(older: str, newer: str) -> Optional[bool]:
 		'''
 		Determines if the base tag `newer` is chronologically newer than the base tag `older`
 		'''
-		return WindowsUtils._validTags.index(newer) > WindowsUtils._validTags.index(older)
+		try:
+			return WindowsUtils._knownTags.index(newer) > WindowsUtils._knownTags.index(older)
+		except ValueError:
+			return None

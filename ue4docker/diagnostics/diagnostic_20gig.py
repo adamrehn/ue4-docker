@@ -14,7 +14,7 @@ class diagnostic20Gig(DiagnosticBase):
 		# Setup our argument parser so we can use its help message output in our description text
 		self._parser = argparse.ArgumentParser(prog='ue4-docker diagnostics 20gig')
 		self._parser.add_argument('--isolation', default=None, choices=['hyperv', 'process'], help="Override the default isolation mode when testing Windows containers")
-		self._parser.add_argument('-basetag', default=None, choices=WindowsUtils.getValidBaseTags(), help="Override the default base image tag when testing Windows containers")
+		self._parser.add_argument('-basetag', default=None, choices=WindowsUtils.getKnownBaseTags(), help="Override the default base image tag when testing Windows containers")
 	
 	def getName(self):
 		'''

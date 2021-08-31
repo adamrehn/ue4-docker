@@ -61,8 +61,12 @@ class DiagnosticBase(object):
 		
 		# Determine the appropriate container image base tag for the host system release unless the user specified a base tag
 		buildArgs = []
-		defaultBaseTag = WindowsUtils.getReleaseBaseTag(WindowsUtils.getWindowsRelease())
-		baseTag = basetagOverride if basetagOverride is not None else defaultBaseTag
+		hostBaseTag = WindowsUtils.getHostBaseTag()
+		baseTag = basetagOverride if basetagOverride is not None else hostBaseTag
+
+		if baseTag is None:
+			raise RuntimeError('unable to determine Windows Server Core base image tag from host system. Specify it explicitly using -basetag command-line flag')
+
 		buildArgs = ['--build-arg', 'BASETAG={}'.format(baseTag)]
 		
 		# Use the default isolation mode unless requested otherwise
@@ -72,7 +76,7 @@ class DiagnosticBase(object):
 		
 		# If the user specified process isolation mode and a different base tag to the host system then warn them
 		prefix = self.getPrefix()
-		if isolation == 'process' and baseTag != defaultBaseTag:
+		if isolation == 'process' and baseTag != hostBaseTag:
 			logger.info('[{}] Warning: attempting to use different Windows container/host versions'.format(prefix), False)
 			logger.info('[{}] when running in process isolation mode, this will usually break!'.format(prefix), False)
 		
