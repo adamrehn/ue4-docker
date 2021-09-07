@@ -10,6 +10,7 @@ SHELL ["cmd", "/S", "/C"]
 # Gather the system DLLs that we need from the full Windows base image
 COPY --from=dlls `
     C:\Windows\System32\avicap32.dll `
+    C:\Windows\System32\avifil32.dll `
     C:\Windows\System32\avrt.dll `
     C:\Windows\System32\d3d10warp.dll `
     C:\Windows\System32\D3DSCache.dll `
@@ -20,6 +21,7 @@ COPY --from=dlls `
     C:\Windows\System32\mfplat.dll `
     C:\Windows\System32\mfplay.dll `
     C:\Windows\System32\mfreadwrite.dll `
+    C:\Windows\System32\msacm32.dll `
     C:\Windows\System32\msdmo.dll `
     C:\Windows\System32\msvfw32.dll `
     C:\Windows\System32\opengl32.dll `
