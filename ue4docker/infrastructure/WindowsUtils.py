@@ -21,6 +21,7 @@ class WindowsUtils(object):
         19041: "2004",
         19042: "20H2",
         19043: "21H1",
+        20348: "ltsc2022",
     }
 
     _knownTags = list(_knownTagsByBuildNumber.values())
@@ -111,11 +112,16 @@ class WindowsUtils(object):
         """
         Returns Windows image that can be used as a source for DLLs missing from Windows Server Core base image
         """
+        # TODO: we also need to use Windows Server image when user specifies custom tags, like '10.0.20348.169'
+        image = {
+            "ltsc2022": "mcr.microsoft.com/windows/server",
+        }.get(basetag, "mcr.microsoft.com/windows")
+
         tag = {
             "ltsc2019": "1809",
         }.get(basetag, basetag)
 
-        return f"mcr.microsoft.com/windows:{tag}"
+        return f"{image}:{tag}"
 
     @staticmethod
     def getKnownBaseTags() -> [str]:
