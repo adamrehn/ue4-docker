@@ -30,9 +30,6 @@ FROM ${NAMESPACE}/ue4-minimal:${TAG}-${PREREQS_TAG}
 ARG UE4CLI_VERSION
 ARG CONAN_UE4CLI_VERSION
 
-# Clone the UE4Capture repository
-RUN git clone "https://github.com/adamrehn/UE4Capture.git" /home/ue4/UE4Capture
-
 # Install CMake, ue4cli, conan-ue4cli, and ue4-ci-helpers
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends cmake
@@ -50,9 +47,6 @@ COPY --from=conan --chown=ue4:ue4 /home/ue4/.conan /home/ue4/.conan
 # Install conan-ue4cli (just generate the profile, since we've already copied the generated packages)
 RUN ue4 setroot /home/ue4/UnrealEngine
 RUN ue4 conan generate --profile-only
-
-# Build the Conan packages for the UE4Capture dependencies
-RUN ue4 conan build MediaIPC-ue4
 
 # Enable PulseAudio support
 USER root
