@@ -18,8 +18,16 @@ def exportInstalledBuild(image, destination, extraArgs):
 
     # Verify that the Installed Build in the specified image is at least 4.21.0
     versionResult = SubprocessUtils.capture(
-        ["docker", "run", "--rm", "-ti", image, "cat", "/home/ue4/UnrealEngine/Engine/Build/Build.version"],
-        universal_newlines=True
+        [
+            "docker",
+            "run",
+            "--rm",
+            "-ti",
+            image,
+            "cat",
+            "/home/ue4/UnrealEngine/Engine/Build/Build.version",
+        ],
+        universal_newlines=True,
     )
     try:
         version = json.loads(versionResult.stdout)
