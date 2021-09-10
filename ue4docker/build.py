@@ -331,8 +331,10 @@ def build():
             resourceMonitor.start()
 
         # Start the HTTP credential endpoint as a child process and wait for it to start
-        endpoint = CredentialEndpoint(username, password)
-        endpoint.start()
+        endpoint = None
+        if config.opts.get("credential_mode", "endpoint") == "endpoint":
+            endpoint = CredentialEndpoint(username, password)
+            endpoint.start()
 
         try:
 
@@ -374,7 +376,7 @@ def build():
 
             # If we're using build secrets then pass the Git username and password to the UE4 source image as secrets
             secrets = {}
-            if config.opts.get("use_build_secrets", False) == True:
+            if config.opts.get("credential_mode", "endpoint") == "secrets":
                 secrets = {"username": username, "password": password}
 
             # Build the UE4 source image
@@ -539,12 +541,14 @@ def build():
             resourceMonitor.stop()
 
             # Stop the HTTP server
-            endpoint.stop()
+            if endpoint is not None:
+                endpoint.stop()
 
         except (Exception, KeyboardInterrupt) as e:
 
             # One of the images failed to build
             logger.error("Error: {}".format(e))
             resourceMonitor.stop()
-            endpoint.stop()
+            if endpoint is not None:
+                endpoint.stop()
             sys.exit(1)
