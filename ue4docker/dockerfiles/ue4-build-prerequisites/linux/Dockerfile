@@ -20,12 +20,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		python3-dev \
 		python3-pip \
 		shared-mime-info \
+		software-properties-common \
 		sudo \
 		tzdata \
 		unzip \
 		xdg-user-dirs \
 		zip && \
 	rm -rf /var/lib/apt/lists/*
+
+{% if enable_dso_patch %}
+# Install the glibc DSO patch to improve Editor startup times
+RUN add-apt-repository -y ppa:slonopotamus/glibc-dso && \
+	apt-get update && \
+	apt upgrade -y libc6 && \
+	rm -rf /var/lib/apt/lists/*
+
+# Enable the glibc DSO patch
+ENV GLIBC_TUNABLES=glibc.rtld.dynamic_sort=2
+{% endif %}
 
 # Disable the default "lecture" message the first time a user runs a command using sudo
 RUN echo 'Defaults lecture="never"' >> /etc/sudoers
