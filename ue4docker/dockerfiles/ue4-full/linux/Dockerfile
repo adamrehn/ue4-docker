@@ -52,31 +52,4 @@ RUN ue4 conan generate --profile-only
 USER root
 RUN apt-get install -y --no-install-recommends pulseaudio-utils
 COPY pulseaudio-client.conf /etc/pulse/client.conf
-
-# Enable X11 support (including the libraries required by CEF) and xvfb so we can create a dummy display if needed
-ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES},display
-RUN apt-get install -y --no-install-recommends \
-	libasound2 \
-	libatk1.0-0 \
-	libcairo2 \
-	libfontconfig1 \
-	libfreetype6 \
-	libglu1 \
-	libnss3 \
-	libnspr4 \
-	libpango-1.0-0 \
-	libpangocairo-1.0-0 \
-	libsm6 \
-	libxcomposite1 \
-	libxcursor1 \
-	libxi6 \
-	libxrandr2 \
-	libxrender1 \
-	libxss1 \
-	libxv1 \
-	x11-xkb-utils \
-	xauth \
-	xfonts-base \
-	xkb-data \
-	xvfb
 USER ue4
