@@ -26,6 +26,8 @@ Resources:
 
 
 ## Contributing
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fadamrehn%2Fue4-docker.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fadamrehn%2Fue4-docker?ref=badge_shield)
+
 
 See the file [CONTRIBUTING.md](https://github.com/adamrehn/ue4-docker/blob/master/.github/CONTRIBUTING.md) for guidelines on how to contribute to the development of ue4-docker.
 
@@ -37,3 +39,7 @@ Copyright &copy; 2018 - 2021, Adam Rehn. Licensed under the MIT License, see the
 Unreal and its logo are Epic Games' trademarks or registered trademarks in the US and elsewhere.
 
 Docker and the Docker logo are trademarks or registered trademarks of Docker in the United States and other countries.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fadamrehn%2Fue4-docker.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fadamrehn%2Fue4-docker?ref=badge_large)
