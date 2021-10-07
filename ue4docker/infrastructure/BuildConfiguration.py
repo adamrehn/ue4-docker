@@ -228,6 +228,11 @@ class BuildConfiguration(object):
             action="store_true",
             help="Enable verbose output during builds (useful for debugging)",
         )
+        parser.add_argument(
+            "-changelist",
+            default=None,
+            help="Set a specific changelist number in the Unreal Engine's Build.version file",
+        )
 
     def __init__(self, parser, argv):
         """
@@ -303,6 +308,7 @@ class BuildConfiguration(object):
         self.verbose = self.args.verbose
         self.layoutDir = self.args.layout
         self.combine = self.args.combine
+        self.changelist = self.args.changelist
 
         # If the user specified custom version strings for ue4cli and/or conan-ue4cli, process them
         self.ue4cliVersion = self._processPackageVersion("ue4cli", self.args.ue4cli)

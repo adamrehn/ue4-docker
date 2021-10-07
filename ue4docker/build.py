@@ -419,12 +419,17 @@ def build():
                 )
 
             # Build the minimal UE4 CI image, unless requested otherwise by the user
+            minimalArgs = (
+                ["--build-arg", "CHANGELIST={}".format(config.changelist)]
+                if config.changelist is not None
+                else []
+            )
             buildUe4Minimal = config.noMinimal == False
             if buildUe4Minimal == True:
                 builder.build(
                     "ue4-minimal",
                     mainTags,
-                    commonArgs + config.platformArgs + ue4BuildArgs,
+                    commonArgs + config.platformArgs + ue4BuildArgs + minimalArgs,
                 )
                 builtImages.append("ue4-minimal")
             else:

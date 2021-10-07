@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import json, os, sys
+import json, sys
 
 
 def readFile(filename):
@@ -12,9 +12,16 @@ def writeFile(filename, data):
         f.write(data.encode("utf-8"))
 
 
-# Update the `Changelist` field to reflect the `CompatibleChangelist` field in our version file
+# Update the `Changelist` field to reflect the `CompatibleChangelist` field in our version file, unless a specific value was provided
 versionFile = sys.argv[1]
+changelistOverride = int(sys.argv[2]) if len(sys.argv) > 2 else None
 details = json.loads(readFile(versionFile))
-details["Changelist"] = details["CompatibleChangelist"]
+details["Changelist"] = (
+    changelistOverride
+    if changelistOverride is not None
+    else details["CompatibleChangelist"]
+)
 details["IsPromotedBuild"] = 1
-writeFile(versionFile, json.dumps(details, indent=4))
+patchedJson = json.dumps(details, indent=4)
+writeFile(versionFile, patchedJson)
+print("PATCHED BUILD.VERSION:\n{}".format(patchedJson), file=sys.stderr)

@@ -11,8 +11,9 @@ FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 RUN rm -rf /home/ue4/UnrealEngine/.git
 
 # Set the changelist number in Build.version to ensure our Build ID is generated correctly
+ARG CHANGELIST
 COPY set-changelist.py /tmp/set-changelist.py
-RUN python3 /tmp/set-changelist.py /home/ue4/UnrealEngine/Engine/Build/Build.version
+RUN python3 /tmp/set-changelist.py /home/ue4/UnrealEngine/Engine/Build/Build.version $CHANGELIST
 
 {% if (not disable_all_patches) and (not disable_opengl_patch) %}
 # Enable the OpenGL RHI for Engine versions where it is present but deprecated
