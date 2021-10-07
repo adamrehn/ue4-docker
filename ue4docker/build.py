@@ -279,6 +279,14 @@ def build():
 
         # Report which Engine components are being excluded (if any)
         logger.info("GENERAL SETTINGS", False)
+        logger.info(
+            "Changelist override: {}".format(
+                config.changelist
+                if config.changelist is not None
+                else "(None specified)"
+            ),
+            False,
+        )
         if len(config.excludedComponents) > 0:
             logger.info("Excluding the following Engine components:", False)
             for component in config.describeExcludedComponents():

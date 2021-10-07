@@ -29,6 +29,18 @@ DEFAULT_CUDA_VERSION = "9.2"
 # The default memory limit (in GB) under Windows
 DEFAULT_MEMORY_LIMIT = 10.0
 
+# The Perforce changelist numbers for each supported .0 release of the Unreal Engine
+UNREAL_ENGINE_RELEASE_CHANGELISTS = {
+    "4.20.0": 4212847,
+    "4.21.0": 4541578,
+    "4.22.0": 5660361,
+    "4.23.0": 8386587,
+    "4.24.0": 10570792,
+    "4.25.0": 13144385,
+    "4.26.0": 14830424,
+    "4.27.0": 17155196,
+}
+
 
 class VisualStudio(object):
     VS2017 = "2017"
@@ -230,6 +242,7 @@ class BuildConfiguration(object):
         )
         parser.add_argument(
             "-changelist",
+            type=int,
             default=None,
             help="Set a specific changelist number in the Unreal Engine's Build.version file",
         )
@@ -244,6 +257,7 @@ class BuildConfiguration(object):
 
         # Parse the supplied command-line arguments
         self.args = parser.parse_args(argv)
+        self.changelist = self.args.changelist
 
         # Determine if we are building a custom version of UE4 rather than an official release
         self.args.release = self.args.release.lower()
@@ -288,6 +302,15 @@ class BuildConfiguration(object):
             self.branch = "{}-release".format(self.release)
             self.custom = False
 
+            # If the user specified a .0 release of the Unreal Engine and did not specify a changelist override then
+            # use the official changelist number for that release to ensure consistency with Epic Games Launcher builds
+            # (This is necessary because .0 releases do not include a `CompatibleChangelist` value in Build.version)
+            if (
+                self.changelist is None
+                and self.release in UNREAL_ENGINE_RELEASE_CHANGELISTS
+            ):
+                self.changelist = UNREAL_ENGINE_RELEASE_CHANGELISTS[self.release]
+
         # Store our common configuration settings
         self.containerPlatform = (
             "windows"
@@ -308,7 +331,6 @@ class BuildConfiguration(object):
         self.verbose = self.args.verbose
         self.layoutDir = self.args.layout
         self.combine = self.args.combine
-        self.changelist = self.args.changelist
 
         # If the user specified custom version strings for ue4cli and/or conan-ue4cli, process them
         self.ue4cliVersion = self._processPackageVersion("ue4cli", self.args.ue4cli)
