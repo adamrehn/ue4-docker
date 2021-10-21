@@ -99,6 +99,12 @@ class BuildConfiguration(object):
         """
         parser.add_argument(
             "release",
+            nargs="?",  # aka "required = False", but that doesn't work in positionals
+            help='UE4 release to build, in semver format (e.g. 4.20.0) or "custom" for a custom repo and branch (deprecated, use --ue-version instead)',
+        )
+        parser.add_argument(
+            "--ue-version",
+            default=None,
             help='UE4 release to build, in semver format (e.g. 4.20.0) or "custom" for a custom repo and branch',
         )
         parser.add_argument(
@@ -117,18 +123,27 @@ class BuildConfiguration(object):
             help="Print `docker build` commands instead of running them",
         )
         parser.add_argument(
-            "--no-engine", action="store_true", help="Don't build the ue4-engine image"
+            "--no-engine",
+            action="store_true",
+            help="Don't build the ue4-engine image (deprecated, use --target instead)",
         )
         parser.add_argument(
             "--no-minimal",
             action="store_true",
-            help="Don't build the ue4-minimal image",
+            help="Don't build the ue4-minimal image (deprecated, use --target instead)",
         )
         parser.add_argument(
-            "--no-full", action="store_true", help="Don't build the ue4-full image"
+            "--no-full",
+            action="store_true",
+            help="Don't build the ue4-full image (deprecated, use --target instead)",
         )
         parser.add_argument(
             "--no-cache", action="store_true", help="Disable Docker build cache"
+        )
+        parser.add_argument(
+            "--target",
+            action="append",
+            help="Add a target to the build list. Valid targets are `build-prerequisites`, `source`, `engine`, `minimal`, `full`, and `all`. May be specified multiple times or comma-separated. Defaults to `all`.",
         )
         parser.add_argument(
             "--random-memory",
@@ -264,60 +279,163 @@ class BuildConfiguration(object):
         self.args = parser.parse_args(argv)
         self.changelist = self.args.changelist
 
-        # Determine if we are building a custom version of UE4 rather than an official release
-        self.args.release = self.args.release.lower()
-        if self.args.release == "custom" or self.args.release.startswith("custom:"):
+        # Figure out what targets we have; this is needed to find out if we need --ue-version.
+        using_target_specifier_old = (
+            self.args.no_engine or self.args.no_minimal or self.args.no_full
+        )
+        using_target_specifier_new = self.args.target is not None
 
-            # Both a custom repository and a custom branch/tag must be specified
-            if self.args.repo is None or self.args.branch is None:
-                raise RuntimeError(
-                    "both a repository and branch/tag must be specified when building a custom version of the Engine"
-                )
+        # If we specified nothing, it's the same as specifying `all`
+        if not using_target_specifier_old and not using_target_specifier_new:
+            self.args.target = ["all"]
+        elif using_target_specifier_old and not using_target_specifier_new:
+            # Convert these to the new style
 
-            # Use the specified repository and branch/tag
-            customName = (
-                self.args.release.split(":", 2)[1].strip()
-                if ":" in self.args.release
-                else ""
+            # no-minimal implies no-full
+            if self.args.no_minimal:
+                self.args.no_full = True
+
+            # Change into target descriptors
+            self.args.target = []
+
+            if not self.args.no_full:
+                self.args.target += ["full"]
+
+            if not self.args.no_minimal:
+                self.args.target += ["minimal"]
+
+            if not self.args.no_engine:
+                self.args.target += ["engine"]
+
+            # disabling these was never supported
+            self.args.target += ["source"]
+            self.args.target += ["build-prerequisites"]
+
+        elif using_target_specifier_new and not using_target_specifier_old:
+            # these can be token-delimited, so let's just split them apart and then remerge them into one list
+            split = [item.split(",") for item in self.args.target]
+            self.args.target = [item for sublist in split for item in sublist]
+
+        elif using_target_specifier_old and using_target_specifier_new:
+            # uhoh
+            raise RuntimeError(
+                "specified both `--target` and the old `--no-*` options; please use only `--target`!"
             )
-            self.release = customName if len(customName) > 0 else "custom"
-            self.repository = self.args.repo
-            self.branch = self.args.branch
-            self.custom = True
 
-        else:
+        # Now that we have our options in `self.args.target`, evaluate our dependencies
+        # In a theoretical ideal world this should be code-driven; if you find yourself adding a lot more code to this, consider a redesign!
+        # Adding things to the target list while parsing is weird and feels dangerously superlinear,
+        # but given how few things exist, it is unlikely to be a perf problem before it gets redesigned out anyway.
 
-            # Validate the specified version string
-            try:
-                ue4Version = semver.parse(self.args.release)
-                if (
-                    ue4Version["major"] not in [4, 5]
-                    or ue4Version["prerelease"] != None
-                ):
-                    raise Exception()
-                self.release = semver.format_version(
-                    ue4Version["major"], ue4Version["minor"], ue4Version["patch"]
-                )
-            except:
-                raise RuntimeError(
-                    'invalid Unreal Engine release number "{}", full semver format required (e.g. "4.20.0")'.format(
-                        self.args.release
+        # build-prereq -> source -> engine
+        # build-prereq -> source -> minimal -> full
+
+        self.buildTargetPrerequisites = False
+        self.buildTargetSource = False
+        self.buildTargetEngine = False
+        self.buildTargetMinimal = False
+        self.buildTargetFull = False
+
+        if "full" in self.args.target or "all" in self.args.target:
+            self.buildTargetFull = True
+            self.args.target += ["minimal"]
+
+        if "minimal" in self.args.target or "all" in self.args.target:
+            self.buildTargetMinimal = True
+            self.args.target += ["source"]
+
+        if "engine" in self.args.target or "all" in self.args.target:
+            self.buildTargetEngine = True
+            self.args.target += ["source"]
+
+        if "source" in self.args.target or "all" in self.args.target:
+            self.buildTargetSource = True
+            self.args.target += ["build-prerequisites"]
+
+        if "build-prerequisites" in self.args.target or "all" in self.args.target:
+            self.buildTargetPrerequisites = True
+
+        if not self.buildTargetPrerequisites:
+            raise RuntimeError(
+                "we're not building anything; this shouldn't even be possible, but is definitely not useful"
+            )
+
+        # See if the user specified both the old positional version option and the new ue-version option
+        if self.args.release is not None and self.args.ue_version is not None:
+            raise RuntimeError(
+                "specified both `--ue-version` and the old positional version option; please use only `--ue-version`!"
+            )
+
+        # For the sake of a simpler pull request, we use self.args.release as the canonical place for this data.
+        # If support for the old positional version option is removed, this should be fixed.
+        if self.args.ue_version is not None:
+            self.args.release = self.args.ue_version
+
+        # We care about the version number only if we're building source
+        if self.buildTargetSource:
+            if self.args.release is None:
+                raise RuntimeError("missing `--ue-version` when building source")
+
+            # Determine if we are building a custom version of UE4 rather than an official release
+            self.args.release = self.args.release.lower()
+            if self.args.release == "custom" or self.args.release.startswith("custom:"):
+
+                # Both a custom repository and a custom branch/tag must be specified
+                if self.args.repo is None or self.args.branch is None:
+                    raise RuntimeError(
+                        "both a repository and branch/tag must be specified when building a custom version of the Engine"
                     )
+
+                # Use the specified repository and branch/tag
+                customName = (
+                    self.args.release.split(":", 2)[1].strip()
+                    if ":" in self.args.release
+                    else ""
                 )
+                self.release = customName if len(customName) > 0 else "custom"
+                self.repository = self.args.repo
+                self.branch = self.args.branch
+                self.custom = True
 
-            # Use the default repository and the release tag for the specified version
-            self.repository = DEFAULT_GIT_REPO
-            self.branch = "{}-release".format(self.release)
+            else:
+
+                # Validate the specified version string
+                try:
+                    ue4Version = semver.parse(self.args.release)
+                    if (
+                        ue4Version["major"] not in [4, 5]
+                        or ue4Version["prerelease"] != None
+                    ):
+                        raise Exception()
+                    self.release = semver.format_version(
+                        ue4Version["major"], ue4Version["minor"], ue4Version["patch"]
+                    )
+                except:
+                    raise RuntimeError(
+                        'invalid Unreal Engine release number "{}", full semver format required (e.g. "4.20.0")'.format(
+                            self.args.release
+                        )
+                    )
+
+                # Use the default repository and the release tag for the specified version
+                self.repository = DEFAULT_GIT_REPO
+                self.branch = "{}-release".format(self.release)
+                self.custom = False
+
+                # If the user specified a .0 release of the Unreal Engine and did not specify a changelist override then
+                # use the official changelist number for that release to ensure consistency with Epic Games Launcher builds
+                # (This is necessary because .0 releases do not include a `CompatibleChangelist` value in Build.version)
+                if (
+                    self.changelist is None
+                    and self.release in UNREAL_ENGINE_RELEASE_CHANGELISTS
+                ):
+                    self.changelist = UNREAL_ENGINE_RELEASE_CHANGELISTS[self.release]
+        else:
+            # defaults needed by other parts of the codebase
             self.custom = False
-
-            # If the user specified a .0 release of the Unreal Engine and did not specify a changelist override then
-            # use the official changelist number for that release to ensure consistency with Epic Games Launcher builds
-            # (This is necessary because .0 releases do not include a `CompatibleChangelist` value in Build.version)
-            if (
-                self.changelist is None
-                and self.release in UNREAL_ENGINE_RELEASE_CHANGELISTS
-            ):
-                self.changelist = UNREAL_ENGINE_RELEASE_CHANGELISTS[self.release]
+            self.release = None
+            self.repository = None
+            self.branch = None
 
         # Store our common configuration settings
         self.containerPlatform = (
@@ -327,9 +445,6 @@ class BuildConfiguration(object):
         )
         self.dryRun = self.args.dry_run
         self.rebuild = self.args.rebuild
-        self.noEngine = self.args.no_engine
-        self.noMinimal = self.args.no_minimal
-        self.noFull = self.args.no_full
         self.suffix = self.args.suffix
         self.platformArgs = ["--no-cache"] if self.args.no_cache == True else []
         self.excludedComponents = set(self.args.exclude)
@@ -373,27 +488,29 @@ class BuildConfiguration(object):
                 "the `-layout` flag must be used when specifying the `--combine` flag"
             )
 
-        # Verify that the value for `source_mode` is valid if specified
-        validSourceModes = ["git", "copy"]
-        if self.opts.get("source_mode", "git") not in validSourceModes:
-            raise RuntimeError(
-                "invalid value specified for the `source_mode` option, valid values are {}".format(
-                    validSourceModes
+        # We care about source_mode and credential_mode only if we're building source
+        if self.buildTargetSource:
+            # Verify that the value for `source_mode` is valid if specified
+            validSourceModes = ["git", "copy"]
+            if self.opts.get("source_mode", "git") not in validSourceModes:
+                raise RuntimeError(
+                    "invalid value specified for the `source_mode` option, valid values are {}".format(
+                        validSourceModes
+                    )
                 )
-            )
 
-        # Verify that the value for `credential_mode` is valid if specified
-        validCredentialModes = (
-            ["endpoint", "secrets"]
-            if self.containerPlatform == "linux"
-            else ["endpoint"]
-        )
-        if self.opts.get("credential_mode", "endpoint") not in validCredentialModes:
-            raise RuntimeError(
-                "invalid value specified for the `credential_mode` option, valid values are {} when building {} containers".format(
-                    validCredentialModes, self.containerPlatform.title()
-                )
+            # Verify that the value for `credential_mode` is valid if specified
+            validCredentialModes = (
+                ["endpoint", "secrets"]
+                if self.containerPlatform == "linux"
+                else ["endpoint"]
             )
+            if self.opts.get("credential_mode", "endpoint") not in validCredentialModes:
+                raise RuntimeError(
+                    "invalid value specified for the `credential_mode` option, valid values are {} when building {} containers".format(
+                        validCredentialModes, self.containerPlatform.title()
+                    )
+                )
 
         # Generate Jinja context values for keeping or excluding components
         self.opts["excluded_components"] = {
@@ -427,7 +544,7 @@ class BuildConfiguration(object):
     def _generateWindowsConfig(self):
         self.visualStudio = self.args.visual_studio
 
-        if not self.custom:
+        if self.release is not None and not self.custom:
             # Check whether specified Unreal Engine release is compatible with specified Visual Studio
             vsMinSupportedUnreal = VisualStudio.MinSupportedUnreal.get(
                 self.visualStudio, None
