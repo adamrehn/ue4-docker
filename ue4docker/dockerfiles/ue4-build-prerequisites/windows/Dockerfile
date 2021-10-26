@@ -25,6 +25,7 @@ COPY --from=dlls `
     C:\Windows\System32\msdmo.dll `
     C:\Windows\System32\msvfw32.dll `
     C:\Windows\System32\opengl32.dll `
+    C:\Windows\System32\ResampleDMO.dll `
     C:\Windows\System32\ResourcePolicyClient.dll `
     C:\Windows\System32\
 
