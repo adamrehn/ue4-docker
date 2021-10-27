@@ -14,7 +14,7 @@ def writeFile(filename, data):
 
 # Update the `Changelist` field to reflect the `CompatibleChangelist` field in our version file, unless a specific value was provided
 versionFile = sys.argv[1]
-changelistOverride = int(sys.argv[2]) if len(sys.argv) > 2 else None
+changelistOverride = int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[2] != '%CHANGELIST%' else None
 details = json.loads(readFile(versionFile))
 details["Changelist"] = (
     changelistOverride
