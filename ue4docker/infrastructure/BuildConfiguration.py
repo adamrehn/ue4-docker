@@ -285,14 +285,17 @@ class BuildConfiguration(object):
             # Validate the specified version string
             try:
                 ue4Version = semver.parse(self.args.release)
-                if ue4Version["major"] != 4 or ue4Version["prerelease"] != None:
+                if (
+                    ue4Version["major"] not in [4, 5]
+                    or ue4Version["prerelease"] != None
+                ):
                     raise Exception()
                 self.release = semver.format_version(
                     ue4Version["major"], ue4Version["minor"], ue4Version["patch"]
                 )
             except:
                 raise RuntimeError(
-                    'invalid UE4 release number "{}", full semver format required (e.g. "4.20.0")'.format(
+                    'invalid Unreal Engine release number "{}", full semver format required (e.g. "4.20.0")'.format(
                         self.args.release
                     )
                 )
