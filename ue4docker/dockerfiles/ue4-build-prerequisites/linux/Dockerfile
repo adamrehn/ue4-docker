@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		curl \
 		git \
 		git-lfs \
+		libnss3 \
 		python3 \
 		python3-dev \
 		python3-pip \
