@@ -33,9 +33,12 @@ ENV GIT_ASKPASS=/tmp/git-credential-helper-secrets.sh
 RUN chmod +x /tmp/git-credential-helper-secrets.sh
 
 # Clone the UE4 git repository using the build secret credentials
+# (Note that we include the changelist override value here to ensure any cached source code is invalidated if
+#  the override is modified between runs, which is useful when testing preview versions of the Unreal Engine)
+ARG CHANGELIST
 RUN --mount=type=secret,id=username,uid=1000,required \
 	--mount=type=secret,id=password,uid=1000,required \
-	git clone --progress --depth=1 -b $GIT_BRANCH $GIT_REPO /home/ue4/UnrealEngine
+	CHANGELIST="$CHANGELIST" git clone --progress --depth=1 -b $GIT_BRANCH $GIT_REPO /home/ue4/UnrealEngine
 
 {% else %}
 
