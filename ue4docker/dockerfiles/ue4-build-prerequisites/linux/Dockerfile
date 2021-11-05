@@ -37,6 +37,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN apt-get update && apt-get install -y --no-install-recommends \
 			libasound2 \
 			libatk1.0-0 \
+			libatk-bridge2.0-0 \
 			libcairo2 \
 			libfontconfig1 \
 			libfreetype6 \
