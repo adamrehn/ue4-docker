@@ -40,16 +40,16 @@ def exportInstalledBuild(image, destination, extraArgs):
         )
         sys.exit(1)
 
-    # Start a container from which we will copy files
-    container = DockerUtils.start(image, "bash")
+    # Create a container from which we will copy files
+    container = DockerUtils.create(image)
 
     # Attempt to perform the export
     print("Exporting to {}...".format(destination))
     containerPath = "{}:/home/ue4/UnrealEngine".format(container.name)
     exportResult = subprocess.call(["docker", "cp", containerPath, destination])
 
-    # Stop the container, irrespective of whether or not the export succeeded
-    container.stop()
+    # Remove the container, irrespective of whether or not the export succeeded
+    container.remove()
 
     # If the export succeeded, regenerate the linker symlinks on the host system
     if exportResult == 0:
