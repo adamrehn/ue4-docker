@@ -38,7 +38,7 @@ RUN chmod +x /tmp/git-credential-helper-secrets.sh
 ARG CHANGELIST
 RUN --mount=type=secret,id=username,uid=1000,required \
 	--mount=type=secret,id=password,uid=1000,required \
-	CHANGELIST="$CHANGELIST" git clone --progress --depth=1 -b $GIT_BRANCH $GIT_REPO /home/ue4/UnrealEngine
+	CHANGELIST="$CHANGELIST" git clone --progress --depth=1 -b $GIT_BRANCH $GIT_REPO {{ clone_opts }} /home/ue4/UnrealEngine
 
 {% else %}
 
@@ -56,7 +56,7 @@ ENV GIT_ASKPASS=/tmp/git-credential-helper-endpoint.sh
 RUN chmod +x /tmp/git-credential-helper-endpoint.sh
 
 # Clone the UE4 git repository using the endpoint-supplied credentials
-RUN git clone --progress --depth=1 -b $GIT_BRANCH $GIT_REPO /home/ue4/UnrealEngine
+RUN git clone --progress --depth=1 -b $GIT_BRANCH $GIT_REPO {{ clone_opts }} /home/ue4/UnrealEngine
 
 {% endif %}
 
