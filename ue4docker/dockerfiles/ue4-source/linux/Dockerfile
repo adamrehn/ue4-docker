@@ -22,7 +22,7 @@ COPY ${SOURCE_LOCATION} /home/ue4/UnrealEngine
 # The git repository that we will clone
 ARG GIT_REPO=""
 
-# The git branch/tag that we will checkout
+# The git branch/tag/commit that we will checkout
 ARG GIT_BRANCH=""
 
 {% if credential_mode == "secrets" %}
@@ -38,7 +38,13 @@ RUN chmod +x /tmp/git-credential-helper-secrets.sh
 ARG CHANGELIST
 RUN --mount=type=secret,id=username,uid=1000,required \
 	--mount=type=secret,id=password,uid=1000,required \
-	CHANGELIST="$CHANGELIST" git clone --progress --depth=1 -b $GIT_BRANCH $GIT_REPO {{ clone_opts }} /home/ue4/UnrealEngine
+	CHANGELIST="$CHANGELIST" \
+	mkdir /home/ue4/UnrealEngine && \
+	cd /home/ue4/UnrealEngine && \
+	git init && \
+	git remote add origin "$GIT_REPO" && \
+	git fetch --progress --depth 1 {{ clone_opts }} origin "$GIT_BRANCH" && \
+	git checkout FETCH_HEAD
 
 {% else %}
 
@@ -56,7 +62,12 @@ ENV GIT_ASKPASS=/tmp/git-credential-helper-endpoint.sh
 RUN chmod +x /tmp/git-credential-helper-endpoint.sh
 
 # Clone the UE4 git repository using the endpoint-supplied credentials
-RUN git clone --progress --depth=1 -b $GIT_BRANCH $GIT_REPO {{ clone_opts }} /home/ue4/UnrealEngine
+RUN mkdir /home/ue4/UnrealEngine && \
+	cd /home/ue4/UnrealEngine && \
+	git init && \
+	git remote add origin "$GIT_REPO" && \
+	git fetch --progress --depth 1 {{ clone_opts }} origin "$GIT_BRANCH" && \
+	git checkout FETCH_HEAD
 
 {% endif %}
 

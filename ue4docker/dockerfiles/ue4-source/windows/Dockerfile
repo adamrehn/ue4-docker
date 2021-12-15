@@ -23,7 +23,7 @@ COPY ${SOURCE_LOCATION} C:\UnrealEngine
 # The git repository that we will clone
 ARG GIT_REPO=""
 
-# The git branch/tag that we will checkout
+# The git branch/tag/commit that we will checkout
 ARG GIT_BRANCH=""
 
 # Retrieve the address for the host that will supply git credentials
@@ -40,7 +40,12 @@ ENV GIT_ASKPASS=C:\git-credential-helper.bat
 
 # Clone the UE4 git repository using the host-supplied credentials
 WORKDIR C:\
-RUN git clone --progress --depth=1 -b %GIT_BRANCH% %GIT_REPO% {{ clone_opts }} C:\UnrealEngine
+RUN mkdir C:\UnrealEngine && \
+	cd C:\UnrealEngine && \
+	git init && \
+	git remote add origin %GIT_REPO% && \
+	git fetch --progress --depth 1 {{ clone_opts }} origin %GIT_BRANCH% && \
+	git checkout FETCH_HEAD
 
 {% endif %}
 
