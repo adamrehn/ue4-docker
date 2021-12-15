@@ -42,8 +42,13 @@ RUN --mount=type=secret,id=username,uid=1000,required \
 	mkdir /home/ue4/UnrealEngine && \
 	cd /home/ue4/UnrealEngine && \
 	git init && \
+	{% if git_config %}
+	{% for key, value in git_config.items() %}
+	git config {{ key }} {{ value }} && \
+	{% endfor %}
+	{% endif %}
 	git remote add origin "$GIT_REPO" && \
-	git fetch --progress --depth 1 {{ clone_opts }} origin "$GIT_BRANCH" && \
+	git fetch --progress --depth 1 {{ fetch_opts }} origin "$GIT_BRANCH" && \
 	git checkout FETCH_HEAD
 
 {% else %}
@@ -65,8 +70,13 @@ RUN chmod +x /tmp/git-credential-helper-endpoint.sh
 RUN mkdir /home/ue4/UnrealEngine && \
 	cd /home/ue4/UnrealEngine && \
 	git init && \
+	{% if git_config %}
+	{% for key, value in git_config.items() %}
+	git config {{ key }} {{ value }} && \
+	{% endfor %}
+	{% endif %}
 	git remote add origin "$GIT_REPO" && \
-	git fetch --progress --depth 1 {{ clone_opts }} origin "$GIT_BRANCH" && \
+	git fetch --progress --depth 1 {{ fetch_opts }} origin "$GIT_BRANCH" && \
 	git checkout FETCH_HEAD
 
 {% endif %}

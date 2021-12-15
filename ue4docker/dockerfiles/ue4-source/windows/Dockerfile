@@ -43,8 +43,13 @@ WORKDIR C:\
 RUN mkdir C:\UnrealEngine && \
 	cd C:\UnrealEngine && \
 	git init && \
+	{% if git_config %}
+	{% for key, value in git_config.items() %}
+	git config {{ key }} {{ value }} && \
+	{% endfor %}
+	{% endif %}
 	git remote add origin %GIT_REPO% && \
-	git fetch --progress --depth 1 {{ clone_opts }} origin %GIT_BRANCH% && \
+	git fetch --progress --depth 1 {{ fetch_opts }} origin %GIT_BRANCH% && \
 	git checkout FETCH_HEAD
 
 {% endif %}
