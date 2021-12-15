@@ -8,13 +8,13 @@ ARG PREREQS_TAG
 FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 {% endif %}
 
-# Remove the .git directory to disable UBT `git status` calls and speed up the build process
-RUN rmdir /s /q C:\UnrealEngine\.git
-
 # Set the changelist number in Build.version to ensure our Build ID is generated correctly
 ARG CHANGELIST
 COPY set-changelist.py C:\set-changelist.py
 RUN python C:\set-changelist.py C:\UnrealEngine\Engine\Build\Build.version %CHANGELIST%
+
+# Remove the .git directory to disable UBT `git status` calls and speed up the build process
+RUN rmdir /s /q C:\UnrealEngine\.git
 
 {% if (not disable_all_patches) and (not disable_buildgraph_patches) %}
 # Patch out problematic entries in InstalledEngineFilters.xml introduced in UE4.20.0
