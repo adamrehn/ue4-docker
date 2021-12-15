@@ -49,7 +49,7 @@ RUN mkdir C:\UnrealEngine && \
 	{% endfor %}
 	{% endif %}
 	git remote add origin %GIT_REPO% && \
-	git fetch --progress --depth 1 {{ fetch_opts }} origin %GIT_BRANCH% && \
+	git fetch --progress --depth 1 origin %GIT_BRANCH% && \
 	git checkout FETCH_HEAD
 
 {% endif %}

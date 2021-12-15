@@ -48,7 +48,7 @@ RUN --mount=type=secret,id=username,uid=1000,required \
 	{% endfor %}
 	{% endif %}
 	git remote add origin "$GIT_REPO" && \
-	git fetch --progress --depth 1 {{ fetch_opts }} origin "$GIT_BRANCH" && \
+	git fetch --progress --depth 1 origin "$GIT_BRANCH" && \
 	git checkout FETCH_HEAD
 
 {% else %}
@@ -76,7 +76,7 @@ RUN mkdir /home/ue4/UnrealEngine && \
 	{% endfor %}
 	{% endif %}
 	git remote add origin "$GIT_REPO" && \
-	git fetch --progress --depth 1 {{ fetch_opts }} origin "$GIT_BRANCH" && \
+	git fetch --progress --depth 1 origin "$GIT_BRANCH" && \
 	git checkout FETCH_HEAD
 
 {% endif %}
