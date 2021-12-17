@@ -40,16 +40,16 @@ ENV GIT_ASKPASS=C:\git-credential-helper.bat
 
 # Clone the UE4 git repository using the host-supplied credentials
 WORKDIR C:\
-RUN mkdir C:\UnrealEngine && \
-	cd C:\UnrealEngine && \
-	git init && \
+RUN mkdir C:\UnrealEngine && `
+	cd C:\UnrealEngine && `
+	git init && `
 	{% if git_config %}
 	{% for key, value in git_config.items() %}
-	git config {{ key }} {{ value }} && \
+	git config {{ key }} {{ value }} && `
 	{% endfor %}
 	{% endif %}
-	git remote add origin %GIT_REPO% && \
-	git fetch --progress --depth 1 origin %GIT_BRANCH% && \
+	git remote add origin %GIT_REPO% && `
+	git fetch --progress --depth 1 origin %GIT_BRANCH% && `
 	git checkout FETCH_HEAD
 
 {% endif %}
