@@ -47,6 +47,7 @@ def info():
     memVirtual = psutil.swap_memory().total
     cpuPhysical = psutil.cpu_count(False)
     cpuLogical = psutil.cpu_count()
+    cpuModel = platform.processor()
 
     # Attempt to query PyPI to determine the latest version of ue4-docker
     # (We ignore any errors here to ensure the `ue4-docker info` command still works without network access)
@@ -81,8 +82,8 @@ def info():
             ),
         ),
         (
-            "Number of processors",
-            "{} physical, {} logical".format(cpuPhysical, cpuLogical),
+            "CPU",
+            "{} physical, {} logical ({})".format(cpuPhysical, cpuLogical, cpuModel),
         ),
     ]
 
