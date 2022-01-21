@@ -21,7 +21,7 @@ expand %TEMP%\Jun2010_XAudio_x64.cab -F:XAPOFX1_5.dll C:\Windows\System32\ && ^
 expand %TEMP%\Jun2010_XAudio_x64.cab -F:XAudio2_7.dll C:\Windows\System32\ || goto :error
 
 @rem Retrieve the DirectX shader compiler files needed for DirectX Raytracing (DXR)
-curl --progress -L "https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.6.2104/dxc_2021_04-20.zip" --output %TEMP%\dxc.zip && ^
+curl --progress-bar -L "https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.6.2104/dxc_2021_04-20.zip" --output %TEMP%\dxc.zip && ^
 powershell -Command "Expand-Archive -Path \"$env:TEMP\dxc.zip\" -DestinationPath $env:TEMP" && ^
 xcopy /y %TEMP%\bin\x64\dxcompiler.dll C:\Windows\System32\ && ^
 xcopy /y %TEMP%\bin\x64\dxil.dll C:\Windows\System32\ || goto :error
