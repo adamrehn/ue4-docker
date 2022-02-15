@@ -20,11 +20,12 @@ LINUX_BASE_IMAGES = {
         "10.0": "nvidia/cudagl:10.0-devel-ubuntu18.04",
         "10.1": "nvidia/cudagl:10.1-devel-ubuntu18.04",
         "10.2": "nvidia/cudagl:10.2-devel-ubuntu18.04",
+        "11.4": "nvidia/cudagl:11.4.2-devel-ubuntu20.04",
     },
 }
 
 # The default CUDA version to use when `--cuda` is specified without a value
-DEFAULT_CUDA_VERSION = "9.2"
+DEFAULT_CUDA_VERSION = "11.4"
 
 # The default memory limit (in GB) under Windows
 DEFAULT_MEMORY_LIMIT = 10.0
