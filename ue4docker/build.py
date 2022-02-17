@@ -262,18 +262,9 @@ def build():
                 sys.exit(1)
 
         elif config.containerPlatform == "linux":
-
-            # Determine if we are building CUDA-enabled container images
-            capabilities = (
-                "CUDA {} + OpenGL".format(config.cuda)
-                if config.cuda is not None
-                else "OpenGL"
-            )
             logger.info("LINUX CONTAINER SETTINGS", False)
             logger.info(
-                "Building GPU-enabled images compatible with NVIDIA Docker ({} support).\n".format(
-                    capabilities
-                ),
+                "Base OS image: {}\n".format(config.baseImage),
                 False,
             )
 
