@@ -14,17 +14,21 @@ DEFAULT_GIT_REPO = "https://github.com/EpicGames/UnrealEngine.git"
 
 # The base images for Linux containers
 LINUX_BASE_IMAGES = {
-    "opengl": "nvidia/opengl:1.0-glvnd-devel-ubuntu18.04",
+    "opengl": "nvidia/opengl:1.0-glvnd-devel-{ubuntu}",
     "cudagl": {
-        "9.2": "nvidia/cudagl:9.2-devel-ubuntu18.04",
-        "10.0": "nvidia/cudagl:10.0-devel-ubuntu18.04",
-        "10.1": "nvidia/cudagl:10.1-devel-ubuntu18.04",
-        "10.2": "nvidia/cudagl:10.2-devel-ubuntu18.04",
+        "9.2": "nvidia/cudagl:9.2-devel-{ubuntu}",
+        "10.0": "nvidia/cudagl:10.0-devel-{ubuntu}",
+        "10.1": "nvidia/cudagl:10.1-devel-{ubuntu}",
+        "10.2": "nvidia/cudagl:10.2-devel-{ubuntu}",
+        "11.4": "nvidia/cudagl:11.4.2-devel-{ubuntu}",
     },
 }
 
+# The default ubuntu base to use
+DEFAULT_LINUX_VERSION = "ubuntu18.04"
+
 # The default CUDA version to use when `--cuda` is specified without a value
-DEFAULT_CUDA_VERSION = "9.2"
+DEFAULT_CUDA_VERSION = "11.4"
 
 # The default memory limit (in GB) under Windows
 DEFAULT_MEMORY_LIMIT = 10.0
@@ -188,7 +192,8 @@ class BuildConfiguration(object):
         parser.add_argument(
             "-basetag",
             default=None,
-            help="Windows Server Core base image tag to use for Windows containers (default is the host OS version)",
+            help="Operating system base image tag to use. For Linux this is the version of Ubuntu (default is ubuntu18.04). "
+            "For Windows this is the Windows Server Core base image tag (default is the host OS version)",
         )
         parser.add_argument(
             "-suffix", default="", help="Add a suffix to the tags of the built images"
@@ -514,6 +519,12 @@ class BuildConfiguration(object):
         if self.suffix.startswith("opengl") or self.suffix.startswith("cudagl"):
             raise RuntimeError('tag suffix cannot begin with "opengl" or "cudagl".')
 
+        self.args.basetag = (
+            self.args.basetag
+            if self.args.basetag is not None
+            else DEFAULT_LINUX_VERSION
+        )
+
         # Determine if we are building CUDA-enabled container images
         self.cuda = None
         if self.args.cuda is not None:
@@ -533,6 +544,8 @@ class BuildConfiguration(object):
         else:
             self.baseImage = LINUX_BASE_IMAGES["opengl"]
             self.prereqsTag = "opengl"
+
+        self.baseImage = self.baseImage.format(ubuntu=self.args.basetag)
 
     def _processPackageVersion(self, package, version):
 
