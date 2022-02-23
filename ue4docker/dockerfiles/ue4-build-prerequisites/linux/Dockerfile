@@ -49,6 +49,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 			libsm6 \
 			libxcomposite1 \
 			libxcursor1 \
+			libxdamage1 \
 			libxi6 \
 			libxrandr2 \
 			libxrender1 \
