@@ -1,3 +1,5 @@
+from typing import Optional
+
 from .DockerUtils import DockerUtils
 from .FilesystemUtils import FilesystemUtils
 from .GlobalConfiguration import GlobalConfiguration
@@ -69,6 +71,7 @@ class ImageBuilder(object):
             # Determine whether we are building using `docker buildx` with build secrets
             imageTags = self._formatTags(name, tags)
             command = DockerUtils.build(imageTags, self.context(name), args)
+            env = None
             if self.platform == "linux" and secrets is not None and len(secrets) > 0:
 
                 # Create temporary files to store the contents of each of our secrets
@@ -82,9 +85,10 @@ class ImageBuilder(object):
                 command = DockerUtils.buildx(
                     imageTags, self.context(name), args, secretFlags
                 )
+                env = {"DOCKER_BUILDKIT": "1"}
 
             # Build the image if it doesn't already exist
-            self._processImage(imageTags[0], name, command, "build", "built")
+            self._processImage(imageTags[0], name, command, "build", "built", env=env)
 
     def context(self, name):
         """
@@ -119,7 +123,15 @@ class ImageBuilder(object):
         """
         return self.rebuild == True or DockerUtils.exists(image) == False
 
-    def _processImage(self, image, name, command, actionPresentTense, actionPastTense):
+    def _processImage(
+        self,
+        image: str,
+        name: Optional[str],
+        command: [str],
+        actionPresentTense: str,
+        actionPastTense: str,
+        env: Optional[dict[str, str]] = None,
+    ):
         """
         Processes the specified image by running the supplied command if it doesn't exist (use rebuild=True to force processing)
         """
@@ -202,7 +214,7 @@ class ImageBuilder(object):
 
         # Attempt to process the image using the supplied command
         startTime = time.time()
-        exitCode = subprocess.call(command)
+        exitCode = subprocess.call(command, env=env)
         endTime = time.time()
 
         # Determine if processing succeeded

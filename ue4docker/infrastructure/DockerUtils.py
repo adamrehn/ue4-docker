@@ -64,7 +64,7 @@ class DockerUtils(object):
         """
         tagArgs = [["-t", tag] for tag in tags]
         return (
-            ["docker", "buildx", "build"]
+            ["docker", "build"]
             + list(itertools.chain.from_iterable(tagArgs))
             + [context]
             + ["--progress=plain"]
