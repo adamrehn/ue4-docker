@@ -71,7 +71,7 @@ class ImageBuilder(object):
             # Determine whether we are building using `docker buildx` with build secrets
             imageTags = self._formatTags(name, tags)
             command = DockerUtils.build(imageTags, self.context(name), args)
-            env = None
+
             if self.platform == "linux" and secrets is not None and len(secrets) > 0:
 
                 # Create temporary files to store the contents of each of our secrets
@@ -85,10 +85,16 @@ class ImageBuilder(object):
                 command = DockerUtils.buildx(
                     imageTags, self.context(name), args, secretFlags
                 )
-                env = {"DOCKER_BUILDKIT": "1"}
 
             # Build the image if it doesn't already exist
-            self._processImage(imageTags[0], name, command, "build", "built", env=env)
+            self._processImage(
+                imageTags[0],
+                name,
+                command,
+                "build",
+                "built",
+                env={"DOCKER_BUILDKIT": "1"},
+            )
 
     def context(self, name):
         """
