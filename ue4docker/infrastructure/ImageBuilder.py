@@ -93,7 +93,7 @@ class ImageBuilder(object):
                 command,
                 "build",
                 "built",
-                env={"DOCKER_BUILDKIT": "1"},
+                env=dict(os.environ, DOCKER_BUILDKIT="1"),
             )
 
     def context(self, name):
