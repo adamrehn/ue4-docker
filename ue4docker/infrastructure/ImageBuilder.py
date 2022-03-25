@@ -86,6 +86,10 @@ class ImageBuilder(object):
                     imageTags, self.context(name), args, secretFlags
                 )
 
+            env = os.environ.copy()
+            if self.platform == "linux":
+                env["DOCKER_BUILDKIT"] = "1"
+
             # Build the image if it doesn't already exist
             self._processImage(
                 imageTags[0],
@@ -93,7 +97,7 @@ class ImageBuilder(object):
                 command,
                 "build",
                 "built",
-                env=dict(os.environ, DOCKER_BUILDKIT="1"),
+                env=env,
             )
 
     def context(self, name):
