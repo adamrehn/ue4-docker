@@ -48,7 +48,7 @@ setup(
         "psutil",
         "requests",
         "semver>=2.7.9,<3.0.0",
-        "setuptools>=38.6.0",
+        "setuptools>=60.4.0",
         "termcolor",
         "twine>=1.11.0",
         "wheel>=0.31.0",
