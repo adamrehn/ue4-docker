@@ -474,7 +474,7 @@ class BuildConfiguration(object):
             self.isolation = self.args.isolation
         else:
 
-            # If we are able to use process isolation mode then use it, otherwise fallback to the Docker daemon's default isolation mode
+            # If we are able to use process isolation mode then use it, otherwise use Hyper-V isolation mode
             differentKernels = self.basetag != self.hostBasetag
             dockerSupportsProcess = parse_version(
                 DockerUtils.version()["Version"]
@@ -482,7 +482,7 @@ class BuildConfiguration(object):
             if not differentKernels and dockerSupportsProcess:
                 self.isolation = "process"
             else:
-                self.isolation = DockerUtils.info()["Isolation"]
+                self.isolation = "hyperv"
 
         # Set the isolation mode Docker flag
         self.platformArgs.append("--isolation=" + self.isolation)
