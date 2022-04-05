@@ -284,6 +284,9 @@ class BuildConfiguration(object):
             self.args.target = ["all"]
         elif using_target_specifier_old and not using_target_specifier_new:
             # Convert these to the new style
+            print(
+                "Warning: Using deprecated `--no-*` target specifiers; recommend changing to `--target`"
+            )
 
             # no-minimal implies no-full
             if self.args.no_minimal:
