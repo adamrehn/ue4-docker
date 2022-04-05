@@ -106,7 +106,7 @@ def build():
         )
 
         # Resolve our main set of tags for the generated images; this is used only for Source and downstream
-        if config.buildTargetSource:
+        if config.buildTargets["source"]:
             mainTags = [
                 "{}{}-{}".format(config.release, config.suffix, config.prereqsTag),
                 config.release + config.suffix,
@@ -243,7 +243,7 @@ def build():
 
             # Ensure the Docker daemon is configured correctly
             requiredLimit = WindowsUtils.requiredSizeLimit()
-            if DockerUtils.maxsize() < requiredLimit and config.buildTargetSource:
+            if DockerUtils.maxsize() < requiredLimit and config.buildTargets["source"]:
                 logger.error("SETUP REQUIRED:")
                 logger.error(
                     "The max image size for Windows containers must be set to at least {}GB.".format(
@@ -308,7 +308,7 @@ def build():
             password = ""
 
         elif (
-            not config.buildTargetSource
+            not config.buildTargets["source"]
             or builder.willBuild("ue4-source", mainTags) == False
         ):
 
@@ -357,7 +357,7 @@ def build():
             ]
 
             # Build the UE4 build prerequisites image
-            if config.buildTargetPrerequisites:
+            if config.buildTargets["build-prerequisites"]:
                 # Compute the build options for the UE4 build prerequisites image
                 # (This is the only image that does not use any user-supplied tag suffix, since the tag always reflects any customisations)
                 prereqsArgs = ["--build-arg", "BASEIMAGE=" + config.baseImage]
@@ -384,7 +384,7 @@ def build():
                 logger.info("Skipping ue4-build-prerequisities image build.")
 
             # Build the UE4 source image
-            if config.buildTargetSource:
+            if config.buildTargets["source"]:
                 # Start the HTTP credential endpoint as a child process and wait for it to start
                 if config.opts.get("credential_mode", "endpoint") == "endpoint":
                     endpoint = CredentialEndpoint(username, password)
@@ -414,14 +414,14 @@ def build():
             else:
                 logger.info("Skipping ue4-source image build.")
 
-            if config.buildTargetEngine or config.buildTargetMinimal:
+            if config.buildTargets["engine"] or config.buildTargets["minimal"]:
                 ue4BuildArgs = prereqConsumerArgs + [
                     "--build-arg",
                     "TAG={}".format(mainTags[1]),
                 ]
 
             # Build the UE4 Engine source build image, unless requested otherwise by the user
-            if config.buildTargetEngine:
+            if config.buildTargets["engine"]:
                 builder.build(
                     "ue4-engine",
                     mainTags,
@@ -432,7 +432,7 @@ def build():
                 logger.info("Skipping ue4-engine image build.")
 
             # Build the minimal UE4 CI image, unless requested otherwise by the user
-            if config.buildTargetMinimal == True:
+            if config.buildTargets["minimal"]:
                 minimalArgs = (
                     ["--build-arg", "CHANGELIST={}".format(config.changelist)]
                     if config.changelist is not None
@@ -449,7 +449,7 @@ def build():
                 logger.info("Skipping ue4-minimal image build.")
 
             # Build the full UE4 CI image, unless requested otherwise by the user
-            if config.buildTargetFull:
+            if config.buildTargets["full"]:
 
                 # If custom version strings were specified for ue4cli and/or conan-ue4cli, use them
                 infrastructureFlags = []
