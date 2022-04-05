@@ -273,6 +273,20 @@ def build():
         # Report which Engine components are being excluded (if any)
         logger.info("GENERAL SETTINGS", False)
         logger.info(
+            "Build targets: {}".format(
+                " ".join(
+                    sorted(
+                        [
+                            target
+                            for target, enabled in config.buildTargets.items()
+                            if enabled
+                        ]
+                    )
+                )
+            ),
+            False,
+        )
+        logger.info(
             "Changelist override: {}".format(
                 config.changelist
                 if config.changelist is not None
