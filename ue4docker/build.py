@@ -429,6 +429,8 @@ def build():
                     "TAG={}".format(mainTags[1]),
                 ]
 
+            # Build the UE4 Engine source build image, unless requested otherwise by the user
+            if config.buildTargetEngine:
                 builder.build(
                     "ue4-engine",
                     mainTags,
