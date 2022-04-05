@@ -423,8 +423,7 @@ def build():
             else:
                 logger.info("Skipping ue4-source image build.")
 
-            # Build the UE4 Engine source build image, unless requested otherwise by the user
-            if config.buildTargetEngine:
+            if config.buildTargetEngine or config.buildTargetMinimal:
                 ue4BuildArgs = prereqConsumerArgs + [
                     "--build-arg",
                     "TAG={}".format(mainTags[1]),
