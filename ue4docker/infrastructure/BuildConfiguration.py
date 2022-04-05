@@ -15,13 +15,7 @@ DEFAULT_GIT_REPO = "https://github.com/EpicGames/UnrealEngine.git"
 # The base images for Linux containers
 LINUX_BASE_IMAGES = {
     "opengl": "nvidia/opengl:1.0-glvnd-devel-{ubuntu}",
-    "cudagl": {
-        "9.2": "nvidia/cudagl:9.2-devel-{ubuntu}",
-        "10.0": "nvidia/cudagl:10.0-devel-{ubuntu}",
-        "10.1": "nvidia/cudagl:10.1-devel-{ubuntu}",
-        "10.2": "nvidia/cudagl:10.2-devel-{ubuntu}",
-        "11.4": "nvidia/cudagl:11.4.2-devel-{ubuntu}",
-    },
+    "cudagl": "nvidia/cudagl:{cuda}-devel-{ubuntu}",
 }
 
 # The default ubuntu base to use
@@ -206,7 +200,7 @@ class BuildConfiguration(object):
         )
         parser.add_argument(
             "-basetag",
-            default=None,
+            default=None if platform.system() == "Windows" else DEFAULT_LINUX_VERSION,
             help="Operating system base image tag to use. For Linux this is the version of Ubuntu (default is ubuntu18.04). "
             "For Windows this is the Windows Server Core base image tag (default is the host OS version)",
         )
@@ -636,33 +630,25 @@ class BuildConfiguration(object):
         if self.suffix.startswith("opengl") or self.suffix.startswith("cudagl"):
             raise RuntimeError('tag suffix cannot begin with "opengl" or "cudagl".')
 
-        self.args.basetag = (
-            self.args.basetag
-            if self.args.basetag is not None
-            else DEFAULT_LINUX_VERSION
-        )
-
         # Determine if we are building CUDA-enabled container images
         self.cuda = None
         if self.args.cuda is not None:
 
             # Verify that the specified CUDA version is valid
             self.cuda = self.args.cuda if self.args.cuda != "" else DEFAULT_CUDA_VERSION
-            if self.cuda not in LINUX_BASE_IMAGES["cudagl"]:
-                raise RuntimeError(
-                    'unsupported CUDA version "{}", supported versions are: {}'.format(
-                        self.cuda, ", ".join([v for v in LINUX_BASE_IMAGES["cudagl"]])
-                    )
-                )
-
             # Use the appropriate base image for the specified CUDA version
-            self.baseImage = LINUX_BASE_IMAGES["cudagl"][self.cuda]
-            self.prereqsTag = "cudagl{}".format(self.cuda)
+            self.baseImage = LINUX_BASE_IMAGES["cudagl"]
+            self.prereqsTag = "cudagl{cuda}-{ubuntu}"
         else:
             self.baseImage = LINUX_BASE_IMAGES["opengl"]
-            self.prereqsTag = "opengl"
+            self.prereqsTag = "opengl-{ubuntu}"
 
-        self.baseImage = self.baseImage.format(ubuntu=self.args.basetag)
+        self.baseImage = self.baseImage.format(
+            cuda=self.args.cuda, ubuntu=self.args.basetag
+        )
+        self.prereqsTag = self.prereqsTag.format(
+            cuda=self.args.cuda, ubuntu=self.args.basetag
+        )
 
     def _processPackageVersion(self, package, version):
 
