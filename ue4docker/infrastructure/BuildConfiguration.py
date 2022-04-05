@@ -324,32 +324,36 @@ class BuildConfiguration(object):
         # build-prereq -> source -> engine
         # build-prereq -> source -> minimal -> full
 
-        self.buildTargetPrerequisites = False
-        self.buildTargetSource = False
-        self.buildTargetEngine = False
-        self.buildTargetMinimal = False
-        self.buildTargetFull = False
+        # We initialize these with all the options, with the intent that you should be accessing them directly and not checking for existence
+        # This is to avoid typos giving false-negatives; KeyError is reliable and tells you what you did wrong
+        self.buildTargets = {
+            "build-prerequisites": False,
+            "source": False,
+            "engine": False,
+            "minimal": False,
+            "full": False,
+        }
 
         if "full" in self.args.target or "all" in self.args.target:
-            self.buildTargetFull = True
+            self.buildTargets["full"] = True
             self.args.target += ["minimal"]
 
         if "minimal" in self.args.target or "all" in self.args.target:
-            self.buildTargetMinimal = True
+            self.buildTargets["minimal"] = True
             self.args.target += ["source"]
 
         if "engine" in self.args.target or "all" in self.args.target:
-            self.buildTargetEngine = True
+            self.buildTargets["engine"] = True
             self.args.target += ["source"]
 
         if "source" in self.args.target or "all" in self.args.target:
-            self.buildTargetSource = True
+            self.buildTargets["source"] = True
             self.args.target += ["build-prerequisites"]
 
         if "build-prerequisites" in self.args.target or "all" in self.args.target:
-            self.buildTargetPrerequisites = True
+            self.buildTargets["build-prerequisites"] = True
 
-        if not self.buildTargetPrerequisites:
+        if not self.buildTargets["build-prerequisites"]:
             raise RuntimeError(
                 "we're not building anything; this shouldn't even be possible, but is definitely not useful"
             )
@@ -366,7 +370,7 @@ class BuildConfiguration(object):
             self.args.release = self.args.ue_version
 
         # We care about the version number only if we're building source
-        if self.buildTargetSource:
+        if self.buildTargets["source"]:
             if self.args.release is None:
                 raise RuntimeError("missing `--ue-version` when building source")
 
@@ -483,7 +487,7 @@ class BuildConfiguration(object):
             )
 
         # We care about source_mode and credential_mode only if we're building source
-        if self.buildTargetSource:
+        if self.buildTargets["source"]:
             # Verify that the value for `source_mode` is valid if specified
             validSourceModes = ["git", "copy"]
             if self.opts.get("source_mode", "git") not in validSourceModes:
