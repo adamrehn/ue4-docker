@@ -66,7 +66,7 @@ def main():
     COMMANDS = {
         "build": {
             "function": build,
-            "description": "Builds container images for a specific version of UE4",
+            "description": "Builds container images for UE4",
         },
         "clean": {"function": clean, "description": "Cleans built container images"},
         "diagnostics": {
