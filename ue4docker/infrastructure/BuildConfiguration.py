@@ -318,8 +318,7 @@ class BuildConfiguration(object):
 
         # Now that we have our options in `self.args.target`, evaluate our dependencies
         # In a theoretical ideal world this should be code-driven; if you find yourself adding a lot more code to this, consider a redesign!
-        # Adding things to the target list while parsing is weird and feels dangerously superlinear,
-        # but given how few things exist, it is unlikely to be a perf problem before it gets redesigned out anyway.
+        active_targets = set(self.args.target)
 
         # build-prereq -> source -> engine
         # build-prereq -> source -> minimal -> full
@@ -334,23 +333,23 @@ class BuildConfiguration(object):
             "full": False,
         }
 
-        if "full" in self.args.target or "all" in self.args.target:
+        if "full" in active_targets or "all" in active_targets:
             self.buildTargets["full"] = True
-            self.args.target += ["minimal"]
+            active_targets.add("minimal")
 
-        if "minimal" in self.args.target or "all" in self.args.target:
+        if "minimal" in active_targets or "all" in active_targets:
             self.buildTargets["minimal"] = True
-            self.args.target += ["source"]
+            active_targets.add("source")
 
-        if "engine" in self.args.target or "all" in self.args.target:
+        if "engine" in active_targets or "all" in active_targets:
             self.buildTargets["engine"] = True
-            self.args.target += ["source"]
+            active_targets.add("source")
 
-        if "source" in self.args.target or "all" in self.args.target:
+        if "source" in active_targets or "all" in active_targets:
             self.buildTargets["source"] = True
-            self.args.target += ["build-prerequisites"]
+            active_targets.add("build-prerequisites")
 
-        if "build-prerequisites" in self.args.target or "all" in self.args.target:
+        if "build-prerequisites" in active_targets or "all" in active_targets:
             self.buildTargets["build-prerequisites"] = True
 
         if not self.buildTargets["build-prerequisites"]:
