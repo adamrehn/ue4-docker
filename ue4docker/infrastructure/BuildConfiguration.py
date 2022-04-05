@@ -333,6 +333,13 @@ class BuildConfiguration(object):
             "full": False,
         }
 
+        for target in active_targets:
+            if target != "all" and target not in self.buildTargets:
+                valid_options = sorted(self.buildTargets.keys())
+                raise RuntimeError(
+                    f"unknown build target '{target}', valid options are: all {' '.join(valid_options)}"
+                )
+
         if "full" in active_targets or "all" in active_targets:
             self.buildTargets["full"] = True
             active_targets.add("minimal")
