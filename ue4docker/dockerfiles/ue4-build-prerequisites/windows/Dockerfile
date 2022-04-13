@@ -17,7 +17,9 @@ COPY --from=dlls `
     C:\Windows\System32\dsound.dll `
     C:\Windows\System32\dxva2.dll `
     C:\Windows\System32\glu32.dll `
+    C:\Windows\System32\ksuser.dll `
     C:\Windows\System32\mf.dll `
+    C:\Windows\System32\mfcore.dll `
     C:\Windows\System32\mfplat.dll `
     C:\Windows\System32\mfplay.dll `
     C:\Windows\System32\mfreadwrite.dll `
