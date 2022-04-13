@@ -1,10 +1,37 @@
-import logging, multiprocessing, os, platform, secrets, time, urllib.parse
+import multiprocessing, secrets, time, urllib.parse
 from .NetworkUtils import NetworkUtils
-from flask import Flask, request
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import urlparse, parse_qs
+from functools import partial
+
+
+class CredentialRequestHandler(BaseHTTPRequestHandler):
+    def __init__(self, username: str, password: str, token: str, *args, **kwargs):
+        self.username = username
+        self.password = password
+        self.token = token
+        super().__init__(*args, **kwargs)
+
+    def log_request(self, code: str = "-", size: str = "-") -> None:
+        # We do not want to log each and every incoming request
+        pass
+
+    def do_POST(self):
+        query_components = parse_qs(urlparse(self.path).query)
+
+        self.send_response(200)
+        self.end_headers()
+
+        if "token" in query_components and query_components["token"][0] == self.token:
+            content_length = int(self.headers["Content-Length"])
+            prompt = self.rfile.read(content_length).decode("utf-8")
+
+            response = self.password if "Password for" in prompt else self.username
+            self.wfile.write(response.encode("utf-8"))
 
 
 class CredentialEndpoint(object):
-    def __init__(self, username, password):
+    def __init__(self, username: str, password: str):
         """
         Creates an endpoint manager for the supplied credentials
         """
@@ -17,7 +44,7 @@ class CredentialEndpoint(object):
         # Generate a security token to require when requesting credentials
         self.token = secrets.token_hex(16)
 
-    def args(self):
+    def args(self) -> [str]:
         """
         Returns the Docker build arguments for creating containers that require Git credentials
         """
@@ -33,7 +60,7 @@ class CredentialEndpoint(object):
             "HOST_TOKEN_ARG=" + urllib.parse.quote_plus(self.token),
         ]
 
-    def start(self):
+    def start(self) -> None:
         """
         Starts the HTTP endpoint as a child process
         """
@@ -49,10 +76,10 @@ class CredentialEndpoint(object):
         time.sleep(2)
 
         # Verify that the endpoint started correctly
-        if self.endpoint.is_alive() == False:
+        if not self.endpoint.is_alive():
             raise RuntimeError("failed to start the credential endpoint")
 
-    def stop(self):
+    def stop(self) -> None:
         """
         Stops the HTTP endpoint child process
         """
@@ -60,25 +87,11 @@ class CredentialEndpoint(object):
         self.endpoint.join()
 
     @staticmethod
-    def _endpoint(username, password, token):
+    def _endpoint(username: str, password: str, token: str) -> None:
         """
         Implements a HTTP endpoint to provide Git credentials to Docker containers
         """
-        server = Flask(__name__)
+        handler = partial(CredentialRequestHandler, username, password, token)
 
-        # Disable the first-run banner message
-        os.environ["WERKZEUG_RUN_MAIN"] = "true"
-
-        # Disable Flask log output (from <https://stackoverflow.com/a/18379764>)
-        log = logging.getLogger("werkzeug")
-        log.setLevel(logging.ERROR)
-
-        @server.route("/", methods=["POST"])
-        def credentials():
-            if "token" in request.args and request.args["token"] == token:
-                prompt = request.data.decode("utf-8")
-                return password if "Password for" in prompt else username
-            else:
-                return "Invalid security token"
-
-        server.run(host="0.0.0.0", port=9876)
+        server = HTTPServer(("0.0.0.0", 9876), RequestHandlerClass=handler)
+        server.serve_forever()
