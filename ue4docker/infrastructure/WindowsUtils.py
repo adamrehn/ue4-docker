@@ -13,7 +13,9 @@ class WindowsUtils(object):
     _minimumRequiredBuild = 17763
 
     # This lookup table is based on the list of valid tags from <https://hub.docker.com/r/microsoft/windowsservercore/>
-    # and list of build-to-release mapping from https://docs.microsoft.com/en-us/windows/release-health/release-information
+    # and list of build-to-release mappings from the following pages:
+    # - https://docs.microsoft.com/en-us/windows/release-health/release-information
+    # - https://docs.microsoft.com/en-us/windows/release-health/windows11-release-information
     _knownTagsByBuildNumber = {
         17763: "ltsc2019",
         18362: "1903",
@@ -22,6 +24,7 @@ class WindowsUtils(object):
         19042: "20H2",
         19043: "21H1",
         20348: "ltsc2022",
+        22000: "ltsc2022",
     }
 
     _knownTags = list(_knownTagsByBuildNumber.values())
