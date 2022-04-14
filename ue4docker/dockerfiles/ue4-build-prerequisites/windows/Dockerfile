@@ -4,8 +4,13 @@ ARG DLLSRCIMAGE
 
 FROM ${DLLSRCIMAGE} as dlls
 
-FROM ${BASEIMAGE} as prerequisites
+FROM ${BASEIMAGE} as deduplication
 SHELL ["cmd", "/S", "/C"]
+
+{% if not disable_labels %}
+# Add a sentinel label so we can easily identify all derived images, including intermediate images
+LABEL com.adamrehn.ue4-docker.sentinel="1"
+{% endif %}
 
 # Gather the system DLLs that we need from the full Windows base image
 COPY --from=dlls `
@@ -29,7 +34,16 @@ COPY --from=dlls `
     C:\Windows\System32\opengl32.dll `
     C:\Windows\System32\ResampleDMO.dll `
     C:\Windows\System32\ResourcePolicyClient.dll `
-    C:\Windows\System32\
+    C:\GatheredDLLs\
+
+# Remove any DLL files that already exist in the target base image, to avoid permission errors when attempting to overwrite existing files with a COPY directive
+COPY remove-duplicate-dlls.ps1 C:\remove-duplicate-dlls.ps1
+RUN powershell -ExecutionPolicy Bypass -File C:\remove-duplicate-dlls.ps1
+
+# Copy the DLL files into a clean image
+FROM ${BASEIMAGE} as prerequisites
+SHELL ["cmd", "/S", "/C"]
+COPY --from=deduplication C:\GatheredDlls\ C:\Windows\System32\
 
 {% if not disable_labels %}
 # Add a sentinel label so we can easily identify all derived images, including intermediate images
