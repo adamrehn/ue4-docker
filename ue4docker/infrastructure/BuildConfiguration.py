@@ -466,7 +466,7 @@ class BuildConfiguration(object):
         )
 
         # Process any specified advanced configuration options (which we use directly as context values for the Jinja templating system)
-        self.opts = {}
+        self.opts = {"buildgraph_args": "-set:HostPlatformOnly=true"}
         for o in self.args.opt:
             if "=" in o:
                 key, value = o.split("=", 1)
@@ -568,10 +568,7 @@ class BuildConfiguration(object):
         # Note: We must not pass VS2019 arg for older UE4 versions that didn't have VS2019 variable in their build graph xml.
         # Otherwise, UAT errors out with "Unknown argument: VS2019".
         if self.visualStudio != VisualStudio.VS2017:
-            self.opts["buildgraph_args"] = (
-                self.opts.get("buildgraph_args", "")
-                + f" -set:VS{self.visualStudio}=true"
-            )
+            self.opts["buildgraph_args"] += f" -set:VS{self.visualStudio}=true"
 
         # Determine base tag for the Windows release of the host system
         self.hostBasetag = WindowsUtils.getHostBaseTag()

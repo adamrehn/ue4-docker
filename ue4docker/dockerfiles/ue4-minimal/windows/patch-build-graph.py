@@ -16,7 +16,8 @@ def writeFile(filename, data):
 buildXml = sys.argv[1]
 code = readFile(buildXml)
 
-# Prevent HoloLens support from being enabled by default under Windows in 4.23.0 onwards
+# Disable HoloLens by default on 4.23.
+# On later versions, it is guarded by DefaultWithPlatform and disabled because of HostPlatformOnly=true
 code = code.replace(
     'Option Name="WithHoloLens" Restrict="true|false" DefaultValue="$(DefaultWithWindows)"',
     'Option Name="WithHoloLens" Restrict="true|false" DefaultValue="false"',

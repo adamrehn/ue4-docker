@@ -26,10 +26,15 @@ code = code.replace(
     'Command Name="BuildDerivedDataCache" Arguments="-Verbose -AllowStdOutLogVerbosity ',
 )
 
-# Disable building for AArch64 by default (enabled by default since 4.24.0)
+# Disable AArch64 by default (enabled since 4.24.0)
 code = code.replace(
     'Property Name="DefaultWithLinuxAArch64" Value="true"',
     'Property Name="DefaultWithLinuxAArch64" Value="false"',
+)
+# AArch64 was renamed to Arm64 in UE-5.0, so also disable it
+code = code.replace(
+    'Property Name="DefaultWithLinuxArm64" Value="true"',
+    'Property Name="DefaultWithLinuxArm64" Value="false"',
 )
 
 # Enable client and server targets by default in 4.23.0 onwards, except for 4.24.0 - 4.24.2 where Linux server builds fail

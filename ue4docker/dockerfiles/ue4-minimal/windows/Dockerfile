@@ -27,9 +27,12 @@ RUN python C:\patch-build-graph.py C:\UnrealEngine\Engine\Build\InstalledEngineB
 {% endif %}
 
 # Create an Installed Build of the Engine
-ARG BUILDGRAPH_ARGS
 WORKDIR C:\UnrealEngine
-RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph -target="Make Installed Build Win64" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true -set:WithDDC={% if excluded_components.ddc == true %}false{% else %}true{% endif %} {{ buildgraph_args }} && `
+RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph `
+    -target="Make Installed Build Win64" `
+    -script=Engine/Build/InstalledEngineBuild.xml `
+    -set:WithDDC={% if excluded_components.ddc == true %}false{% else %}true{% endif %} `
+    {{ buildgraph_args }} && `
 	(if exist C:\UnrealEngine\LocalBuilds\InstalledDDC rmdir /s /q C:\UnrealEngine\LocalBuilds\InstalledDDC)
 
 # Split out components (DDC, debug symbols, template projects) so they can be copied into the final container image as separate filesystem layers
