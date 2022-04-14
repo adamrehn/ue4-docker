@@ -37,7 +37,10 @@ RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealHeaderTool Linux Development 
 
 # Create an Installed Build of the Engine
 WORKDIR /home/ue4/UnrealEngine
-RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph -target="Make Installed Build Linux" -script=Engine/Build/InstalledEngineBuild.xml -set:HostPlatformOnly=true -set:WithDDC={% if excluded_components.ddc == true %}false{% else %}true{% endif %} {{ buildgraph_args }} && \
+RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph \
+    -target="Make Installed Build Linux" \
+    -script=Engine/Build/InstalledEngineBuild.xml \
+    -set:WithDDC={% if excluded_components.ddc == true %}false{% else %}true{% endif %} {{ buildgraph_args }} && \
 	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC
 
 # Split out components (DDC, debug symbols, template projects) so they can be copied into the final container image as separate filesystem layers
