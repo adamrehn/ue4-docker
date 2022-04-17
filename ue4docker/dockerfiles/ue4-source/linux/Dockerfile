@@ -15,7 +15,7 @@ ARG VERBOSE_OUTPUT=0
 
 # Copy the Unreal Engine source code from the host system
 ARG SOURCE_LOCATION
-COPY ${SOURCE_LOCATION} /home/ue4/UnrealEngine
+COPY --chown=ue4:ue4 ${SOURCE_LOCATION} /home/ue4/UnrealEngine
 
 {% else %}
 
