@@ -14,7 +14,7 @@ COPY set-changelist.py C:\set-changelist.py
 RUN python C:\set-changelist.py C:\UnrealEngine\Engine\Build\Build.version %CHANGELIST%
 
 # Remove the .git directory to disable UBT `git status` calls and speed up the build process
-RUN rmdir /s /q C:\UnrealEngine\.git
+RUN if exist C:\UnrealEngine\.git rmdir /s /q C:\UnrealEngine\.git
 
 {% if (not disable_all_patches) and (not disable_buildgraph_patches) %}
 # Patch out problematic entries in InstalledEngineFilters.xml introduced in UE4.20.0
