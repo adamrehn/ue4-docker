@@ -26,6 +26,12 @@ class Logger(object):
         """
         Prints information that does not pertain to an action or an error
         """
+        self._print("green", output, newline)
+
+    def warning(self, output, newline=True):
+        """
+        Prints a warning (something that is not an error as of today, but might break in future releases)
+        """
         self._print("yellow", output, newline)
 
     def _print(self, colour, output, newline):

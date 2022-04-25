@@ -261,7 +261,7 @@ class BuildConfiguration(object):
             help="Set a specific changelist number in the Unreal Engine's Build.version file",
         )
 
-    def __init__(self, parser, argv):
+    def __init__(self, parser, argv, logger):
         """
         Creates a new build configuration based on the supplied arguments object
         """
@@ -284,6 +284,10 @@ class BuildConfiguration(object):
             self.args.target = ["all"]
         elif using_target_specifier_old and not using_target_specifier_new:
             # Convert these to the new style
+            logger.warning(
+                "Using deprecated `--no-*` target specifiers; recommend changing to `--target`",
+                False,
+            )
 
             # no-minimal implies no-full
             if self.args.no_minimal:

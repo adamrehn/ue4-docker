@@ -48,7 +48,7 @@ def build():
 
     # Parse the supplied command-line arguments
     try:
-        config = BuildConfiguration(parser, sys.argv[1:])
+        config = BuildConfiguration(parser, sys.argv[1:], logger)
     except RuntimeError as e:
         logger.error("Error: {}".format(e))
         sys.exit(1)
