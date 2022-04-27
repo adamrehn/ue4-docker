@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Dict, Optional
 
 from .DockerUtils import DockerUtils
 from .FilesystemUtils import FilesystemUtils
@@ -140,7 +140,7 @@ class ImageBuilder(object):
         command: [str],
         actionPresentTense: str,
         actionPastTense: str,
-        env: Optional[dict[str, str]] = None,
+        env: Optional[Dict[str, str]] = None,
     ):
         """
         Processes the specified image by running the supplied command if it doesn't exist (use rebuild=True to force processing)
