@@ -28,7 +28,11 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ windows-2019, ubuntu-20.04 ]
+        include:
+        - { os: windows-2019, visual-studio: 2017 }
+        - { os: windows-2019, visual-studio: 2019 }
+        - { os: windows-2019, visual-studio: 2022 }
+        - { os: ubuntu-20.04 }
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
@@ -40,4 +44,4 @@ jobs:
     - name: Install
       run: pip install . --user
     - name: Test
-      run: ue4-docker build --target=build-prerequisites
+      run: ue4-docker build --target=build-prerequisites --visual-studio ${{ matrix.visual-studio || '2017' }}
