@@ -172,7 +172,7 @@ class BuildConfiguration(object):
         )
         parser.add_argument(
             "--visual-studio",
-            default=VisualStudio.VS2022,
+            default=VisualStudio.VS2019,
             choices=VisualStudio.BuildNumbers.keys(),
             help="Specify Visual Studio Build Tools version to use for Windows containers",
         )
