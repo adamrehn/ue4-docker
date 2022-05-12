@@ -1,8 +1,7 @@
 @rem Install the chocolatey packages we need
 choco install -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'" || goto :error
 @rem pdbcopy.exe from Windows SDK is needed for creating an Installed Build of the Engine
-choco install -y choco-cleaner curl vcredist-all windows-sdk-10-version-1809-windbg || goto :error
-choco install -y python --version=3.7.5 || goto :error
+choco install -y choco-cleaner curl python vcredist-all windows-sdk-10-version-1809-windbg || goto :error
 
 @rem Reload our environment variables from the registry so the `git` command works
 call refreshenv

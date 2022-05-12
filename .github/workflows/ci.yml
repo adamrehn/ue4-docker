@@ -2,19 +2,19 @@ name: CI
 on: [push, pull_request]
 jobs:
   lint:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: psf/black@stable
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Setup Python
       uses: actions/setup-python@v3
       with:
-        python-version: 3.7
+        python-version: "3.10"
     - name: Install dependencies
       run: pip install setuptools wheel
     - name: Build package
@@ -29,10 +29,22 @@ jobs:
     strategy:
       matrix:
         include:
-        - { os: windows-2019, visual-studio: 2017 }
-        - { os: windows-2019, visual-studio: 2019 }
-        - { os: windows-2019, visual-studio: 2022 }
-        - { os: ubuntu-20.04 }
+        - { os: ubuntu-18.04,   python: "3.6"  }
+        - { os: ubuntu-18.04,   python: "3.10" }
+        - { os: ubuntu-latest,  python: "3.6"  }
+        - { os: ubuntu-latest,  python: "3.10" }
+        - { os: windows-2019,   python: "3.6",  visual-studio: 2017 }
+        - { os: windows-2019,   python: "3.10", visual-studio: 2017 }
+        - { os: windows-2019,   python: "3.6",  visual-studio: 2019 }
+        - { os: windows-2019,   python: "3.10", visual-studio: 2019 }
+        - { os: windows-2019,   python: "3.6",  visual-studio: 2022 }
+        - { os: windows-2019,   python: "3.10", visual-studio: 2022 }
+        - { os: windows-latest, python: "3.6",  visual-studio: 2017 }
+        - { os: windows-latest, python: "3.10", visual-studio: 2017 }
+        - { os: windows-latest, python: "3.6",  visual-studio: 2019 }
+        - { os: windows-latest, python: "3.10", visual-studio: 2019 }
+        - { os: windows-latest, python: "3.6",  visual-studio: 2022 }
+        - { os: windows-latest, python: "3.10", visual-studio: 2022 }
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
@@ -40,7 +52,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v3
       with:
-        python-version: 3.7
+        python-version: ${{ matrix.python }}
     - name: Install
       run: pip install . --user
     - name: Test
