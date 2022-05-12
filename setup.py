@@ -21,6 +21,9 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Topic :: Software Development :: Build Tools",
         "Environment :: Console",
     ],
@@ -47,7 +50,10 @@ setup(
         "psutil",
         "requests",
         "semver>=2.7.9,<3.0.0",
-        "setuptools>=60.4.0",
+        # We want newer setuptools to avoid shim path bug on newer Pythons.
+        # See #231 and https://github.com/pypa/setuptools/issues/3001
+        # Unfortunately, that version of setuptools doesn't have Python 3.6 support
+        "setuptools>=60.4.0;python_version>='3.7.0'",
         "termcolor",
         "twine>=1.11.0",
         "wheel>=0.31.0",
