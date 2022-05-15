@@ -43,10 +43,12 @@ UNREAL_ENGINE_RELEASE_CHANGELISTS = {
 class VisualStudio(object):
     VS2017 = "2017"
     VS2019 = "2019"
+    VS2022 = "2022"
 
     BuildNumbers = {
         VS2017: "15",
         VS2019: "16",
+        VS2022: "17",
     }
 
     MinSupportedUnreal = {
@@ -55,7 +57,9 @@ class VisualStudio(object):
         #
         # Unreal Engine 4.25 is the first that works with .NET SDK 4.7+
         # See https://github.com/EpicGames/UnrealEngine/commit/5256eedbdef30212ab69fdf4c09e898098959683
-        VS2019: semver.VersionInfo(4, 25)
+        VS2019: semver.VersionInfo(4, 25),
+
+        VS2022: semver.VersionInfo(4, 27),
     }
 
 

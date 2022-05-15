@@ -28,9 +28,23 @@ jobs:
   test:
     strategy:
       matrix:
-        # Test oldest and newest supported environments
-        os: [ ubuntu-18.04, ubuntu-latest, windows-2019, windows-latest ]
-        python: ["3.6", "3.10"]
+        include:
+        - { os: ubuntu-18.04,   python: "3.6"  }
+        - { os: ubuntu-18.04,   python: "3.10" }
+        - { os: ubuntu-latest,  python: "3.6"  }
+        - { os: ubuntu-latest,  python: "3.10" }
+        - { os: windows-2019,   python: "3.6",  visual-studio: 2017 }
+        - { os: windows-2019,   python: "3.10", visual-studio: 2017 }
+        - { os: windows-2019,   python: "3.6",  visual-studio: 2019 }
+        - { os: windows-2019,   python: "3.10", visual-studio: 2019 }
+        - { os: windows-2019,   python: "3.6",  visual-studio: 2022 }
+        - { os: windows-2019,   python: "3.10", visual-studio: 2022 }
+        - { os: windows-latest, python: "3.6",  visual-studio: 2017 }
+        - { os: windows-latest, python: "3.10", visual-studio: 2017 }
+        - { os: windows-latest, python: "3.6",  visual-studio: 2019 }
+        - { os: windows-latest, python: "3.10", visual-studio: 2019 }
+        - { os: windows-latest, python: "3.6",  visual-studio: 2022 }
+        - { os: windows-latest, python: "3.10", visual-studio: 2022 }
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
@@ -42,4 +56,4 @@ jobs:
     - name: Install
       run: pip install . --user
     - name: Test
-      run: ue4-docker build --target=build-prerequisites
+      run: ue4-docker build --target=build-prerequisites --visual-studio ${{ matrix.visual-studio || '2017' }}
