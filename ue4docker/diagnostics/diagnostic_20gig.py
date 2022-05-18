@@ -40,9 +40,8 @@ class diagnostic20Gig(DiagnosticBase):
         return "\n".join(
             [
                 "This diagnostic determines if the Docker daemon suffers from 20GiB COPY bug",
-                "reported at https://github.com/moby/moby/issues/37352 (affects Windows containers only)",
                 "",
-                "#37352 was fixed in https://github.com/moby/moby/pull/41636 but that fix was not released yet",
+                "See https://github.com/adamrehn/ue4-docker/issues/99#issuecomment-1079702817 for details and workarounds",
                 "",
                 self._parser.format_help(),
             ]

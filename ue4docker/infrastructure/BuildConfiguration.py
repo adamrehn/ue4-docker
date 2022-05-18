@@ -530,6 +530,33 @@ class BuildConfiguration(object):
             "templates": ExcludedComponent.Templates in self.excludedComponents,
         }
 
+        # Warn user that they are in danger of Docker 20GB COPY bug
+        # Unfortunately, we don't have a cheap way to check whether user environment is affected
+        # See https://github.com/adamrehn/ue4-docker/issues/99
+        if self.containerPlatform == "windows":
+            warn20GiB = False
+            if ExcludedComponent.Debug not in self.excludedComponents:
+                logger.warning("Warning: You didn't pass --exclude debug", False)
+                warn20GiB = True
+            if (
+                self.release
+                and not self.custom
+                and semver.VersionInfo.parse(self.release) >= semver.VersionInfo(5, 0)
+            ):
+                logger.warning("Warning: You're building Unreal Engine 5", False)
+                warn20GiB = True
+
+            if warn20GiB:
+                logger.warning("Warning: You might hit Docker 20GiB COPY bug", False)
+                logger.warning(
+                    "Warning: Make sure that `ue4-docker diagnostics 20gig` passes",
+                    False,
+                )
+                logger.warning(
+                    "Warning: See https://github.com/adamrehn/ue4-docker/issues/99#issuecomment-1079702817 for details and workarounds",
+                    False,
+                )
+
         # If we're building Windows containers, generate our Windows-specific configuration settings
         if self.containerPlatform == "windows":
             self._generateWindowsConfig()

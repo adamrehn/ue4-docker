@@ -237,7 +237,7 @@ def build():
                 )
                 sys.exit(1)
             elif newer_check is None:
-                logger.info(
+                logger.warning(
                     "Warning: unable to determine whether host system is new enough to use specified base tag"
                 )
 
