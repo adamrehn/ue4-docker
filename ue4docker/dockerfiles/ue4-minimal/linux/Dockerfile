@@ -30,10 +30,13 @@ COPY patch-build-graph.py /tmp/patch-build-graph.py
 RUN python3 /tmp/patch-build-graph.py /home/ue4/UnrealEngine/Engine/Build/InstalledEngineBuild.xml /home/ue4/UnrealEngine/Engine/Build/Build.version
 {% endif %}
 
+{% if (not disable_all_patches) and (not disable_ubt_prebuild) %}
+# For versions of the Unreal Engine prior to 5.0 when the C# build tools migrated to .NET Core:
 # Ensure UBT is built before we create the Installed Build, since Build.sh explicitly sets the
-# target .NET framework version, whereas InstalledEngineBuild.xml just uses the system default,
+# target .NET Framework version, whereas InstalledEngineBuild.xml just uses the system default,
 # which can result in errors when running the built UBT due to the wrong version being targeted
 RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealHeaderTool Linux Development -SkipBuild
+{% endif %}
 
 # Create an Installed Build of the Engine
 WORKDIR /home/ue4/UnrealEngine
