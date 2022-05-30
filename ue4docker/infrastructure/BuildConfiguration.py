@@ -474,7 +474,7 @@ class BuildConfiguration(object):
         )
 
         # Process any specified advanced configuration options (which we use directly as context values for the Jinja templating system)
-        self.opts = {"buildgraph_args": "-set:HostPlatformOnly=true"}
+        self.opts = {}
         for o in self.args.opt:
             if "=" in o:
                 key, value = o.split("=", 1)
