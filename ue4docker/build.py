@@ -88,14 +88,11 @@ def build():
     # Create an auto-deleting temporary directory to hold our build context
     with tempfile.TemporaryDirectory() as tempDir:
 
-        # Copy our Dockerfiles to the temporary directory
         contextOrig = join(os.path.dirname(os.path.abspath(__file__)), "dockerfiles")
-        contextRoot = join(tempDir, "dockerfiles")
-        shutil.copytree(contextOrig, contextRoot)
 
         # Create the builder instance to build the Docker images
         builder = ImageBuilder(
-            contextRoot,
+            join(tempDir, "dockerfiles"),
             config.containerPlatform,
             logger,
             config.rebuild,
@@ -383,17 +380,37 @@ def build():
                         "VISUAL_STUDIO_BUILD_NUMBER=" + config.visualStudioBuildNumber,
                     ]
 
-                builder.build(
-                    "ue4-build-prerequisites",
-                    [config.prereqsTag],
-                    commonArgs + config.platformArgs + prereqsArgs,
-                )
-                builtImages.append("ue4-build-prerequisites")
+                custom_prerequisites_dockerfile = config.args.prerequisites_dockerfile
+                if custom_prerequisites_dockerfile is not None:
+                    builder.build_builtin_image(
+                        "ue4-base-build-prerequisites",
+                        [config.prereqsTag],
+                        commonArgs + config.platformArgs + prereqsArgs,
+                        builtin_name="ue4-build-prerequisites",
+                    )
+                    builtImages.append("ue4-base-build-prerequisites")
+                else:
+                    builder.build_builtin_image(
+                        "ue4-build-prerequisites",
+                        [config.prereqsTag],
+                        commonArgs + config.platformArgs + prereqsArgs,
+                    )
 
                 prereqConsumerArgs = [
                     "--build-arg",
                     "PREREQS_TAG={}".format(config.prereqsTag),
                 ]
+
+                if custom_prerequisites_dockerfile is not None:
+                    builder.build(
+                        "ue4-build-prerequisites",
+                        [config.prereqsTag],
+                        commonArgs + config.platformArgs + prereqConsumerArgs,
+                        dockerfile_template=custom_prerequisites_dockerfile,
+                        context_dir=os.path.dirname(custom_prerequisites_dockerfile),
+                    )
+
+                builtImages.append("ue4-build-prerequisites")
             else:
                 logger.info("Skipping ue4-build-prerequisities image build.")
 
@@ -418,11 +435,11 @@ def build():
                     "--build-arg",
                     "VERBOSE_OUTPUT={}".format("1" if config.verbose == True else "0"),
                 ]
-                builder.build(
+                builder.build_builtin_image(
                     "ue4-source",
                     mainTags,
                     commonArgs + config.platformArgs + ue4SourceArgs + credentialArgs,
-                    secrets,
+                    secrets=secrets,
                 )
                 builtImages.append("ue4-source")
             else:
@@ -436,7 +453,7 @@ def build():
 
             # Build the UE4 Engine source build image, unless requested otherwise by the user
             if config.buildTargets["engine"]:
-                builder.build(
+                builder.build_builtin_image(
                     "ue4-engine",
                     mainTags,
                     commonArgs + config.platformArgs + ue4BuildArgs,
@@ -453,7 +470,7 @@ def build():
                     else []
                 )
 
-                builder.build(
+                builder.build_builtin_image(
                     "ue4-minimal",
                     mainTags,
                     commonArgs + config.platformArgs + ue4BuildArgs + minimalArgs,
@@ -483,7 +500,7 @@ def build():
                     )
 
                 # Build the image
-                builder.build(
+                builder.build_builtin_image(
                     "ue4-full",
                     mainTags,
                     commonArgs
