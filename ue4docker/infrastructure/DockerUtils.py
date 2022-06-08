@@ -45,7 +45,7 @@ class DockerUtils(object):
             return False
 
     @staticmethod
-    def build(tags, context, args):
+    def build(tags: [str], context: str, args: [str]) -> [str]:
         """
         Returns the `docker build` command to build an image
         """
@@ -58,7 +58,7 @@ class DockerUtils(object):
         )
 
     @staticmethod
-    def buildx(tags, context, args, secrets):
+    def buildx(tags: [str], context: str, args: [str], secrets: [str]) -> [str]:
         """
         Returns the `docker buildx` command to build an image with the BuildKit backend
         """

@@ -5,25 +5,34 @@ from .FilesystemUtils import FilesystemUtils
 from .GlobalConfiguration import GlobalConfiguration
 import glob, humanfriendly, os, shutil, subprocess, tempfile, time
 from os.path import basename, exists, join
-from jinja2 import Environment, Template
+from jinja2 import Environment
+
+
+class ImageBuildParams(object):
+    def __init__(
+        self, dockerfile: str, context_dir: str, env: Optional[Dict[str, str]] = None
+    ):
+        self.dockerfile = dockerfile
+        self.context_dir = context_dir
+        self.env = env
 
 
 class ImageBuilder(object):
     def __init__(
         self,
-        root,
-        platform,
+        tempDir: str,
+        platform: str,
         logger,
-        rebuild=False,
-        dryRun=False,
-        layoutDir=None,
-        templateContext=None,
-        combine=False,
+        rebuild: bool = False,
+        dryRun: bool = False,
+        layoutDir: str = None,
+        templateContext: Dict[str, str] = None,
+        combine: bool = False,
     ):
         """
         Creates an ImageBuilder for the specified build parameters
         """
-        self.root = root
+        self.tempDir = tempDir
         self.platform = platform
         self.logger = logger
         self.rebuild = rebuild
@@ -32,17 +41,60 @@ class ImageBuilder(object):
         self.templateContext = templateContext if templateContext is not None else {}
         self.combine = combine
 
-    def build(self, name, tags, args, secrets=None):
+    def get_built_image_context(self, name):
+        """
+        Resolve the full path to the build context for the specified image
+        """
+        return os.path.normpath(
+            os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "..",
+                "dockerfiles",
+                basename(name),
+                self.platform,
+            )
+        )
+
+    def build_builtin_image(
+        self,
+        name: str,
+        tags: [str],
+        args: [str],
+        builtin_name: str = None,
+        secrets: Dict[str, str] = None,
+    ):
+        context_dir = self.get_built_image_context(
+            name if builtin_name is None else builtin_name
+        )
+        return self.build(
+            name, tags, args, join(context_dir, "Dockerfile"), context_dir, secrets
+        )
+
+    def build(
+        self,
+        name: str,
+        tags: [str],
+        args: [str],
+        dockerfile_template: str,
+        context_dir: str,
+        secrets: Dict[str, str] = None,
+    ):
         """
         Builds the specified image if it doesn't exist or if we're forcing a rebuild
         """
+
+        workdir = join(self.tempDir, basename(name), self.platform)
+        os.makedirs(workdir, exist_ok=True)
 
         # Create a Jinja template environment and render the Dockerfile template
         environment = Environment(
             autoescape=False, trim_blocks=True, lstrip_blocks=True
         )
-        dockerfile = join(self.context(name), "Dockerfile")
-        templateInstance = environment.from_string(FilesystemUtils.readFile(dockerfile))
+        dockerfile = join(workdir, "Dockerfile")
+
+        templateInstance = environment.from_string(
+            FilesystemUtils.readFile(dockerfile_template)
+        )
         rendered = templateInstance.render(self.templateContext)
 
         # Compress excess whitespace introduced during Jinja rendering and save the contents back to disk
@@ -70,7 +122,6 @@ class ImageBuilder(object):
 
             # Determine whether we are building using `docker buildx` with build secrets
             imageTags = self._formatTags(name, tags)
-            command = DockerUtils.build(imageTags, self.context(name), args)
 
             if self.platform == "linux" and secrets is not None and len(secrets) > 0:
 
@@ -82,9 +133,11 @@ class ImageBuilder(object):
                     secretFlags.append("id={},src={}".format(secret, secretFile))
 
                 # Generate the `docker buildx` command to use our build secrets
-                command = DockerUtils.buildx(
-                    imageTags, self.context(name), args, secretFlags
-                )
+                command = DockerUtils.buildx(imageTags, context_dir, args, secretFlags)
+            else:
+                command = DockerUtils.build(imageTags, context_dir, args)
+
+            command += ["--file", dockerfile]
 
             env = os.environ.copy()
             if self.platform == "linux":
@@ -97,29 +150,23 @@ class ImageBuilder(object):
                 command,
                 "build",
                 "built",
-                env=env,
+                ImageBuildParams(dockerfile, context_dir, env),
             )
 
-    def context(self, name):
-        """
-        Resolve the full path to the build context for the specified image
-        """
-        return join(self.root, basename(name), self.platform)
-
-    def pull(self, image):
+    def pull(self, image: str) -> None:
         """
         Pulls the specified image if it doesn't exist or if we're forcing a pull of a newer version
         """
         self._processImage(image, None, DockerUtils.pull(image), "pull", "pulled")
 
-    def willBuild(self, name, tags):
+    def willBuild(self, name: str, tags: [str]) -> bool:
         """
         Determines if we will build the specified image, based on our build settings
         """
         imageTags = self._formatTags(name, tags)
         return self._willProcess(imageTags[0])
 
-    def _formatTags(self, name, tags):
+    def _formatTags(self, name: str, tags: [str]):
         """
         Generates the list of fully-qualified tags that we will use when building an image
         """
@@ -127,11 +174,11 @@ class ImageBuilder(object):
             "{}:{}".format(GlobalConfiguration.resolveTag(name), tag) for tag in tags
         ]
 
-    def _willProcess(self, image):
+    def _willProcess(self, image: [str]) -> bool:
         """
         Determines if we will build or pull the specified image, based on our build settings
         """
-        return self.rebuild == True or DockerUtils.exists(image) == False
+        return self.rebuild or not DockerUtils.exists(image)
 
     def _processImage(
         self,
@@ -140,14 +187,14 @@ class ImageBuilder(object):
         command: [str],
         actionPresentTense: str,
         actionPastTense: str,
-        env: Optional[Dict[str, str]] = None,
-    ):
+        build_params: Optional[ImageBuildParams] = None,
+    ) -> None:
         """
         Processes the specified image by running the supplied command if it doesn't exist (use rebuild=True to force processing)
         """
 
         # Determine if we are processing the image
-        if self._willProcess(image) == False:
+        if not self._willProcess(image):
             self.logger.info(
                 'Image "{}" exists and rebuild not requested, skipping {}.'.format(
                     image, actionPresentTense
@@ -159,7 +206,7 @@ class ImageBuilder(object):
         self.logger.action(
             '{}ing image "{}"...'.format(actionPresentTense.capitalize(), image)
         )
-        if self.dryRun == True:
+        if self.dryRun:
             print(command)
             self.logger.action(
                 'Completed dry run for image "{}".'.format(image), newline=False
@@ -170,19 +217,19 @@ class ImageBuilder(object):
         if self.layoutDir is not None:
 
             # Determine whether we're performing a simple copy or combining generated Dockerfiles
-            source = self.context(name)
-            if self.combine == True:
+            if self.combine:
 
                 # Ensure the destination directory exists
                 dest = join(self.layoutDir, "combined")
                 self.logger.action(
-                    'Merging "{}" into "{}"...'.format(source, dest), newline=False
+                    'Merging "{}" into "{}"...'.format(build_params.context_dir, dest),
+                    newline=False,
                 )
                 os.makedirs(dest, exist_ok=True)
 
                 # Merge the source Dockerfile with any existing Dockerfile contents in the destination directory
                 # (Insert a single newline between merged file contents and ensure we have a single trailing newline)
-                sourceDockerfile = join(source, "Dockerfile")
+                sourceDockerfile = build_params.dockerfile
                 destDockerfile = join(dest, "Dockerfile")
                 dockerfileContents = (
                     FilesystemUtils.readFile(destDockerfile)
@@ -199,7 +246,7 @@ class ImageBuilder(object):
 
                 # Copy any supplemental files from the source directory to the destination directory
                 # (Exclude any extraneous files which are not referenced in the Dockerfile contents)
-                for file in glob.glob(join(source, "*.*")):
+                for file in glob.glob(join(build_params.context_dir, "*.*")):
                     if basename(file) in dockerfileContents:
                         shutil.copy(file, join(dest, basename(file)))
 
@@ -213,9 +260,11 @@ class ImageBuilder(object):
                 # Copy the source directory to the destination
                 dest = join(self.layoutDir, basename(name))
                 self.logger.action(
-                    'Copying "{}" to "{}"...'.format(source, dest), newline=False
+                    'Copying "{}" to "{}"...'.format(build_params.context_dir, dest),
+                    newline=False,
                 )
-                shutil.copytree(source, dest)
+                shutil.copytree(build_params.context_dir, dest)
+                shutil.copy(build_params.dockerfile, dest)
                 self.logger.action(
                     'Copied Dockerfile for image "{}".'.format(image), newline=False
                 )
@@ -224,7 +273,9 @@ class ImageBuilder(object):
 
         # Attempt to process the image using the supplied command
         startTime = time.time()
-        exitCode = subprocess.call(command, env=env)
+        exitCode = subprocess.call(
+            command, env=build_params.env if build_params else None
+        )
         endTime = time.time()
 
         # Determine if processing succeeded

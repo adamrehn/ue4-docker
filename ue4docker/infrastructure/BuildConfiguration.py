@@ -264,6 +264,11 @@ class BuildConfiguration(object):
             default=None,
             help="Set a specific changelist number in the Unreal Engine's Build.version file",
         )
+        parser.add_argument(
+            "--prerequisites-dockerfile",
+            default=None,
+            help="Specifies path to custom ue4-build-prerequisites dockerfile",
+        )
 
     def __init__(self, parser, argv, logger):
         """
