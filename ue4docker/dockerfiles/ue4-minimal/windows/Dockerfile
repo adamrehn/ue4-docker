@@ -34,7 +34,8 @@ RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph `
     -set:HostPlatformOnly=true `
     -set:WithDDC={% if excluded_components.ddc == true %}false{% else %}true{% endif %} `
     {{ buildgraph_args }} && `
-	(if exist C:\UnrealEngine\LocalBuilds\InstalledDDC rmdir /s /q C:\UnrealEngine\LocalBuilds\InstalledDDC)
+	(if exist C:\UnrealEngine\LocalBuilds\InstalledDDC rmdir /s /q C:\UnrealEngine\LocalBuilds\InstalledDDC) && `
+	rmdir /s /q C:\UnrealEngine\Engine
 
 # Split out components (DDC, debug symbols, template projects) so they can be copied into the final container image as separate filesystem layers
 COPY split-components.py C:\split-components.py
