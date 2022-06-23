@@ -55,16 +55,33 @@ FROM ${NAMESPACE}/ue4-build-prerequisites:${PREREQS_TAG}
 {% endif %}
 
 # Copy the Installed Build files from the builder image
+
+{% if not disable_labels %}
+LABEL com.adamrehn.ue4-docker.layer.binaries
+{% endif %}
 COPY --from=builder C:\UnrealEngine\LocalBuilds\Engine\Windows C:\UnrealEngine
+
 {% if excluded_components.ddc == false %}
+{% if not disable_labels %}
+LABEL com.adamrehn.ue4-docker.layer.ddc
+{% endif %}
 COPY --from=builder C:\UnrealEngine\Components\DDC C:\UnrealEngine
 {% endif %}
+
 {% if excluded_components.debug == false %}
+{% if not disable_labels %}
+LABEL com.adamrehn.ue4-docker.layer.debug
+{% endif %}
 COPY --from=builder C:\UnrealEngine\Components\DebugSymbols C:\UnrealEngine
 {% endif %}
+
 {% if excluded_components.templates == false %}
+{% if not disable_labels %}
+LABEL com.adamrehn.ue4-docker.layer.templates
+{% endif %}
 COPY --from=builder C:\UnrealEngine\Components\TemplatesAndSamples C:\UnrealEngine
 {% endif %}
+
 WORKDIR C:\UnrealEngine
 
 {% if not disable_labels %}
