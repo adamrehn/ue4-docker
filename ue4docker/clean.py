@@ -29,7 +29,6 @@ def clean():
         "-tag", default=None, help="Only clean images with the specified tag"
     )
     parser.add_argument("--source", action="store_true", help="Clean ue4-source images")
-    parser.add_argument("--engine", action="store_true", help="Clean ue4-engine images")
     parser.add_argument(
         "--all", action="store_true", help="Clean all ue4-docker images"
     )
@@ -58,15 +57,6 @@ def clean():
         _cleanMatching(
             cleaner,
             GlobalConfiguration.resolveTag("ue4-source"),
-            args.tag,
-            args.dry_run,
-        )
-
-    # If requested, remove ue4-engine images
-    if args.engine == True:
-        _cleanMatching(
-            cleaner,
-            GlobalConfiguration.resolveTag("ue4-engine"),
             args.tag,
             args.dry_run,
         )
