@@ -121,11 +121,6 @@ class BuildConfiguration(object):
             help="Print `docker build` commands instead of running them",
         )
         parser.add_argument(
-            "--no-engine",
-            action="store_true",
-            help="Don't build the ue4-engine image (deprecated, use --target instead)",
-        )
-        parser.add_argument(
             "--no-minimal",
             action="store_true",
             help="Don't build the ue4-minimal image (deprecated, use --target instead)",
@@ -283,9 +278,7 @@ class BuildConfiguration(object):
         self.changelist = self.args.changelist
 
         # Figure out what targets we have; this is needed to find out if we need --ue-version.
-        using_target_specifier_old = (
-            self.args.no_engine or self.args.no_minimal or self.args.no_full
-        )
+        using_target_specifier_old = self.args.no_minimal or self.args.no_full
         using_target_specifier_new = self.args.target is not None
 
         # If we specified nothing, it's the same as specifying `all`
@@ -310,9 +303,6 @@ class BuildConfiguration(object):
 
             if not self.args.no_minimal:
                 self.args.target += ["minimal"]
-
-            if not self.args.no_engine:
-                self.args.target += ["engine"]
 
             # disabling these was never supported
             self.args.target += ["source"]
@@ -341,7 +331,6 @@ class BuildConfiguration(object):
         self.buildTargets = {
             "build-prerequisites": False,
             "source": False,
-            "engine": False,
             "minimal": False,
             "full": False,
         }
@@ -359,10 +348,6 @@ class BuildConfiguration(object):
 
         if "minimal" in active_targets or "all" in active_targets:
             self.buildTargets["minimal"] = True
-            active_targets.add("source")
-
-        if "engine" in active_targets or "all" in active_targets:
-            self.buildTargets["engine"] = True
             active_targets.add("source")
 
         if "source" in active_targets or "all" in active_targets:
