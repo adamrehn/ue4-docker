@@ -51,6 +51,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 			libxcursor1 \
 			libxdamage1 \
 			libxi6 \
+			libxkbcommon-x11-0 \
 			libxrandr2 \
 			libxrender1 \
 			libxss1 \
