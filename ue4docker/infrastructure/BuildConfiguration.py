@@ -53,15 +53,21 @@ class VisualStudio(object):
         VS2022: "17",
     }
 
-    MinSupportedUnreal = {
+    SupportedSince = {
+        # We do not support versions older than 4.20
+        VS2017: semver.VersionInfo(4.20),
         # Unreal Engine 4.23.1 is the first that successfully builds with Visual Studio v16.3
         # See https://github.com/EpicGames/UnrealEngine/commit/2510d4fd07a35ba5bff6ac2c7becaa6e8b7f11fa
         #
         # Unreal Engine 4.25 is the first that works with .NET SDK 4.7+
         # See https://github.com/EpicGames/UnrealEngine/commit/5256eedbdef30212ab69fdf4c09e898098959683
         VS2019: semver.VersionInfo(4, 25),
-        VS2022: semver.VersionInfo(4, 27),
+        # Even though Epics claimed in 4.27 and 5.0 that they added VS2022 support,
+        # everything up to (including) 5.1.0 fails to build with it due to dependencies on .NET 4.5.
+        VS2022: semver.VersionInfo(5, 1, 1),
     }
+
+    UnsupportedSince = {VS2017: semver.VersionInfo(5, 0)}
 
 
 class ExcludedComponent(object):
@@ -576,16 +582,27 @@ class BuildConfiguration(object):
 
         if self.release is not None and not self.custom:
             # Check whether specified Unreal Engine release is compatible with specified Visual Studio
-            vsMinSupportedUnreal = VisualStudio.MinSupportedUnreal.get(
+            supportedSince = VisualStudio.SupportedSince.get(self.visualStudio, None)
+            if (
+                supportedSince is not None
+                and semver.VersionInfo.parse(self.release) < supportedSince
+            ):
+                raise RuntimeError(
+                    "specified version of Unreal Engine is too old for Visual Studio {}".format(
+                        self.visualStudio
+                    )
+                )
+
+            unsupportedSince = VisualStudio.UnsupportedSince.get(
                 self.visualStudio, None
             )
             if (
-                vsMinSupportedUnreal is not None
-                and semver.VersionInfo.parse(self.release) < vsMinSupportedUnreal
+                unsupportedSince is not None
+                and semver.VersionInfo.parse(self.release) >= unsupportedSince
             ):
                 raise RuntimeError(
-                    "specified version of Unreal Engine cannot be built with Visual Studio {}, oldest supported is {}".format(
-                        self.visualStudio, vsMinSupportedUnreal
+                    "Visual Studio {} is too old for specified version of Unreal Engine".format(
+                        self.visualStudio
                     )
                 )
 
