@@ -91,7 +91,6 @@ RUN python3 /tmp/patch-broken-releases.py /home/ue4/UnrealEngine $VERBOSE_OUTPUT
 {% endif %}
 
 # Run post-clone setup steps, ensuring our package lists are up to date since Setup.sh doesn't call `apt-get update`
-{% if credential_mode == "secrets" %}
 
 # Ensure Setup.sh uses the same cache path when building either UE4 or UE5
 ENV UE_GITDEPS=/home/ue4/gitdeps
@@ -103,16 +102,6 @@ WORKDIR /home/ue4/UnrealEngine
 RUN --mount=type=cache,target=/home/ue4/gitdeps,uid=1000,gid=1000 sudo apt-get update && \
 	./Setup.sh {{ gitdependencies_args }} && \
 	sudo rm -rf /var/lib/apt/lists/*
-
-{% else %}
-
-# When running without BuildKit, we use the `-no-cache` flag to disable caching of dependency data in `.git/ue4-gitdeps`, saving disk space
-WORKDIR /home/ue4/UnrealEngine
-RUN sudo apt-get update && \
-	./Setup.sh -no-cache {{ gitdependencies_args }} && \
-	sudo rm -rf /var/lib/apt/lists/*
-
-{% endif %}
 
 {% if (not disable_all_patches) and (not disable_linker_fixup) %}
 # The linker bundled with UE4.20.0 onwards chokes on system libraries built with newer compilers,
