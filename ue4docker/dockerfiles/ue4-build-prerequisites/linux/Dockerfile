@@ -9,9 +9,17 @@ LABEL com.adamrehn.ue4-docker.sentinel="1"
 # Disable interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Enable CUDA support for NVIDIA GPUs (even when not using a CUDA base image), since evidently some versions of UE unconditionally assume
+# `libcuda.so.1` exists when using the NVIDIA proprietary drivers, and will fail to initialise the Vulkan RHI if it is missing
+ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES},compute
+
 # Add the "display" driver capability for NVIDIA GPUs
-# (This also allows us to run the Editor from an interactive container by bind-mounting the host system's X11 socket)
+# (This allows us to run the Editor from an interactive container by bind-mounting the host system's X11 socket)
 ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES},display
+
+# Enable NVENC support for use by Unreal Engine plugins that depend on it (e.g. Pixel Streaming)
+# (Note that adding `video` seems to implicitly enable `compute` as well, but we include separate directives here to clearly indicate the purpose of both)
+ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES},video
 
 # Install our build prerequisites
 RUN apt-get update && apt-get install -y --no-install-recommends \
