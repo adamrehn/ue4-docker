@@ -600,6 +600,16 @@ class BuildConfiguration(object):
                     False,
                 )
 
+        # If the user has explicitly specified a memory limit then use it, otherwise auto-detect
+        self.memLimit = None
+        if self.args.m is not None:
+            try:
+                self.memLimit = humanfriendly.parse_size(self.args.m) / (
+                    1000 * 1000 * 1000
+                )
+            except:
+                raise RuntimeError('invalid memory limit "{}"'.format(self.args.m))
+
         # If we're building Windows containers, generate our Windows-specific configuration settings
         if self.containerPlatform == "windows":
             self._generateWindowsConfig()
@@ -607,6 +617,10 @@ class BuildConfiguration(object):
         # If we're building Linux containers, generate our Linux-specific configuration settings
         if self.containerPlatform == "linux":
             self._generateLinuxConfig()
+
+        # Set the memory limit Docker flag
+        if self.memLimit is not None:
+            self.platformArgs.extend(["-m", "{:.2f}GB".format(self.memLimit)])
 
         # If the user-specified suffix passed validation, prefix it with a dash
         self.suffix = "-{}".format(self.suffix) if self.suffix != "" else ""
@@ -712,10 +726,6 @@ class BuildConfiguration(object):
                         DEFAULT_MEMORY_LIMIT, DEFAULT_MEMORY_LIMIT + 2.0
                     )
                 )
-
-        # Set the memory limit Docker flag
-        if self.memLimit is not None:
-            self.platformArgs.extend(["-m", "{:.2f}GB".format(self.memLimit)])
 
     def _generateLinuxConfig(self):
         # Verify that any user-specified tag suffix does not collide with our base tags
