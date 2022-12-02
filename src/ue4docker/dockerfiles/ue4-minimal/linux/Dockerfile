@@ -41,9 +41,21 @@ RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph \
     -target="Make Installed Build Linux" \
     -script=Engine/Build/InstalledEngineBuild.xml \
     -set:HostPlatformOnly=true \
-    -set:WithDDC={% if excluded_components.ddc == true %}false{% else %}true{% endif %} \
+    -set:WithDDC=false \
     {{ buildgraph_args }} && \
 	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC
+
+{% if not excluded_components.ddc %}
+# Create the DDC
+WORKDIR /home/ue4/UnrealEngine
+RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph \
+    -target="DDC Group Linux" \
+    -script=Engine/Build/InstalledEngineBuild.xml \
+    -set:HostPlatformOnly=true \
+    -set:WithDDC=true \
+    {{ buildgraph_args }} && \
+	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC
+{% endif %}
 
 # Split out components (DDC, debug symbols, template projects) so they can be copied into the final container image as separate filesystem layers
 COPY split-components.py /tmp/split-components.py
