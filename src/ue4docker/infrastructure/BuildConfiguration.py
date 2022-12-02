@@ -611,11 +611,11 @@ class BuildConfiguration(object):
         self.memLimit = None
         if self.args.memory is not None:
             try:
-                self.memLimit = humanfriendly.parse_size(self.args.m) / (
+                self.memLimit = humanfriendly.parse_size(self.args.memory) / (
                     1000 * 1000 * 1000
                 )
             except:
-                raise RuntimeError('invalid memory limit "{}"'.format(self.args.m))
+                raise RuntimeError('invalid memory limit "{}"'.format(self.args.memory))
 
         # If we're building Windows containers, generate our Windows-specific configuration settings
         if self.containerPlatform == "windows":
@@ -631,7 +631,7 @@ class BuildConfiguration(object):
 
         # Set the number of CPUs to use for building
         if self.args.cpus is not None:
-            self.platformArgs.extend(["--cpuset-cpus=0-{:d}", self.args.cpus - 1])
+            self.platformArgs.extend(["--cpuset-cpus", "0-{:d}".format(self.args.cpus - 1)])
 
         # If the user-specified suffix passed validation, prefix it with a dash
         self.suffix = "-{}".format(self.suffix) if self.suffix != "" else ""
