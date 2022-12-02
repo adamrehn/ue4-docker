@@ -221,8 +221,15 @@ class BuildConfiguration(object):
         )
         parser.add_argument(
             "-m",
+            "--memory",
             default=None,
-            help="Override the default memory limit under Windows (also overrides --random-memory)",
+            help="Override the default memory limit (also overrides --random-memory)",
+        )
+        parser.add_argument(
+            "--cpus",
+            type=int,
+            default=None,
+            help="Override the number of CPUs available during build",
         )
         parser.add_argument(
             "-ue4cli",
@@ -567,7 +574,7 @@ class BuildConfiguration(object):
 
         # If the user has explicitly specified a memory limit then use it, otherwise auto-detect
         self.memLimit = None
-        if self.args.m is not None:
+        if self.args.memory is not None:
             try:
                 self.memLimit = humanfriendly.parse_size(self.args.m) / (
                     1000 * 1000 * 1000
@@ -585,7 +592,11 @@ class BuildConfiguration(object):
 
         # Set the memory limit Docker flag
         if self.memLimit is not None:
-            self.platformArgs.extend(["-m", "{:.2f}GB".format(self.memLimit)])
+            self.platformArgs.extend(["--memory", "{:.2f}GB".format(self.memLimit)])
+
+        # Set the number of CPUs to use for building
+        if self.args.cpus is not None:
+            self.platformArgs.extend(["--cpuset-cpus=0-{:d}", self.args.cpus - 1])
 
         # If the user-specified suffix passed validation, prefix it with a dash
         self.suffix = "-{}".format(self.suffix) if self.suffix != "" else ""
