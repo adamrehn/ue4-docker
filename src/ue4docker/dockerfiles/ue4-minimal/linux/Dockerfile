@@ -45,6 +45,9 @@ RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph \
     {{ buildgraph_args }} && \
 	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC
 
+#sed s/MaxShaderJobBatchSize=10/MaxShaderJobBatchSize=5/ Engine/Config/BaseEngine.ini
+RUN sed -i s/PercentageUnusedShaderCompilingThreads=50/PercentageUnusedShaderCompilingThreads=80/ Engine/Config/BaseEngine.ini
+
 {% if not excluded_components.ddc %}
 # Create the DDC
 WORKDIR /home/ue4/UnrealEngine
