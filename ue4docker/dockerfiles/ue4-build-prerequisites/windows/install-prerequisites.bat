@@ -59,6 +59,7 @@ if "%VISUAL_STUDIO_BUILD_NUMBER%" == "15" (
 @rem NOTE: We use the Visual Studio 2022 installer even for Visual Studio 2019 and 2017 here because the old (2017) installer now breaks
 @rem NOTE: Microsoft.NetCore.Component.SDK only exists for VS2019+. And it is actually *needed* only for UE5
 @rem NOTE: .NET 4.5 is required for some programs even in UE5, for example https://github.com/EpicGames/UnrealEngine/blob/5.0.1-release/Engine/Source/Programs/UnrealSwarm/SwarmCoordinator/SwarmCoordinator.csproj#L26
+@rem NOTE: Microsoft.NetCore.Component.Runtime.3.1 is required by the AutomationTool tool and does not come installed with VS2022 so it needs targetting here.
 curl --progress-bar -L "https://aka.ms/vs/17/release/vs_buildtools.exe" --output %TEMP%\vs_buildtools.exe || goto :error
 %TEMP%\vs_buildtools.exe --quiet --wait --norestart --nocache ^
 	--installPath C:\BuildTools ^
@@ -75,9 +76,17 @@ curl --progress-bar -L "https://aka.ms/vs/17/release/vs_buildtools.exe" --output
 	--add Microsoft.Net.Component.4.5.TargetingPack ^
 	--add Microsoft.Net.Component.4.6.2.TargetingPack ^
 	--add Microsoft.Net.ComponentGroup.DevelopmentPrerequisites ^
-	--add Microsoft.NetCore.Component.SDK
+	--add Microsoft.NetCore.Component.SDK ^
+	--add Microsoft.NetCore.Component.Runtime.3.1
 
 python C:\buildtools-exitcode.py %ERRORLEVEL% || goto :error
+
+@rem NOTE: Install the .Net 4.5 Framework Pack via nuget as this is not installed in VS2022 by the buildtools.
+if "%VISUAL_STUDIO_BUILD_NUMBER%" == "17" (
+curl --progress-bar -L "https://www.nuget.org/api/v2/package/Microsoft.NETFramework.ReferenceAssemblies.net45/1.0.3" --output %TEMP%\DotNet45.zip && ^
+powershell -Command "Expand-Archive -Path \"$env:TEMP\DotNet45.zip\" -DestinationPath $env:TEMP" && ^
+powershell -Command "Copy-Item -Path \"$env:TEMP\build\.NETFramework\v4.5\*\" -Destination 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\' -Recurse -Force" || goto :error
+)
 
 @rem Clean up any temp files generated during prerequisite installation
 rmdir /S /Q \\?\%TEMP%
