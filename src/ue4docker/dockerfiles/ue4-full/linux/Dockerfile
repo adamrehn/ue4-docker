@@ -7,7 +7,7 @@ FROM source as conan
 ARG NAMESPACE
 ARG TAG
 ARG PREREQS_TAG
-FROM ${NAMESPACE}/ue4-minimal:${TAG}-${PREREQS_TAG} AS conan
+FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS conan
 {% endif %}
 ARG UE4CLI_VERSION
 ARG CONAN_UE4CLI_VERSION
@@ -18,6 +18,8 @@ USER root
 RUN pip3 install --upgrade pip setuptools wheel
 RUN pip3 install "$CONAN_VERSION" "$UE4CLI_VERSION" "$CONAN_UE4CLI_VERSION"
 USER ue4
+
+COPY --from=${NAMESPACE}/ue4-minimal:${TAG}-${PREREQS_TAG} --chown=ue4:ue4 /home/ue4/UnrealEngine/Engine/Binaries/DotNET/UnrealBuildTool /home/ue4/UnrealEngine/Engine/Binaries/DotNET/UnrealBuildTool
 
 # Extract the third-party library details from UBT
 RUN ue4 setroot /home/ue4/UnrealEngine
