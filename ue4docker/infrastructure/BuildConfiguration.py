@@ -62,9 +62,7 @@ class VisualStudio(object):
         # Unreal Engine 4.25 is the first that works with .NET SDK 4.7+
         # See https://github.com/EpicGames/UnrealEngine/commit/5256eedbdef30212ab69fdf4c09e898098959683
         VS2019: semver.VersionInfo(4, 25),
-        # Even though Epics claimed in 4.27 and 5.0 that they added VS2022 support,
-        # everything up to (including) 5.1.0 fails to build with it due to dependencies on .NET 4.5.
-        VS2022: semver.VersionInfo(5, 1, 1),
+        VS2022: semver.VersionInfo(5, 0, 0),
     }
 
     UnsupportedSince = {VS2017: semver.VersionInfo(5, 0)}
