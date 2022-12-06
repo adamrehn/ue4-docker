@@ -57,7 +57,6 @@ if "%VISUAL_STUDIO_BUILD_NUMBER%" == "15" (
 
 @rem Install the Visual Studio Build Tools workloads and components we need
 @rem NOTE: We use the Visual Studio 2022 installer even for Visual Studio 2019 and 2017 here because the old (2017) installer now breaks
-@rem NOTE: Microsoft.NetCore.Component.SDK only exists for VS2019+. And it is actually *needed* only for UE5
 @rem NOTE: .NET 4.5 is required for some programs even in UE5, for example https://github.com/EpicGames/UnrealEngine/blob/5.0.1-release/Engine/Source/Programs/UnrealSwarm/SwarmCoordinator/SwarmCoordinator.csproj#L26
 curl --progress-bar -L "https://aka.ms/vs/17/release/vs_buildtools.exe" --output %TEMP%\vs_buildtools.exe || goto :error
 %TEMP%\vs_buildtools.exe --quiet --wait --norestart --nocache ^
@@ -74,8 +73,7 @@ curl --progress-bar -L "https://aka.ms/vs/17/release/vs_buildtools.exe" --output
 	--add Microsoft.VisualStudio.Component.Windows10SDK.%WINDOWS_SDK_VERSION% ^
 	--add Microsoft.Net.Component.4.5.TargetingPack ^
 	--add Microsoft.Net.Component.4.6.2.TargetingPack ^
-	--add Microsoft.Net.ComponentGroup.DevelopmentPrerequisites ^
-	--add Microsoft.NetCore.Component.SDK
+	--add Microsoft.Net.ComponentGroup.DevelopmentPrerequisites
 
 python C:\buildtools-exitcode.py %ERRORLEVEL% || goto :error
 
