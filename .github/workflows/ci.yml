@@ -29,8 +29,6 @@ jobs:
     strategy:
       matrix:
         include:
-        - { os: ubuntu-18.04,   python: "3.6"  }
-        - { os: ubuntu-18.04,   python: "3.10" }
         - { os: ubuntu-20.04,   python: "3.6"  }
         - { os: ubuntu-20.04,   python: "3.10" }
         - { os: ubuntu-22.04,   python: "3.10" }
