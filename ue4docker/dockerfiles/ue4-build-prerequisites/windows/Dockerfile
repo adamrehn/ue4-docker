@@ -57,6 +57,6 @@ RUN reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem /v Lo
 RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 
 # Install the rest of our build prerequisites and clean up afterwards to minimise image size
-COPY buildtools-exitcode.py install-prerequisites.bat C:\
+COPY install-prerequisites.ps1 C:\
 ARG VISUAL_STUDIO_BUILD_NUMBER
-RUN C:\install-prerequisites.bat %VISUAL_STUDIO_BUILD_NUMBER%
+RUN powershell -ExecutionPolicy Bypass -File C:\install-prerequisites.ps1 %VISUAL_STUDIO_BUILD_NUMBER%
