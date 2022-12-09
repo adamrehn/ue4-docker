@@ -31,8 +31,9 @@ jobs:
         include:
         - { os: ubuntu-18.04,   python: "3.6"  }
         - { os: ubuntu-18.04,   python: "3.10" }
-        - { os: ubuntu-latest,  python: "3.6"  }
-        - { os: ubuntu-latest,  python: "3.10" }
+        - { os: ubuntu-20.04,   python: "3.6"  }
+        - { os: ubuntu-20.04,   python: "3.10" }
+        - { os: ubuntu-22.04,   python: "3.10" }
         - { os: windows-2019,   python: "3.6",  visual-studio: 2017 }
         - { os: windows-2019,   python: "3.10", visual-studio: 2017 }
         - { os: windows-2019,   python: "3.6",  visual-studio: 2019 }
