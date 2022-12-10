@@ -71,7 +71,7 @@ if (
         buildXml = buildXml.replace(
             '<Property Name="CopyWin64CsToolsExceptions">',
             '<Property Name="CopyWin64CsToolsExceptions">\n'
-			+ '            Engine\Saved\CsTools\Engine\Intermediate\ScriptModules\HoloLens.Automation.json\n',
+            + '            Engine\Saved\CsTools\Engine\Intermediate\ScriptModules\HoloLens.Automation.json\n',
         )
 
         writeFile(buildFile, buildXml)
