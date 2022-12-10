@@ -28,7 +28,7 @@ def _getUsername(args):
 
 def _getPassword(args):
     return _getCredential(
-        args, "password", "UE4DOCKER_PASSWORD", lambda: getpass.getpass("Password: ")
+        args, "password", "UE4DOCKER_PASSWORD", lambda: getpass.getpass("Access token or password: ")
     )
 
 
