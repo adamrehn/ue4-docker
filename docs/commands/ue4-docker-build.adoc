@@ -52,39 +52,39 @@ Disable Docker build cache
 *--exclude {ddc,debug,templates}*::
 Exclude the specified component (can be specified multiple times to exclude multiple components)
 
-*--opt OPT*::
+*--opt* _OPT_::
 Set an advanced configuration option (can be specified multiple times to specify multiple options)
 
-*-username USERNAME*::
+*-username* _USERNAME_::
 Specify the username to use when cloning the git repository
 
-*-password PASSWORD*::
+*-password* _PASSWORD_::
 Specify access token or password to use when cloning the git repository
 
-*-repo REPO*::
+*-repo* _REPO_::
 Set the custom git repository to clone when "custom" is specified as the release value
 
-*-branch BRANCH*::
+*-branch* _BRANCH_::
 Set the custom branch/tag to clone when "custom" is specified as the release value
 
-*-basetag BASETAG*::
+*-basetag* _BASETAG_::
 Operating system base image tag to use.
 For Linux this is the version of Ubuntu (default is ubuntu18.04).
 For Windows this is the Windows Server Core base image tag (default is the host OS version)
 
-*-suffix SUFFIX*::
+*-suffix* _SUFFIX_::
 Add a suffix to the tags of the built images
 
-*-m M*::
+*-m* _M_::
 Override the default memory limit under Windows (also overrides --random-memory)
 
-*-ue4cli UE4CLI*::
+*-ue4cli* _UE4CLI_::
 Override the default version of ue4cli installed in the ue4-full image
 
-*-conan-ue4cli CONAN_UE4CLI*::
+*-conan-ue4cli* _CONAN_UE4CLI_::
 Override the default version of conan-ue4cli installed in the ue4-full image
 
-*-layout LAYOUT*::
+*-layout* _LAYOUT_::
 Copy generated Dockerfiles to the specified directory and don't build the images
 
 *--combine*::
@@ -93,7 +93,7 @@ Combine generated Dockerfiles into a single multi-stage build Dockerfile
 *--monitor*::
 Monitor resource usage during builds (useful for debugging)
 
-*-interval INTERVAL*::
+*-interval* _INTERVAL_::
 Sampling interval in seconds when resource monitoring has been enabled using --monitor (default is 20 seconds)
 
 *-v*::
@@ -101,7 +101,7 @@ Enable verbose output during builds (useful for debugging)
 
 == Linux-specific options
 
-*--cuda VERSION*::
+*--cuda* _VERSION_::
 Add CUDA support as well as OpenGL support
 
 == Windows-specific options
@@ -109,7 +109,7 @@ Add CUDA support as well as OpenGL support
 *--ignore-blacklist*::
 Run builds even on blacklisted versions of Windows (advanced use only)
 
-*-isolation ISOLATION*::
+*-isolation* _ISOLATION_::
 Set the isolation mode to use (process or hyperv)
 
 *--linux*::
@@ -118,5 +118,5 @@ Use Linux containers under Windows hosts (useful when testing Docker Desktop or 
 *--random-memory*::
 Use a random memory limit for Windows containers
 
-*--visual-studio VISUAL_STUDIO*::
+*--visual-studio* _VISUAL_STUDIO_::
 Specify Visual Studio Build Tools version
