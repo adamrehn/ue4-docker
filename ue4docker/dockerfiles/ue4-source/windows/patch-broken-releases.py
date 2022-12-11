@@ -66,12 +66,12 @@ if (
     # (See: <https://github.com/EpicGames/UnrealEngine/commit/ae9de79b7012fc33df355c8dbfe5096b94545e3c>)
     buildFile = join(engineRoot, "Engine", "Build", "InstalledEngineFilters.xml")
     buildXml = readFile(buildFile)
-    if 'HoloLens.Automation.json' not in buildXml:
+    if "HoloLens.Automation.json" not in buildXml:
 
         buildXml = buildXml.replace(
             '<Property Name="CopyWin64CsToolsExceptions">',
             '<Property Name="CopyWin64CsToolsExceptions">\n'
-            + '            Engine\Saved\CsTools\Engine\Intermediate\ScriptModules\HoloLens.Automation.json\n',
+            + "            Engine\Saved\CsTools\Engine\Intermediate\ScriptModules\HoloLens.Automation.json\n",
         )
 
         writeFile(buildFile, buildXml)
