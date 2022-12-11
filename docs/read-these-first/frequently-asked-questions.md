@@ -1,0 +1,22 @@
+---
+title:  Frequently Asked Questions
+pagenum: 5
+---
+
+## Why are the Dockerfiles written in such an inefficient manner? There are a large number of `RUN` directives that could be combined to improve both build efficiency and overall image size.
+
+With the exception of the [ue4-build-prerequisites](../building-images/available-container-images#ue4-build-prerequisites) and [ue4-minimal](../building-images/available-container-images#ue4-minimal) images, the Dockerfiles have been deliberately written in an inefficient way because doing so serves two very important purposes.
+
+The first purpose is self-documentation. These Docker images are the first publicly-available Windows and Linux images to provide comprehensive build capabilities for Unreal Engine 4. Along with the supporting documentation and [articles on adamrehn.com](https://adamrehn.com/articles/tag/Unreal%20Engine/), the code in this repository represents an important source of information regarding the steps that must be taken to get UE4 working correctly inside a container. The readability of the Dockerfiles is key, which is why they contain so many individual `RUN` directives with explanatory comments. Combining `RUN` directives would reduce readability and potentially obfuscate the significance of critical steps.
+
+The second purpose is debuggability. Updating the Dockerfiles to ensure compatibility with new Unreal Engine releases is an extremely involved process that typically requires building the Engine many times over. By breaking the Dockerfiles into many fine-grained `RUN` directives, the Docker build cache can be leveraged to ensure only the failing steps need to be repeated when rebuilding the images during debugging. Combining `RUN` directives would increase the amount of processing that needs to be redone each time one of the commands in a given directive fails, significantly increasing overall debugging times.
+
+
+## Can Windows containers be used to perform cloud rendering in the same manner as Linux containers with the NVIDIA Container Toolkit?
+
+See the answer here: <https://unrealcontainers.com/docs/concepts/nvidia-docker#is-there-any-support-for-other-platforms>
+
+
+## Is it possible to build Unreal projects for macOS or iOS using the Docker containers?
+
+Building projects for macOS or iOS requires a copy of macOS and Xcode. Since macOS cannot run inside a Docker container, there is unfortunately no way to perform macOS or iOS builds using Docker containers.
