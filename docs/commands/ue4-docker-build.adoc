@@ -34,7 +34,7 @@ See the link:../building-images/available-container-images.adoc[List of availabl
 *-h, --help*::
 Print help and exit
 
-*--rebuild**::
+*--rebuild*::
 Rebuild images even if they already exist
 
 *--dry-run*::
