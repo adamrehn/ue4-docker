@@ -25,5 +25,5 @@ ue4-docker uses [Black](https://github.com/psf/black) for its code formatting.
 If you are submitting changes, make sure to install and run Black:
 
 - `pip install --user black`
-- `black .` (invoked in repository root)
+- `python -m black .` (invoke in repository root)
 - Now your code is properly formatted

@@ -27,7 +27,7 @@ Resources:
 
 ## Contributing
 
-See the file [CONTRIBUTING.md](https://github.com/adamrehn/ue4-docker/blob/master/.github/CONTRIBUTING.md) for guidelines on how to contribute to the development of ue4-docker.
+See the file [CONTRIBUTING.md](https://github.com/adamrehn/ue4-docker/blob/master/CONTRIBUTING.md) for guidelines on how to contribute to the development of ue4-docker.
 
 
 ## Legal
