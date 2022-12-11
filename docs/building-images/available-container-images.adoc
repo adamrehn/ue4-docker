@@ -19,7 +19,7 @@ You can prevent unwanted images from being built by appending the relevant image
 
 **Tags:**
 
-* "**Windows containers**: `adamrehn/ue4-build-prerequisites:BASETAG` where `BASETAG` is the link:advanced-build-options.adoc#specifying-the-windows-server-core-base-image-tag[Windows Server Core base image tag]
+* **Windows containers**: `adamrehn/ue4-build-prerequisites:BASETAG` where `BASETAG` is the link:advanced-build-options.adoc#specifying-the-windows-server-core-base-image-tag[Windows Server Core base image tag]
 
 * **Linux containers**: `adamrehn/ue4-build-prerequisites:CONFIGURATION` where `CONFIGURATION` is as follows:
 
