@@ -1,0 +1,11 @@
+= Microservices
+:icons: font
+:idprefix:
+:idseparator: -
+:source-highlighter: rouge
+:toc:
+
+Thanks to the inclusion of conan-ue4cli infrastructure, the ue4-full image makes it easy to build UE4-powered microservices with Google's popular gRPC framework.
+
+NOTE: This page has migrated to the https://unrealcontainers.com/[Unreal Containers community hub].
+You can find the new version here: https://unrealcontainers.com/docs/use-cases/microservices[Use Cases: Microservices].

@@ -1,0 +1,20 @@
+= ue4-docker-test (1)
+:doctype: manpage
+:icons: font
+:idprefix:
+:idseparator: -
+:source-highlighter: rouge
+
+== Name
+
+ue4-docker-test - run tests to verify the correctness of built container images
+
+== Synopsis
+
+*ue4-docker test* _TAG_
+
+== Description
+
+This command runs a suite of tests to verify that built link:../building-images/available-container-images.adoc#ue4-full[ue4-full] container images are functioning correctly and can be used to build and package Unreal projects and plugins.
+
+This command is primarily intended for use by developers who are contributing to the ue4-docker project itself.

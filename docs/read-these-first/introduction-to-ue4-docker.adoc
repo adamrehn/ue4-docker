@@ -1,0 +1,51 @@
+= Introduction to ue4-docker
+:icons: font
+:idprefix:
+:idseparator: -
+:source-highlighter: rouge
+:toc:
+
+== Overview
+
+The ue4-docker Python package contains a set of Dockerfiles and accompanying build infrastructure that allows you to build Docker images for Epic Games' https://www.unrealengine.com/[Unreal Engine].
+The images also incorporate the infrastructure from `ue4cli`, `conan-ue4cli`, and `ue4-ci-helpers` to facilitate a wide variety of use cases.
+
+Key features include:
+
+- Unreal Engine 4.20.0 and newer is supported.
+- Both Windows containers and Linux containers are supported.
+- Building and packaging UE4 projects is supported.
+- Running automation tests is supported.
+- Running built UE4 projects with offscreen rendering is supported via the NVIDIA Container Toolkit under Linux.
+
+== Important legal notice
+
+**With the exception of the link:../building-images/available-container-images.adoc#ue4-build-prerequisites[ue4-build-prerequisites] image, the Docker images produced by the ue4-docker Python package contain the UE4 Engine Tools in both source code and object code form.
+As per Section 1A of the https://www.unrealengine.com/eula[Unreal Engine EULA], Engine Licensees are prohibited from public distribution of the Engine Tools unless such distribution takes place via the Unreal Marketplace or a fork of the Epic Games UE4 GitHub repository.
+**Public distribution of the built images via an openly accessible Docker Registry (e.g. Docker Hub) is a direct violation of the license terms.** It is your responsibility to ensure that any private distribution to other Engine Licensees (such as via an organisation's internal Docker Registry) complies with the terms of the Unreal Engine EULA.**
+
+For more details, see the https://unrealcontainers.com/docs/obtaining-images/eula-restrictions[Unreal Engine EULA Restrictions] page on the https://unrealcontainers.com/[Unreal Containers community hub].
+
+== Getting started
+
+Multipurpose Docker images for large, cross-platform projects such as the Unreal Engine involve a great deal more complexity than most typical Docker images.
+Before you start using ue4-docker it may be helpful to familiarise yourself with some of these complexities:
+
+- If you've never built large (multi-gigabyte) Docker images before, be sure to read the link:large-container-images-primer.adoc[Large container images primer].
+- If you've never used Windows containers before, be sure to read the link:windows-container-primer.adoc[Windows containers primer].
+- If you've never used GPU-accelerated Linux containers with the NVIDIA Container Toolkit before, be sure to read the link:nvidia-docker-primer.adoc[NVIDIA Container Toolkit primer].
+
+Once you're familiar with all the relevant background material, you can dive right in:
+
+1. First up, head to the link:../configuration.adoc[Configuration] section for details on how to install ue4-docker and configure your host system so that it is ready to build and run the Docker images.
+2. Next, check out the link:../use-cases.adoc[Use Cases] section for details on the various scenarios in which the Docker images can be used.
+Once you've selected the use case you're interested in, you'll find step-by-step instructions on how to build the necessary container images and start using them.
+3. If you run into any issues or want to customise your build with advanced options, the link:../building-images.adoc[Building Images] section provides all the relevant details.
+4. For more information, check out the link:frequently-asked-questions.adoc[FAQ] and the link:../commands.adoc[Command Reference] section.
+
+== Links
+
+- https://github.com/adamrehn/ue4-docker[ue4-docker GitHub repository]
+- https://pypi.org/project/ue4-docker/[ue4-docker package on PyPI]
+- https://adamrehn.com/articles/tag/Unreal%20Engine/[Related articles on adamrehn.com]
+- https://unrealcontainers.com/[Unreal Containers community hub]

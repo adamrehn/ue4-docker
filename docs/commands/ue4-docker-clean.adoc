@@ -1,0 +1,32 @@
+= ue4-docker-clean (1)
+:doctype: manpage
+:icons: font
+:idprefix:
+:idseparator: -
+:source-highlighter: rouge
+
+== Name
+
+ue4-docker-clean - cleans built container images.
+
+== Synopsis
+
+*ue4-docker clean* [*-tag* _TAG_] [*--source*] [*--all*] [*--dry-run*]
+
+== Description
+
+By default, only dangling intermediate images leftover from ue4-docker multi-stage builds are removed.
+
+== Options
+
+*-tag* _TAG_::
+Apply a filter for the three flags below, restricting them to removing only images with the specified _TAG_ (e.g. `-tag 4.21.0` will only remove images for 4.21.0)
+
+*--source*::
+Remove ../building-images/available-container-images.adoc#ue4-source[ue4-source] images, applying the tag filter if one was specified
+
+*--all*::
+Remove all ue4-docker images, applying the tag filter if one was specified
+
+*--dry-run*::
+If you're unsure as to exactly what images will be removed by a given invocation of the command, append the `--dry-run` flag to have ue4-docker print the generated `docker rmi` commands instead of running them.

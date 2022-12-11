@@ -1,0 +1,52 @@
+= ue4-docker-diagnostics (1)
+:doctype: manpage
+:icons: font
+:idprefix:
+:idseparator: -
+:source-highlighter: rouge
+
+== Name
+
+ue4-docker diagnostics - run diagnostics to detect issues with the host system configuration.
+{{ page.blurb | escape }}
+
+== Synopsis
+
+*ue4-docker diagnostics* _DIAGNOSTIC_
+
+== Description
+
+This command can be used to run the following diagnostics:
+
+=== Checking for the Docker 8GiB filesystem layer bug
+
+Some versions of Docker contain one or more of a series of separate but related bugs that prevent the creation of filesystem layers which are 8GiB in size or larger.
+This also causes `COPY` directives to fail when copying data in excess of 8GiB in size, link:../building-images/troubleshooting-build-issues.adoc#building-the-ue4-minimal-image-fails-on-the-copy---frombuilder-directive-that-copies-the-installed-build-from-the-intermediate-image-into-the-final-image[breaking Dockerfile steps during the creation of Installed Builds that contain debug symbols].
+
+This diagnostic tests whether the host system's Docker daemon suffers from this issue, by attempting to build a simple test Dockerfile with an 8GiB filesystem layer:
+
+[source,shell]
+----
+ue4-docker diagnostics 8gig
+----
+
+=== Checking for the Windows Host Compute Service (HCS) `storage-opt` bug
+
+Windows Server versions 1903 and 1909 and Windows 10 versions 1903 and 1909 contain https://github.com/docker/for-win/issues/4100[a bug in the Host Compute Service (HCS)] that prevents users from increasing the maximum allowed image size using Docker's `storage-opt` configuration key.
+Since Unreal Engine containers require a far higher limit than the default during builds, this bug prevents the link:ue4-docker-build.adoc[ue4-docker build] command from functioning correctly on affected systems.
+
+This diagnostic tests whether the host system is affected this bug, by attempting to run a container with a non-default `storage-opt` value:
+
+[source,shell]
+----
+ue4-docker diagnostics maxsize
+----
+
+=== Checking for container network connectivity issues
+
+This diagnostic tests whether running containers are able to access the internet, resolve DNS entries, and download remote files:
+
+[source,shell]
+----
+ue4-docker diagnostics network
+----

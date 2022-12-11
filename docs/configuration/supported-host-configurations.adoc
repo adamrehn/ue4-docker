@@ -1,0 +1,43 @@
+= Supported host configurations
+:icons: font
+:idprefix:
+:idseparator: -
+:source-highlighter: rouge
+:toc:
+
+The table below lists the host operating systems can be used to build and run the container images produced by ue4-docker, as well as which features are supported under each system.
+
+**Click on an operating system's name to view the configuration instructions for that platform.**
+
+[%autowidth.stretch]
+|===
+| Host OS | Linux containers | Windows containers | NVIDIA Container Toolkit | Optimality
+
+| link:configuring-linux.adoc[Linux]
+| icon:check[]
+| icon:times[]
+| icon:check[]
+| Optimal for Linux containers
+
+| link:configuring-windows-server.adoc[Windows Server]
+| icon:times[]
+| icon:check[]
+| icon:times[]
+| Optimal for Windows containers when using process isolation mode
+
+| link:configuring-windows-10.adoc[Windows 10 and 11]
+| Works but not tested or supported
+| icon:check[]
+| icon:times[]
+| Optimal for Windows containers when using process isolation mode
+
+| link:configuring-macos.adoc[macOS]
+| icon:check[]
+| icon:times[]
+| icon:times[]
+| Suboptimal for Linux containers
+
+|===
+
+The *Optimality* column indicates whether a given host operating system provides the best experience for running the container types that it supports.
+The configuration instructions page for each operating system provides further details regarding the factors that make it either optimal or suboptimal.

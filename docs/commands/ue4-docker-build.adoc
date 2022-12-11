@@ -1,0 +1,122 @@
+= ue4-docker-build (1)
+:doctype: manpage
+:icons: font
+:idprefix:
+:idseparator: -
+:source-highlighter: rouge
+
+== Name
+
+ue4-docker-build - build container image for a specific version of Unreal Engine
+
+== Synopsis
+
+*ue4-docker build* [_OPTION_]... _VERSION_
+
+== Description
+
+To build container images for a specific version of the Unreal Engine, simply specify the release that you would like to build using full https://semver.org/[semver] version syntax.
+For example, to build Unreal Engine 4.20.3, run:
+
+[source,shell]
+----
+ue4-docker build 4.20.3
+----
+
+You will be prompted for the Git credentials to be used when cloning the Unreal Engine GitHub repository (this will be the GitHub username and password you normally use when cloning <https://github.com/EpicGames/UnrealEngine>.
+The build process will then start automatically, displaying progress output from each of the `docker build` commands that are being run in turn.
+
+By default, all available images will be built.
+See the link:../building-images/available-container-images.adoc[List of available container images] for details on customising which images are built.
+
+== Options
+
+*-h, --help*::
+Print help and exit
+
+*--rebuild**::
+Rebuild images even if they already exist
+
+*--dry-run*::
+Print `docker build` commands instead of running them
+
+*--no-minimal*::
+Don't build the ue4-minimal image (deprecated, use --target instead)
+
+*--no-full*::
+Don't build the ue4-full image (deprecated, use --target instead)
+
+*--no-cache*::
+Disable Docker build cache
+
+*--exclude {ddc,debug,templates}*::
+Exclude the specified component (can be specified multiple times to exclude multiple components)
+
+*--opt OPT*::
+Set an advanced configuration option (can be specified multiple times to specify multiple options)
+
+*-username USERNAME*::
+Specify the username to use when cloning the git repository
+
+*-password PASSWORD*::
+Specify access token or password to use when cloning the git repository
+
+*-repo REPO*::
+Set the custom git repository to clone when "custom" is specified as the release value
+
+*-branch BRANCH*::
+Set the custom branch/tag to clone when "custom" is specified as the release value
+
+*-basetag BASETAG*::
+Operating system base image tag to use.
+For Linux this is the version of Ubuntu (default is ubuntu18.04).
+For Windows this is the Windows Server Core base image tag (default is the host OS version)
+
+*-suffix SUFFIX*::
+Add a suffix to the tags of the built images
+
+*-m M*::
+Override the default memory limit under Windows (also overrides --random-memory)
+
+*-ue4cli UE4CLI*::
+Override the default version of ue4cli installed in the ue4-full image
+
+*-conan-ue4cli CONAN_UE4CLI*::
+Override the default version of conan-ue4cli installed in the ue4-full image
+
+*-layout LAYOUT*::
+Copy generated Dockerfiles to the specified directory and don't build the images
+
+*--combine*::
+Combine generated Dockerfiles into a single multi-stage build Dockerfile
+
+*--monitor*::
+Monitor resource usage during builds (useful for debugging)
+
+*-interval INTERVAL*::
+Sampling interval in seconds when resource monitoring has been enabled using --monitor (default is 20 seconds)
+
+*-v*::
+Enable verbose output during builds (useful for debugging)
+
+== Linux-specific options
+
+*--cuda VERSION*::
+Add CUDA support as well as OpenGL support
+
+== Windows-specific options
+
+*--ignore-blacklist*::
+Run builds even on blacklisted versions of Windows (advanced use only)
+
+*-isolation ISOLATION*::
+Set the isolation mode to use (process or hyperv)
+
+*--linux*::
+Use Linux containers under Windows hosts (useful when testing Docker Desktop or LCOW support)
+
+*--random-memory*::
+Use a random memory limit for Windows containers
+
+*--visual-studio VISUAL_STUDIO*::
+Specify Visual Studio Build Tools version

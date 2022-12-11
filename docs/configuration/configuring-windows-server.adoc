@@ -1,0 +1,73 @@
+=  Configuring Windows Server
+:icons: font
+:idprefix:
+:idseparator: -
+:source-highlighter: rouge
+:toc:
+
+IMPORTANT: Windows Server provides an optimal experience when running Windows containers, but **only when process isolation mode is used**.
+Using https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/hyperv-container[Hyper-V isolation mode] will result in a suboptimal experience due to link:../read-these-first/windows-container-primer.adoc[several issues that impact performance and stability].
+Process isolation mode is the default isolation mode under Windows Server.
+
+== Requirements
+
+- Windows Server 2016 or newer
+- Minimum 8GB of RAM
+- Minimum 800GB available disk space for building container images
+
+== Step 1: Install Docker EE
+
+As per the instructions provided by the https://docs.docker.com/install/windows/docker-ee/[Install Docker Engine - Enterprise on Windows Servers] page of the Docker Documentation, run the following commands from an elevated PowerShell prompt:
+
+[source,powershell]
+----
+# Add the Docker provider to the PowerShell package manager
+Install-Module DockerMsftProvider -Force
+
+# Install Docker EE
+Install-Package Docker -ProviderName DockerMsftProvider -Force
+
+# Restart the computer to enable the containers feature
+Restart-Computer
+----
+
+== Step 2: Install Python 3 via Chocolatey
+
+The simplest way to install Python and pip under Windows is to use the https://chocolatey.org/[Chocolatey package manager].
+To do so, run the following command from an elevated PowerShell prompt:
+
+[source,powershell]
+----
+Set-ExecutionPolicy Bypass -Scope Process -Force;
+iex ((New-Object System.Net.WebClient).DownloadString(
+	'https://chocolatey.org/install.ps1'
+))
+----
+
+You may need to restart the system for your shell to recognise the updates that the Chocolatey installer makes to the system `PATH` environment variable.
+Once these changes are recognised, you can install Python by running the following command from either an elevated PowerShell prompt or an elevated Command Prompt:
+
+[source,shell]
+----
+choco install -y python
+----
+
+== Step 3: Install ue4-docker
+
+Install the ue4-docker Python package by running the following command from an elevated Command Prompt:
+
+[source,shell]
+----
+pip install ue4-docker
+----
+
+== Step 4: Use ue4-docker to automatically configure Docker and Windows Firewall
+
+To automatically configure the required system settings, run the link:../commands/ue4-docker-setup.adoc[ue4-docker setup] command from an elevated Command Prompt:
+
+[source,shell]
+----
+ue4-docker setup
+----
+
+This will configure the Docker daemon to set the maximum image size to 400GB, create a Windows Firewall rule to allow Docker containers to communicate with the host system (which is required during the build of the link:../building-images/available-container-images.adoc#ue4-source[ue4-source] image), and download any required DLL files under Windows Server version 1809 and newer.

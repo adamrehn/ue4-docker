@@ -1,0 +1,51 @@
+= Configuring macOS
+:icons: font
+:idprefix:
+:idseparator: -
+:source-highlighter: rouge
+:toc:
+
+WARNING: macOS provides a suboptimal experience when running Linux containers, due to the following factors:
+Linux containers are unable to use GPU acceleration via the link:../read-these-first/nvidia-docker-primer.adoc[NVIDIA Container Toolkit].
+
+== Requirements
+
+- 2010 or newer model Mac hardware
+- macOS 10.10.3 Yosemite or newer
+- Minimum 8GB of RAM
+- Minimum 400GB available disk space for building container images
+
+== Step 1: Install Docker CE for Mac
+
+Download and install https://store.docker.com/editions/community/docker-ce-desktop-mac[Docker CE for Mac from the Docker Store].
+
+== Step 2: Install Python 3 via Homebrew
+
+The simplest way to install Python 3 and pip under macOS is to use the https://brew.sh/[Homebrew package manager].
+To do so, run the following commands from a Terminal prompt:
+
+[source,shell]
+----
+# Install Homebrew
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)
+----
+
+== Install Python
+
+[source,shell]
+----
+brew install python
+----
+
+== Step 3: Install ue4-docker
+
+Install the ue4-docker Python package by running the following command from a Terminal prompt:
+
+[source,shell]
+----
+sudo pip3 install ue4-docker
+----
+
+== Step 4: Manually configure Docker daemon settings
+
+Use https://docs.docker.com/desktop/mac/#resources[the Advanced section under the Resources tab of the Docker Desktop settings pane] to set the memory allocation for the Moby VM to 8GB and the maximum VM disk image size to 400GB.
