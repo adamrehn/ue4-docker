@@ -5,7 +5,7 @@
 :source-highlighter: rouge
 :toc:
 
-You can build the following images using the xref:../commands/ue4-docker-build.adoc[ue4-docker build] command:
+You can build the following images using the xref:ue4-docker-build.adoc[ue4-docker build] command:
 
 - <<ue4-build-prerequisites>>
 - <<ue4-source>>
@@ -70,7 +70,7 @@ Afterwards, this image can be removed using `ue4-docker clean --source` to save 
 
 **Uses:**
 
-* Use this image for xref:../use-cases/continuous-integration.adoc[CI pipelines] that do not require ue4cli, conan-ue4cli, or ue4-ci-helpers.
+* Use this image for xref:continuous-integration.adoc[CI pipelines] that do not require ue4cli, conan-ue4cli, or ue4-ci-helpers.
 
 [[ue4-full]]
 == ue4-full
@@ -94,6 +94,6 @@ Afterwards, this image can be removed using `ue4-docker clean --source` to save 
 
 **Uses:**
 
-* xref:../use-cases/continuous-integration.adoc[CI pipelines] that require ue4cli, conan-ue4cli, or ue4-ci-helpers
+* xref:continuous-integration.adoc[CI pipelines] that require ue4cli, conan-ue4cli, or ue4-ci-helpers
 * Packaging or running cloud rendering projects that optionally utilise UE4Capture under Linux (**note that the (https://hub.docker.com/r/adamrehn/ue4-runtime[ue4-runtime]) image is the recommended base image for running cloud rendering workloads, since this avoids including the multi-gigabyte UE4 developer tools**)
-* Packaging xref:../use-cases/microservices.adoc[Unreal Engine-powered microservices]
+* Packaging xref:microservices.adoc[Unreal Engine-powered microservices]

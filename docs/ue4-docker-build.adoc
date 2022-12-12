@@ -27,7 +27,7 @@ You will be prompted for the Git credentials to be used when cloning the Unreal 
 The build process will then start automatically, displaying progress output from each of the `docker build` commands that are being run in turn.
 
 By default, all available images will be built.
-See the xref:../building-images/available-container-images.adoc[List of available container images] for details on customising which images are built.
+See the xref:available-container-images.adoc[List of available container images] for details on customising which images are built.
 
 == Options
 

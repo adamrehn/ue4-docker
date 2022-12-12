@@ -20,7 +20,7 @@ This command can be used to run the following diagnostics:
 === Checking for the Docker 8GiB filesystem layer bug
 
 Some versions of Docker contain one or more of a series of separate but related bugs that prevent the creation of filesystem layers which are 8GiB in size or larger.
-This also causes `COPY` directives to fail when copying data in excess of 8GiB in size, xref:../building-images/troubleshooting-build-issues.adoc#building-the-ue4-minimal-image-fails-on-the-copy---frombuilder-directive-that-copies-the-installed-build-from-the-intermediate-image-into-the-final-image[breaking Dockerfile steps during the creation of Installed Builds that contain debug symbols].
+This also causes `COPY` directives to fail when copying data in excess of 8GiB in size, xref:troubleshooting-build-issues.adoc#copy-8gb-20gb[breaking Dockerfile steps during the creation of Installed Builds that contain debug symbols].
 
 This diagnostic tests whether the host system's Docker daemon suffers from this issue, by attempting to build a simple test Dockerfile with an 8GiB filesystem layer:
 

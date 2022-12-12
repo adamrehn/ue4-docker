@@ -10,7 +10,7 @@
 === Building the `ue4-build-prerequisites` image fails with a network-related error
 
 This indicates an underlying network or proxy server issue outside ue4-docker itself that you will need to troubleshoot.
-You can use the xref:../commands/ue4-docker-diagnostics.adoc[ue4-docker diagnostics] command to test container network connectivity during the troubleshooting process.
+You can use the xref:ue4-docker-diagnostics.adoc[ue4-docker diagnostics] command to test container network connectivity during the troubleshooting process.
 Here are some steps to try:
 
 - If your host system accesses the network through a proxy server, make sure that https://docs.docker.com/network/proxy/[Docker is configured to use the correct proxy server settings].
@@ -28,7 +28,7 @@ Here are some steps to try:
 This typically indicates that the firewall on the host system is blocking connections from the Docker container, preventing it from retrieving the Git credentials supplied by the build command.
 This is particularly noticeable under a clean installation of Windows Server, which blocks connections from other subnets by default.
 The firewall will need to be configured appropriately to allow the connection, or else temporarily disabled.
-(Under Windows Server, the xref:../commands/ue4-docker-setup.adoc[ue4-docker setup] command can configure the firewall rule for you automatically.)
+(Under Windows Server, the xref:ue4-docker-setup.adoc[ue4-docker setup] command can configure the firewall rule for you automatically.)
 
 === Building the Derived Data Cache (DDC) for the Installed Build of the Engine fails with a message about failed shader compilation or being unable to open a `.uasset` file
 
@@ -42,14 +42,14 @@ Note that restarting the Docker daemon and/or rebooting the host system may also
 Assuming you haven't actually run out of disk space, this means that the maximum Docker image size has not been configured correctly.
 
 - For Windows containers, follow https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container#step-4-expand-maximum-container-disk-size[the instructions provided by Microsoft], making sure you restart the Docker daemon after you've modified the config JSON.
-(Under Windows Server, the xref:../commands/ue4-docker-setup.adoc[ue4-docker setup] command can configure this for you automatically.)
+(Under Windows Server, the xref:ue4-docker-setup.adoc[ue4-docker setup] command can configure this for you automatically.)
 - For Linux containers, use the https://docs.docker.com/docker-for-windows/#advanced[Docker for Windows "Advanced" settings tab] under Windows or the https://docs.docker.com/docker-for-mac/#disk[Docker for Mac "Disk" settings tab] under macOS.
 
 [[copy-8gb-20gb]]
 === Building the `ue4-minimal` image fails on the `COPY --from=builder` directive that copies the Installed Build from the intermediate image into the final image
 
 WARNING: Modern versions of Docker Desktop for Windows and Docker EE for Windows Server suffer from issues with 8GiB filesystem layers, albeit due to different underlying bugs.
-Since ue4-docker version 0.0.47, you can use the xref:../commands/ue4-docker-diagnostics.adoc[ue4-docker diagnostics] command to check whether the Docker daemon on your system suffers from this issue.
+Since ue4-docker version 0.0.47, you can use the xref:ue4-docker-diagnostics.adoc[ue4-docker diagnostics] command to check whether the Docker daemon on your system suffers from this issue.
 If it does, you may need to xref:advanced-build-options.adoc#exclude-components[exclude debug symbols] when building Windows images.
 
 Some versions of Docker contain one or more of a series of separate but related bugs that prevent the creation of filesystem layers which are 8GiB in size or larger:
@@ -71,7 +71,7 @@ This issue can occur both inside containers and when running directly on a host 
 
 . Untag the available-container-images.adoc#ue4-source[ue4-source] image.
 . Clear the Docker filesystem layer cache by running https://docs.docker.com/engine/reference/commandline/system_prune/[docker system prune].
-. Re-run the xref:../commands/ue4-docker-build.adoc[ue4-docker build] command.
+. Re-run the xref:ue4-docker-build.adoc[ue4-docker build] command.
 
 == Windows-specific issues
 
@@ -131,16 +131,18 @@ The simplest fix is to simply reboot the host system and then re-run the build c
 Insufficient available memory may also contribute to triggering this bug.
 Note that a linker wrapper https://docs.unrealengine.com/en-US/Support/Builds/ReleaseNotes/4_24/index.html[was added in Unreal Engine 4.24.0] to automatically retry link operations in the event that this bug occurs, so it shouldn't be an issue when building version 4.24.0 or newer.
 
+[[pagefile]]
 === Building the Engine in a Windows container fails with the message `fatal error C1060: the compiler is out of heap space`
 
 This error typically occurs when the Windows pagefile size is not large enough.
-As stated in the xref:../read-these-first/windows-container-primer.adoc#hyper-v-isolation-mode-issues[Windows containers primer], there is currently no exposed mechanism to control the pagefile size for containers running in Hyper-V isolation mode.
+As stated in the xref:troubleshooting-build-issues.adoc#pagefile[Troubleshooting build issues], there is currently no exposed mechanism to control the pagefile size for containers running in Hyper-V isolation mode.
 However, containers running in process isolation mode will use the pagefile settings of the host system.
 When using process isolation mode, this error can be resolved by increasing the pagefile size on the host system.
 (Note that the host system will usually need to be rebooted for the updated pagefile settings to take effect.)
 
+[[windows-bind-mount]]
 === Building an Unreal project in a Windows container fails when the project files are located in a directory that is bind-mounted from the host operating system
 
-As described in the xref:../read-these-first/windows-container-primer.adoc#hyper-v-isolation-mode-issues[Windows containers primer], the paths associated with Windows bind-mounted directories inside Hyper-V isolation mode VMs can cause issues for certain build tools, including UnrealBuildTool and CMake.
+The paths associated with Windows bind-mounted directories inside Hyper-V isolation mode VMs can cause issues for certain build tools, including UnrealBuildTool and CMake.
 As a result, building Unreal projects located in Windows bind-mounted directories is not advised when using Hyper-V isolation mode.
 The solution is to copy the Unreal project to a temporary directory within the container's filesystem and build it there, copying any produced build artifacts back to the host system via the bind-mounted directory as necessary.
