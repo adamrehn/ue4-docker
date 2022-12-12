@@ -12,62 +12,122 @@ Adam Rehn <adam@adamrehn.com>; other contributors
 
 == Read these first
 
+:filename: introduction-to-ue4-docker.adoc
+include::feedback.adoc[]
 include::introduction-to-ue4-docker.adoc[leveloffset=+2]
+
+:filename: large-container-images-primer.adoc
+include::feedback.adoc[]
 include::large-container-images-primer.adoc[leveloffset=+2]
+
+:filename: windows-container-primer.adoc
+include::feedback.adoc[]
 include::windows-container-primer.adoc[leveloffset=+2]
+
+:filename: nvidia-docker-primer.adoc
+include::feedback.adoc[]
 include::nvidia-docker-primer.adoc[leveloffset=+2]
 
 [[configuration]]
 == Configuration
 
+:filename: supported-host-configurations.adoc
+include::feedback.adoc[]
 include::supported-host-configurations.adoc[leveloffset=+2]
+
+:filename: configuring-linux.adoc
+include::feedback.adoc[]
 include::configuring-linux.adoc[leveloffset=+2]
+
+:filename: configuring-windows-server.adoc
+include::feedback.adoc[]
 include::configuring-windows-server.adoc[leveloffset=+2]
+
+:filename: configuring-windows-10.adoc
+include::feedback.adoc[]
 include::configuring-windows-10.adoc[leveloffset=+2]
+
+:filename: configuring-macos.adoc
+include::feedback.adoc[]
 include::configuring-macos.adoc[leveloffset=+2]
 
 [[use-cases]]
 == Use cases
 
+:filename: use-cases-overview.adoc
+include::feedback.adoc[]
 include::use-cases-overview.adoc[leveloffset=+2]
+
+:filename: continuous-integration.adoc
+include::feedback.adoc[]
 include::continuous-integration.adoc[leveloffset=+2]
+
+:filename: microservices.adoc
+include::feedback.adoc[]
 include::microservices.adoc[leveloffset=+2]
+
+:filename: linux-installed-builds
+include::feedback.adoc[]
 include::linux-installed-builds.adoc[leveloffset=+2]
 
 == Building images
 
+:filename: available-container-images.adoc
+include::feedback.adoc[]
 include::available-container-images.adoc[leveloffset=+2]
+
+:filename: advanced-build-options.adoc
+include::feedback.adoc[]
 include::advanced-build-options.adoc[leveloffset=+2]
+
+:filename: troubleshooting-build-issues.adoc
+include::feedback.adoc[]
 include::troubleshooting-build-issues.adoc[leveloffset=+2]
 
 == Command reference
 
+:filename: ue4-docker-build.adoc
+include::feedback.adoc[]
 include::ue4-docker-build.adoc[leveloffset=+2]
 
 <<<
 
+:filename: ue4-docker-clean.adoc
+include::feedback.adoc[]
 include::ue4-docker-clean.adoc[leveloffset=+2]
 
 <<<
 
+:filename: ue4-docker-diagnostics.adoc
+include::feedback.adoc[]
 include::ue4-docker-diagnostics.adoc[leveloffset=+2]
 
 <<<
 
+:filename: ue4-docker-export.adoc
+include::feedback.adoc[]
 include::ue4-docker-export.adoc[leveloffset=+2]
 
 <<<
 
+:filename: ue4-docker-info.adoc
+include::feedback.adoc[]
 include::ue4-docker-info.adoc[leveloffset=+2]
 
 <<<
 
+:filename: ue4-docker-setup.adoc
+include::feedback.adoc[]
 include::ue4-docker-setup.adoc[leveloffset=+2]
 
 <<<
 
+:filename: ue4-docker-test.adoc
+include::feedback.adoc[]
 include::ue4-docker-test.adoc[leveloffset=+2]
 
 <<<
 
+:filename: ue4-docker-version.adoc
+include::feedback.adoc[]
 include::ue4-docker-version.adoc[leveloffset=+2]

@@ -1,0 +1,3 @@
+ifdef::backend-html5[]
+image::https://img.shields.io/badge/improve-this%20doc-orange.svg[link=https://github.com/adamrehn/ue4-docker/edit/master/docs/{filename},float=right]
+endif::[]
