@@ -38,10 +38,7 @@ To do so, run the following command from an elevated PowerShell prompt:
 
 [source,powershell]
 ----
-Set-ExecutionPolicy Bypass -Scope Process -Force;
-iex ((New-Object System.Net.WebClient).DownloadString(
-	'https://chocolatey.org/install.ps1'
-))
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 ----
 
 You may need to restart the system for your shell to recognise the updates that the Chocolatey installer makes to the system `PATH` environment variable.
