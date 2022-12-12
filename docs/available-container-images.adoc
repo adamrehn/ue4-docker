@@ -88,12 +88,10 @@ Afterwards, this image can be removed using `ue4-docker clean --source` to save 
 * ue4cli
 * conan-ue4cli
 * ue4-ci-helpers
-* UE4Capture (Linux image only)
 * PulseAudio support (Linux image only)
 * X11 support (Linux image only)
 
 **Uses:**
 
 * xref:continuous-integration.adoc[CI pipelines] that require ue4cli, conan-ue4cli, or ue4-ci-helpers
-* Packaging or running cloud rendering projects that optionally utilise UE4Capture under Linux (**note that the (https://hub.docker.com/r/adamrehn/ue4-runtime[ue4-runtime]) image is the recommended base image for running cloud rendering workloads, since this avoids including the multi-gigabyte UE4 developer tools**)
 * Packaging xref:microservices.adoc[Unreal Engine-powered microservices]
