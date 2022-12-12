@@ -34,6 +34,13 @@ See the xref:available-container-images.adoc[List of available container images]
 *-h, --help*::
 Print help and exit
 
+*--target*=_TARGET_::
+Tells ue4-docker to build specific image (including its dependencies).
++
+Supported values: `all`, `build-prerequisites`, `full`, `minimal`, `source`.
++
+You can specify the `--target` flag multiple times.
+
 *--rebuild*::
 Rebuild images even if they already exist
 
@@ -42,10 +49,10 @@ Use this if you would like to see what Docker commands would be run by `ue4-dock
 Execution will proceed as normal, but no Git credentials will be requested and all Docker commands will be printed to standard output instead of being executed as child processes.
 
 *--no-minimal*::
-Don't build the ue4-minimal image (deprecated, use --target instead)
+Don't build the ue4-minimal image (deprecated, use *--target* _TARGET_ instead)
 
 *--no-full*::
-Don't build the ue4-full image (deprecated, use --target instead)
+Don't build the ue4-full image (deprecated, use *--target* _TARGET_ instead)
 
 *--no-cache*::
 Disable Docker build cache
