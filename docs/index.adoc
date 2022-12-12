@@ -43,10 +43,31 @@ include::troubleshooting-build-issues.adoc[leveloffset=+2]
 == Command reference
 
 include::ue4-docker-build.adoc[leveloffset=+2]
+
+<<<
+
 include::ue4-docker-clean.adoc[leveloffset=+2]
+
+<<<
+
 include::ue4-docker-diagnostics.adoc[leveloffset=+2]
+
+<<<
+
 include::ue4-docker-export.adoc[leveloffset=+2]
+
+<<<
+
 include::ue4-docker-info.adoc[leveloffset=+2]
+
+<<<
+
 include::ue4-docker-setup.adoc[leveloffset=+2]
+
+<<<
+
 include::ue4-docker-test.adoc[leveloffset=+2]
+
+<<<
+
 include::ue4-docker-version.adoc[leveloffset=+2]
