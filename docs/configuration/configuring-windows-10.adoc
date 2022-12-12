@@ -8,11 +8,11 @@
 == Warning
 
 Windows 10 and 11 provide an optimal experience when running Windows containers, but **only when process isolation mode is used**.
-Using https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/hyperv-container[Hyper-V isolation mode] will result in a suboptimal experience due to link:../read-these-first/windows-container-primer.adoc[several issues that impact performance and stability].
+Using https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/hyperv-container[Hyper-V isolation mode] will result in a suboptimal experience due to xref:../read-these-first/windows-container-primer.adoc[several issues that impact performance and stability].
 The default isolation mode depends on the specific version of Windows being used:
 
 - Under Windows 10, Hyper-V isolation mode is the default isolation mode and https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/faq#can-i-run-windows-containers-in-process-isolated-mode-on-windows-10-[process isolation mode must be manually enabled] each time a container is built or run.
-The link:../commands/ue4-docker-build.adoc[ue4-docker build] command will automatically pass the flag to enable process isolation mode where possible. **This requires Windows 10 version 1809 or newer.**
+The xref:../commands/ue4-docker-build.adoc[ue4-docker build] command will automatically pass the flag to enable process isolation mode where possible. **This requires Windows 10 version 1809 or newer.**
 
 - Under Windows 11, process isolation mode is the default isolation mode.
 

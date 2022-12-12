@@ -6,7 +6,7 @@
 :toc:
 
 WARNING: macOS provides a suboptimal experience when running Linux containers, due to the following factors:
-Linux containers are unable to use GPU acceleration via the link:../read-these-first/nvidia-docker-primer.adoc[NVIDIA Container Toolkit].
+Linux containers are unable to use GPU acceleration via the xref:../read-these-first/nvidia-docker-primer.adoc[NVIDIA Container Toolkit].
 
 == Requirements
 

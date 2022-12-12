@@ -14,7 +14,7 @@ This information applies equally to both Linux containers and Windows containers
 The time taken to commit filesystem layers to disk when building smaller Docker images is low enough that many users may not even perceive this process as a distinct aspect of a `RUN` step in a Dockerfile.
 However, when a step generates a filesystem layer that is multiple gigabytes in size, the time taken to commit this data to disk becomes immediately noticeable.
 For some larger layers in the container images built by ue4-docker, the filesystem layer commit process can take well over 40 minutes to complete on consumer-grade hardware.
-(The Installed Build layer in the multi-stage build of the link:../building-images/available-container-images.adoc#ue4-minimal[ue4-minimal] image is the largest of all the filesystem layers, and has been observed to take well over an hour and a half to commit to disk on some hardware.)
+(The Installed Build layer in the multi-stage build of the xref:../building-images/available-container-images.adoc#ue4-minimal[ue4-minimal] image is the largest of all the filesystem layers, and has been observed to take well over an hour and a half to commit to disk on some hardware.)
 
 Since Docker does not emit any output during the layer commit process, users may become concerned that the build has hung.
 After the ue4-docker provided output `Performing filesystem layer commit...`, the only indication that any processing is taking place is the high quantity of CPU usage and disk I/O present during this stage.
@@ -27,6 +27,6 @@ Due to overheads associated with temporary layers in multi-stage builds and laye
 These overheads are relatively modest when building smaller container images.
 However, these overheads are exacerbated significantly when building large container images, and it is important to be aware of the quantity of available disk space that is required to build any given image or set of images.
 
-Although none of the container images produced by ue4-docker currently exceed 100GB in size, the build process requires at least {{ site.data.ue4-docker.common.diskspace_linux | escape }} of available disk space under Linux and at least {{ site.data.ue4-docker.common.diskspace_windows | escape }} of available disk space under Windows.
-Once a build is complete, the link:../commands/clean[ue4-docker clean] command can be used to clean up temporary layers leftover from multi-stage builds and reclaim all of the disk space not occupied by the final built images.
+Although none of the container images produced by ue4-docker currently exceed 100GB in size, the build process requires at least 400GB of available disk space under Linux and at least 800GB of available disk space under Windows.
+Once a build is complete, the xref:../commands/clean[ue4-docker clean] command can be used to clean up temporary layers leftover from multi-stage builds and reclaim all the disk space not occupied by the final built images.
 The https://docs.docker.com/engine/reference/commandline/system_prune/[docker system prune] command can also be useful for cleaning up data that is not used by any of the tagged images present on the system.

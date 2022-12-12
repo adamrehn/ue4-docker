@@ -9,7 +9,7 @@
 
 === Performing a dry run
 
-If you would like to see what `docker build` commands will be run without actually building anything, you can specify the `--dry-run` flag when invoking the link:../commands/ue4-docker-build.adoc[ue4-docker build] command.
+If you would like to see what `docker build` commands will be run without actually building anything, you can specify the `--dry-run` flag when invoking the xref:../commands/ue4-docker-build.adoc[ue4-docker build] command.
 Execution will proceed as normal, but no Git credentials will be requested and all `docker build` commands will be printed to standard output instead of being executed as child processes.
 
 === Specifying a custom namespace for the image tags
@@ -18,7 +18,7 @@ If you would like to override the default `adamrehn/` prefix that is used when g
 
 === Specifying Git credentials
 
-The link:../commands/ue4-docker-build.adoc[ue4-docker build] command supports three methods for specifying the credentials that will be used to clone the UE4 Git repository:
+The xref:../commands/ue4-docker-build.adoc[ue4-docker build] command supports three methods for specifying the credentials that will be used to clone the UE4 Git repository:
 
 - **Command-line arguments**: the `-username` and `-password` command-line arguments can be used to specify the username and password, respectively.
 
@@ -55,9 +55,10 @@ ue4-docker build custom:my-custom-build -repo=https://github.com/MyUser/UnrealEn
 
 This will produce images tagged `adamrehn/ue4-source:my-custom-build`, `adamrehn/ue4-minimal:my-custom-build`, etc.
 
+[[exclude-components]]
 === Excluding Engine components to reduce the final image size
 
-Starting in ue4-docker version 0.0.30, you can use the `--exclude` flag when running the link:../commands/ue4-docker-build.adoc[ue4-docker build] command to specify that certain Engine components should be excluded from the link:../building-images/available-container-images.adoc#ue4-minimal[ue4-minimal] and link:../building-images/available-container-images.adoc#ue4-full[ue4-full] images.
+Starting in ue4-docker version 0.0.30, you can use the `--exclude` flag when running the xref:../commands/ue4-docker-build.adoc[ue4-docker build] command to specify that certain Engine components should be excluded from the xref:../building-images/available-container-images.adoc#ue4-minimal[ue4-minimal] and xref:../building-images/available-container-images.adoc#ue4-full[ue4-full] images.
 The following components can be excluded:
 
 - `ddc`: disables building the DDC for the Engine.
@@ -101,9 +102,10 @@ ue4-docker build 4.24.2 --monitor
 ue4-docker build 4.24.2 --monitor -interval=5
 ----
 
+[[exporting-generated-dockerfiles]]
 === Exporting generated Dockerfiles
 
-Since ue4-docker version 0.0.78, the link:../commands/ue4-docker-build.adoc[ue4-docker build] command supports a flag called `-layout` that allows the generated Dockerfiles to be exported to a filesystem directory instead of being built.
+Since ue4-docker version 0.0.78, the xref:../commands/ue4-docker-build.adoc[ue4-docker build] command supports a flag called `-layout` that allows the generated Dockerfiles to be exported to a filesystem directory instead of being built.
 In addition, version 0.0.80 of ue4-docker added support for a flag called `--combine` that allows you to combine multiple generated Dockerfiles into a single Dockerfile that performs a https://docs.docker.com/develop/develop-images/multistage-build/[multi-stage build].
 You can use these flags like so:
 
@@ -134,14 +136,15 @@ This generates Dockerfiles that copy the Unreal Engine source code from the host
 - When building Linux container images, you must either set the <<advanced-options-for-dockerfile-generation,advanced option>> `source_mode` to `copy` as detailed above, or else specify the `credential_mode` option and set it to `secrets`.
 This generates Dockerfiles that use the Linux-only https://docs.docker.com/develop/develop-images/build_enhancements/#new-docker-build-secret-information[BuildKit build secrets] functionality to securely provide git credentials, eliminating the dependency on ue4-docker's credential endpoint whilst still facilitating the use of a git repository to provide the Unreal Engine source code.
 
+[[advanced-options-for-dockerfile-generation]]
 === Advanced options for Dockerfile generation
 
 NOTE: Note that option names are all listed with underscores between words below (e.g. `source_mode`), but in some examples you will see dashes used as the delimiter instead (e.g. `source-mode`). **These uses are actually equivalent, since ue4-docker automatically converts any dashes in the option name into underscores.** This is because dashes are more stylistically consistent with command-line flags (and thus preferable in examples), but underscores must be used in the underlying Dockerfile template code since dashes cannot be used in https://jinja.palletsprojects.com/en/2.11.x/api/#notes-on-identifiers[Jinja identifiers].
 
-Since ue4-docker version 0.0.78, the link:../commands/ue4-docker-build.adoc[ue4-docker build] command supports a flag called `--opt` that allows users to directly set the context values passed to the underlying https://jinja.palletsprojects.com/[Jinja templating engine] used to generate Dockerfiles.
+Since ue4-docker version 0.0.78, the xref:../commands/ue4-docker-build.adoc[ue4-docker build] command supports a flag called `--opt` that allows users to directly set the context values passed to the underlying https://jinja.palletsprojects.com/[Jinja templating engine] used to generate Dockerfiles.
 Some of these options (such as `source_mode`) can only be used when <<exporting-generated-dockerfiles,exporting generated Dockerfiles>>, whereas others can be used with the regular ue4-docker build process. **Note that incorrect use of these options can break build behaviour, so only use an option if you have read through both this documentation and the ue4-docker source code itself and understand exactly what that option does.** The following options are supported as of the latest version of ue4-docker:
 
-- **`source_mode`**: *(string)* controls how the link:../building-images/available-container-images.adoc#ue4-source[ue4-source] Dockerfile obtains the source code for the Unreal Engine.
+- **`source_mode`**: *(string)* controls how the xref:../building-images/available-container-images.adoc#ue4-source[ue4-source] Dockerfile obtains the source code for the Unreal Engine.
 Valid options are:
 
 - `git`: the default mode, whereby the Unreal Engine source code is cloned from a git repository.
@@ -150,18 +153,18 @@ This is the only mode that can be used when not <<exporting-generated-dockerfile
 - `copy`: copies the Unreal Engine source code from the host filesystem.
 The filesystem path can be specified using the `SOURCE_LOCATION` Docker build argument, and of course must be a child path of the build context.
 
-- **`credential_mode`**: *(string)* controls how the link:../building-images/available-container-images.adoc#ue4-source[ue4-source] Dockerfile securely obtains credentials for authenticating with remote git repositories when `source_mode` is set to `git`.
+- **`credential_mode`**: *(string)* controls how the xref:../building-images/available-container-images.adoc#ue4-source[ue4-source] Dockerfile securely obtains credentials for authenticating with remote git repositories when `source_mode` is set to `git`.
 Valid options are:
 
-- `endpoint`: the default mode, whereby ue4-docker exposes an HTTP endpoint that responds with credentials when presented with a randomly-generated security token, which is injected into the link:../building-images/available-container-images.adoc#ue4-source[ue4-source] container during the build process by way of a Docker build argument.
+- `endpoint`: the default mode, whereby ue4-docker exposes an HTTP endpoint that responds with credentials when presented with a randomly-generated security token, which is injected into the xref:../building-images/available-container-images.adoc#ue4-source[ue4-source] container during the build process by way of a Docker build argument.
 This mode will not work when <<exporting-generated-dockerfiles,exporting generated Dockerfiles>>, since the credential endpoint will not be available during the build process.
 
-- `secrets`: **(Linux containers only)** uses https://docs.docker.com/develop/develop-images/build_enhancements/#new-docker-build-secret-information[BuildKit build secrets] to securely inject the git credentials into the link:../building-images/available-container-images.adoc#ue4-source[ue4-source] container during the build process.
+- `secrets`: **(Linux containers only)** uses https://docs.docker.com/develop/develop-images/build_enhancements/#new-docker-build-secret-information[BuildKit build secrets] to securely inject the git credentials into the xref:../building-images/available-container-images.adoc#ue4-source[ue4-source] container during the build process.
 
-- **`buildgraph_args`**: *(string)* allows you to specify additional arguments to pass to the https://docs.unrealengine.com/en-US/ProductionPipelines/BuildTools/AutomationTool/BuildGraph/index.html[BuildGraph system] when creating an Installed Build of the Unreal Engine in the link:../building-images/available-container-images.adoc#ue4-minimal[ue4-minimal] image.
+- **`buildgraph_args`**: *(string)* allows you to specify additional arguments to pass to the https://docs.unrealengine.com/en-US/ProductionPipelines/BuildTools/AutomationTool/BuildGraph/index.html[BuildGraph system] when creating an Installed Build of the Unreal Engine in the xref:../building-images/available-container-images.adoc#ue4-minimal[ue4-minimal] image.
 
 - **`disable_labels`**: *(boolean)* prevents ue4-docker from applying labels to built container images.
-This includes the labels which specify the <<excluding-engine-components-to-reduce-the-final-image-size,components excluded from the ue4-minimal image>> as well as the sentinel labels that the link:../commands/ue4-docker-clean.adoc[ue4-docker clean] command uses to identify container images, and will therefore break the functionality of that command.
+This includes the labels which specify the <<exclude-components,components excluded from the ue4-minimal image>> as well as the sentinel labels that the xref:../commands/ue4-docker-clean.adoc[ue4-docker clean] command uses to identify container images, and will therefore break the functionality of that command.
 
 - **`disable_all_patches`**: *(boolean)* disables all the patches that ue4-docker ordinarily applies to the Unreal Engine source code.
 This is useful when building a custom fork of the Unreal Engine to which the appropriate patches have already been applied, **but will break the build process when used with a version of the Unreal Engine that requires one or more patches**.
@@ -192,10 +195,11 @@ Some older versions of the Unreal Engine did not copy this correctly, breaking t
 
 == Windows-specific options
 
+[[windows-base-tag]]
 === Specifying the Windows Server Core base image tag
 
-NOTE: The `-basetag` flag controls how the link:../building-images/available-container-images.adoc#ue4-build-prerequisites[ue4-build-prerequisites] image is built and tagged, which has a flow-on effect to all the other images.
-If you are building multiple related images over separate invocations of the build command (e.g. building the link:../building-images/available-container-images.adoc#ue4-source[ue4-source] image in one command and then subsequently building the link:../building-images/available-container-images.adoc#ue4-minimal[ue4-minimal] image in another command), be sure to specify the same `-basetag` flag each time to avoid unintentionally building two sets of unrelated images with different configurations.
+NOTE: The `-basetag` flag controls how the xref:../building-images/available-container-images.adoc#ue4-build-prerequisites[ue4-build-prerequisites] image is built and tagged, which has a flow-on effect to all the other images.
+If you are building multiple related images over separate invocations of the build command (e.g. building the xref:../building-images/available-container-images.adoc#ue4-source[ue4-source] image in one command and then subsequently building the xref:../building-images/available-container-images.adoc#ue4-minimal[ue4-minimal] image in another command), be sure to specify the same `-basetag` flag each time to avoid unintentionally building two sets of unrelated images with different configurations.
 
 By default, Windows container images are based on the Windows Server Core release that best matches the version of the host operating system.
 However, Windows containers cannot run a newer kernel version than that of the host operating system, rendering the latest images unusable under older versions of Windows 10 and Windows Server.
@@ -210,6 +214,7 @@ ue4-docker build 4.20.3 -basetag=ltsc2016 # Uses Windows Server 2016 (Long Term 
 
 For a list of supported base image tags, see the https://hub.docker.com/r/microsoft/windowsservercore/[Windows Server Core base image on Docker Hub].
 
+[[windows-isolation-mode]]
 === Specifying the isolation mode under Windows
 
 The isolation mode can be explicitly specified via the `-isolation=MODE` flag when invoking the build command.
@@ -224,14 +229,14 @@ To do so, pass `--visual-studio=2019` flag when invoking the build command.
 === Keeping or excluding Installed Build debug symbols under Windows
 
 WARNING: Excluding debug symbols is necessary under some versions of Docker as a workaround for a bug that limits the amount of data that a `COPY` directive can process to 8GB.
-See link:troubleshooting-build-issues.adoc#building-the-ue4-minimal-image-fails-on-the-copy--frombuilder-directive-that-copies-the-installed-build-from-the-intermediate-image-into-the-final-image[this section of the Troubleshooting Build Issues page] for further details on this issue.
+See xref:troubleshooting-build-issues.adoc#copy-8gb-20gb[this section of the Troubleshooting Build Issues page] for further details on this issue.
 
-Prior to version 0.0.30, ue4-docker defaulted to truncating all `.pdb` files when building the Installed Build for the link:../building-images/available-container-images.adoc#ue4-minimal[ue4-minimal] Windows image.
+Prior to version 0.0.30, ue4-docker defaulted to truncating all `.pdb` files when building the Installed Build for the xref:../building-images/available-container-images.adoc#ue4-minimal[ue4-minimal] Windows image.
 This was done primarily to address the bug described in the warning alert above, and also had the benefit of reducing the overall size of the built container images.
 However, if you required the debug symbols for producing debuggable builds, you had to opt to retain all `.pdb` files by specifying the `--keep-debug` flag when invoking the build command.
 (This flag was removed in ue4-docker version 0.0.30, when the default behaviour was changed and replaced with a more generic, cross-platform approach.)
 
-Since ue4-docker version 0.0.30, debug symbols are kept intact by default, and can be removed by using the `--exclude debug` flag as described in the section <<excluding-engine-components-to-reduce-the-final-image-size,Excluding Engine components to reduce the final image size>>.
+Since ue4-docker version 0.0.30, debug symbols are kept intact by default, and can be removed by using the `--exclude debug` flag as described in the section <<exclude-components,Excluding Engine components to reduce the final image size>>.
 
 === Building Linux container images under Windows
 
@@ -240,10 +245,11 @@ To build Linux container images instead, simply specify the `--linux` flag when 
 
 == Linux-specific options
 
+[[cuda]]
 === Enabling CUDA support for GPU-enabled Linux images
 
-IMPORTANT: The `--cuda` flag controls how the link:../building-images/available-container-images.adoc#ue4-build-prerequisites[ue4-build-prerequisites] image is built and tagged, which has a flow-on effect to all the other images.
-If you are building multiple related images over separate invocations of the build command (e.g. building the link:../building-images/available-container-images.adoc#ue4-source[ue4-source] image in one command and then subsequently building the link:../building-images/available-container-images.adoc#ue4-minimal[ue4-minimal] image in another command), be sure to specify the same `--cuda` flag each time to avoid unintentionally building two sets of unrelated images with different configurations.
+IMPORTANT: The `--cuda` flag controls how the xref:../building-images/available-container-images.adoc#ue4-build-prerequisites[ue4-build-prerequisites] image is built and tagged, which has a flow-on effect to all the other images.
+If you are building multiple related images over separate invocations of the build command (e.g. building the xref:../building-images/available-container-images.adoc#ue4-source[ue4-source] image in one command and then subsequently building the xref:../building-images/available-container-images.adoc#ue4-minimal[ue4-minimal] image in another command), be sure to specify the same `--cuda` flag each time to avoid unintentionally building two sets of unrelated images with different configurations.
 
 By default, the Linux images built by ue4-docker support hardware-accelerated OpenGL when run via the NVIDIA Container Toolkit.
 If you would like CUDA support in addition to OpenGL support, simply specify the `--cuda` flag when invoking the build command.

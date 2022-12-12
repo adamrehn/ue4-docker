@@ -9,6 +9,6 @@ The container images produced by ue4-docker incorporate infrastructure to facili
 A number of key use cases are listed below.
 Select a use case to see detailed instructions on how to build and run the appropriate container images.
 
-* link:continuous-integration.adoc[Continuous Integration]
-* link:linux-installed-builds.adoc[Linux installed builds]
-* link:microservices.adoc[Microservices]
+* xref:continuous-integration.adoc[Continuous Integration]
+* xref:linux-installed-builds.adoc[Linux installed builds]
+* xref:microservices.adoc[Microservices]

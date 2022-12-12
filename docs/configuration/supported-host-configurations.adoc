@@ -13,25 +13,25 @@ The table below lists the host operating systems can be used to build and run th
 |===
 | Host OS | Linux containers | Windows containers | NVIDIA Container Toolkit | Optimality
 
-| link:configuring-linux.adoc[Linux]
+| xref:configuring-linux.adoc[Linux]
 | icon:check[]
 | icon:times[]
 | icon:check[]
 | Optimal for Linux containers
 
-| link:configuring-windows-server.adoc[Windows Server]
+| xref:configuring-windows-server.adoc[Windows Server]
 | icon:times[]
 | icon:check[]
 | icon:times[]
 | Optimal for Windows containers when using process isolation mode
 
-| link:configuring-windows-10.adoc[Windows 10 and 11]
+| xref:configuring-windows-10.adoc[Windows 10 and 11]
 | Works but not tested or supported
 | icon:check[]
 | icon:times[]
 | Optimal for Windows containers when using process isolation mode
 
-| link:configuring-macos.adoc[macOS]
+| xref:configuring-macos.adoc[macOS]
 | icon:check[]
 | icon:times[]
 | icon:times[]

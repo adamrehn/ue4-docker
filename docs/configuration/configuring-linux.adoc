@@ -60,8 +60,8 @@ sudo pip3 install ue4-docker
 
 == Step 4: Use ue4-docker to automatically configure the Linux firewall
 
-If the host system is running an active firewall that blocks access to port 9876 (required during the build of the link:../building-images/available-container-images.adoc#ue4-source[ue4-source] image) then it is necessary to create a firewall rule to permit access to this port.
-The link:../commands/ue4-docker-setup.adoc[ue4-docker setup] command will detect this scenario and perform the appropriate firewall configuration automatically.
+If the host system is running an active firewall that blocks access to port 9876 (required during the build of the xref:../building-images/available-container-images.adoc#ue4-source[ue4-source] image) then it is necessary to create a firewall rule to permit access to this port.
+The xref:../commands/ue4-docker-setup.adoc[ue4-docker setup] command will detect this scenario and perform the appropriate firewall configuration automatically.
 Simply run:
 
 [source,shell]
