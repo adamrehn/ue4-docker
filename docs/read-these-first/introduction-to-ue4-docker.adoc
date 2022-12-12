@@ -39,7 +39,7 @@ Once you're familiar with all the relevant background material, you can dive rig
 2. Next, check out the xref:../use-cases.adoc[Use Cases] section for details on the various scenarios in which the Docker images can be used.
 Once you've selected the use case you're interested in, you'll find step-by-step instructions on how to build the necessary container images and start using them.
 3. If you run into any issues or want to customise your build with advanced options, the xref:../building-images.adoc[Building Images] section provides all the relevant details.
-4. For more information, check out the xref:frequently-asked-questions.adoc[FAQ] and the xref:../commands.adoc[Command Reference] section.
+4. For more information, check out the xref:frequently-asked-questions.adoc[FAQ] and the xref:../commands/index.adoc[Command Reference] section.
 
 == Links
 
