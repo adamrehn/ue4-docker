@@ -7,7 +7,7 @@
 
 == Name
 
-ue4-docker diagnostics - run diagnostics to detect issues with the host system configuration.
+ue4-docker-diagnostics - run diagnostics to detect issues with the host system configuration.
 
 == Synopsis
 
