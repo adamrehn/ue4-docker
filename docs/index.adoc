@@ -4,6 +4,8 @@
 :idprefix:
 :idseparator: -
 :linkcss:
+:sectanchors:
+:sectlinks:
 :source-highlighter: rouge
 :toc: left
 
