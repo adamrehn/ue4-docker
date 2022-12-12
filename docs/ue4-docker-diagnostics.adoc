@@ -29,17 +29,7 @@ This diagnostic tests whether the host system's Docker daemon suffers from this 
 ue4-docker diagnostics 8gig
 ----
 
-=== Checking for the Windows Host Compute Service (HCS) `storage-opt` bug
-
-Windows Server versions 1903 and 1909 and Windows 10 versions 1903 and 1909 contain https://github.com/docker/for-win/issues/4100[a bug in the Host Compute Service (HCS)] that prevents users from increasing the maximum allowed image size using Docker's `storage-opt` configuration key.
-Since Unreal Engine containers require a far higher limit than the default during builds, this bug prevents the xref:ue4-docker-build.adoc[ue4-docker build] command from functioning correctly on affected systems.
-
-This diagnostic tests whether the host system is affected this bug, by attempting to run a container with a non-default `storage-opt` value:
-
-[source,shell]
-----
-ue4-docker diagnostics maxsize
-----
+// TODO: Add docs on ue4-docker diagnostics 20gig
 
 === Checking for container network connectivity issues
 
