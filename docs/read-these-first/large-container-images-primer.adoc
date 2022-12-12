@@ -28,5 +28,5 @@ These overheads are relatively modest when building smaller container images.
 However, these overheads are exacerbated significantly when building large container images, and it is important to be aware of the quantity of available disk space that is required to build any given image or set of images.
 
 Although none of the container images produced by ue4-docker currently exceed 100GB in size, the build process requires at least 400GB of available disk space under Linux and at least 800GB of available disk space under Windows.
-Once a build is complete, the xref:../commands/clean[ue4-docker clean] command can be used to clean up temporary layers leftover from multi-stage builds and reclaim all the disk space not occupied by the final built images.
+Once a build is complete, the xref:../commands/ue4-docker-clean.adoc[ue4-docker clean] command can be used to clean up temporary layers leftover from multi-stage builds and reclaim all the disk space not occupied by the final built images.
 The https://docs.docker.com/engine/reference/commandline/system_prune/[docker system prune] command can also be useful for cleaning up data that is not used by any of the tagged images present on the system.
