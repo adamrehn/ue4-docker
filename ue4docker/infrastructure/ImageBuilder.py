@@ -117,6 +117,9 @@ class ImageBuilder(object):
             ],
         )
 
+        # When building Linux images, explicitly specify the target CPU architecture
+        archFlags = ["--platform", "linux/amd64"] if self.platform == "linux" else []
+
         # Create a temporary directory to hold any files needed for the build
         with tempfile.TemporaryDirectory() as tempDir:
 
@@ -133,9 +136,11 @@ class ImageBuilder(object):
                     secretFlags.append("id={},src={}".format(secret, secretFile))
 
                 # Generate the `docker buildx` command to use our build secrets
-                command = DockerUtils.buildx(imageTags, context_dir, args, secretFlags)
+                command = DockerUtils.buildx(
+                    imageTags, context_dir, archFlags + args, secretFlags
+                )
             else:
-                command = DockerUtils.build(imageTags, context_dir, args)
+                command = DockerUtils.build(imageTags, context_dir, archFlags + args)
 
             command += ["--file", dockerfile]
 
