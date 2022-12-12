@@ -11,5 +11,5 @@ function docker_asciidoctor() {
 }
 
 docker_asciidoctor asciidoctor -a linkcss /project/docs/index.adoc -D /project/build/gh-pages/
-docker_asciidoctor asciidoctor-pdf /project/docs/index.adoc -D /project/build/gh-pages/
-docker_asciidoctor asciidoctor-epub3 /project/docs/index.adoc -D /project/build/gh-pages/
+docker_asciidoctor asciidoctor-pdf /project/docs/index.adoc -o /project/build/gh-pages/ue4-docker.pdf
+docker_asciidoctor asciidoctor-epub3 /project/docs/index.adoc -o /project/build/gh-pages/ue4-docker.epub
