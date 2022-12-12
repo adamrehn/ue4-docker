@@ -10,6 +10,6 @@ function docker_asciidoctor() {
     docker run --rm --user "$(id -u):$(id -g)" --volume "${project_dir}:/project/" asciidoctor/docker-asciidoctor "$@"
 }
 
-docker_asciidoctor asciidoctor /project/docs/index.adoc -D /project/build/gh-pages/
+docker_asciidoctor asciidoctor -a linkcss /project/docs/index.adoc -D /project/build/gh-pages/
 docker_asciidoctor asciidoctor-pdf /project/docs/index.adoc -D /project/build/gh-pages/
 docker_asciidoctor asciidoctor-epub3 /project/docs/index.adoc -D /project/build/gh-pages/

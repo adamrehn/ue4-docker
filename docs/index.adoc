@@ -1,9 +1,10 @@
-= ue4-docker
+= ue4-docker user manual
+Adam Rehn <adam@adamrehn.com>; other contributors
+{docdate}
 :doctype: book
 :icons: font
 :idprefix:
 :idseparator: -
-:linkcss:
 :sectanchors:
 :sectlinks:
 :source-highlighter: rouge

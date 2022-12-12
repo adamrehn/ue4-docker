@@ -7,15 +7,6 @@
 
 == General options
 
-=== Performing a dry run
-
-If you would like to see what `docker build` commands will be run without actually building anything, you can specify the `--dry-run` flag when invoking the xref:ue4-docker-build.adoc[ue4-docker build] command.
-Execution will proceed as normal, but no Git credentials will be requested and all `docker build` commands will be printed to standard output instead of being executed as child processes.
-
-=== Specifying a custom namespace for the image tags
-
-If you would like to override the default `adamrehn/` prefix that is used when generating the tags for all built images, you can do so by specifying a custom value using the `UE4DOCKER_TAG_NAMESPACE` environment variable.
-
 === Specifying Git credentials
 
 The xref:ue4-docker-build.adoc[ue4-docker build] command supports three methods for specifying the credentials that will be used to clone the Unreal Engine Git repository:
@@ -221,10 +212,6 @@ The isolation mode can be explicitly specified via the `-isolation=MODE` flag wh
 Valid values are `process` (supported under Windows Server and https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/faq#can-i-run-windows-containers-in-process-isolated-mode-on-windows-10-enterprise-or-professional[Windows 10 version 1809 or newer]) or `hyperv` (supported under both Windows 10 and Windows Server.) If you do not explicitly specify an isolation mode then the appropriate default for the host system will be used.
 
 === Specifying Visual Studio Build Tools version under Windows
-
-By default, ue4-docker uses Visual Studio Build Tools 2017 to build Unreal Engine.
-Starting with Unreal Engine 4.25, you may choose to use Visual Studio Build Tools 2019 instead.
-To do so, pass `--visual-studio=2019` flag when invoking the build command.
 
 === Keeping or excluding Installed Build debug symbols under Windows
 
