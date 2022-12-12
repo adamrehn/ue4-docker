@@ -11,7 +11,7 @@ ue4-docker-export - export components from built container image to the host sys
 
 == Synopsis
 
-*ue4-docker export* _COMPONENT_ _TAG_ _DESTINATION_
+*ue4-docker export* _component_ _tag_ _destination_
 
 This command can be used to export the following components:
 

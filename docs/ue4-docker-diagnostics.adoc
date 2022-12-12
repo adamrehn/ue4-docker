@@ -11,7 +11,7 @@ ue4-docker-diagnostics - run diagnostics to detect issues with the host system c
 
 == Synopsis
 
-*ue4-docker diagnostics* _DIAGNOSTIC_
+*ue4-docker diagnostics* _diagnostic_
 
 == Description
 

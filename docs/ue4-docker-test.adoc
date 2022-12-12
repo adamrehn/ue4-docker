@@ -11,7 +11,7 @@ ue4-docker-test - run tests to verify the correctness of built container images
 
 == Synopsis
 
-*ue4-docker test* _TAG_
+*ue4-docker test* _tag_
 
 == Description
 
