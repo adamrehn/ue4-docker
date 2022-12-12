@@ -1,0 +1,26 @@
+= ue4-docker-info (1)
+:doctype: manpage
+:icons: font
+:idprefix:
+:idseparator: -
+:source-highlighter: rouge
+
+== Name
+
+ue4-docker-info - display information about the host system and Docker daemon
+
+== Synopsis
+
+*ue4-docker info*
+
+== Description
+
+The command will output the following information:
+
+- The ue4-docker version
+- The host OS version
+- The Docker daemon version
+- Whether the NVIDIA Container Toolkit is supported under the current host configuration
+- The detected configuration value for the maximum image size for Windows containers
+- The total amount of detected system memory
+- The number of detected physical and logical CPUs

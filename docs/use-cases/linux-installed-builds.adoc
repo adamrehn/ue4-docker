@@ -1,0 +1,12 @@
+= Linux Installed Builds
+:icons: font
+:idprefix:
+:idseparator: -
+:source-highlighter: rouge
+:toc:
+
+Under Windows and macOS, Engine licensees can easily download and manage Installed Builds of UE4 through the Epic Games Launcher.
+Since version 4.21.0 of the Engine, ue4-docker provides an alternative source of Installed Builds under Linux in lieu of a native version of the launcher.
+
+NOTE: This page has migrated to the https://unrealcontainers.com/[Unreal Containers community hub].
+You can find the new version here: https://unrealcontainers.com/docs/use-cases/linux-installed-builds[Use Cases: Linux Installed Builds].

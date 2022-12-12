@@ -1,8 +1,8 @@
 from os.path import abspath, dirname, join
 from setuptools import setup
 
-# Read the README markdown data from README.md
-with open(abspath(join(dirname(__file__), "README.md")), "rb") as readmeFile:
+# Read the README markdown data from README.adoc
+with open(abspath(join(dirname(__file__), "README.adoc")), "rb") as readmeFile:
     __readme__ = readmeFile.read().decode("utf-8")
 
 # Read the version number from version.py

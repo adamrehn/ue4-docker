@@ -185,7 +185,7 @@ class BuildConfiguration(object):
         parser.add_argument(
             "-password",
             default=None,
-            help="Specify the password or access token to use when cloning the git repository",
+            help="Specify access token or password to use when cloning the git repository",
         )
         parser.add_argument(
             "-repo",

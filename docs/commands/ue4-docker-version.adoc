@@ -1,0 +1,18 @@
+= ue4-docker-version (1)
+:doctype: manpage
+:icons: font
+:idprefix:
+:idseparator: -
+:source-highlighter: rouge
+
+== Name
+
+ue4-docker-version - display version information about ue4-docker
+
+== Synopsis
+
+*ue4-docker version*
+
+== Description
+
+Prints ue4-docker version on the standard output.

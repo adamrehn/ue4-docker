@@ -1,0 +1,14 @@
+= Use cases overview
+:icons: font
+:idprefix:
+:idseparator: -
+:source-highlighter: rouge
+:toc:
+
+The container images produced by ue4-docker incorporate infrastructure to facilitate a wide variety of use cases.
+A number of key use cases are listed below.
+Select a use case to see detailed instructions on how to build and run the appropriate container images.
+
+* xref:continuous-integration.adoc[Continuous Integration]
+* xref:linux-installed-builds.adoc[Linux installed builds]
+* xref:microservices.adoc[Microservices]
