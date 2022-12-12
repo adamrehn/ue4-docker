@@ -1,6 +1,9 @@
-= Unreal Engine 4 Docker Containers
-
-image:https://raw.githubusercontent.com/adamrehn/ue4-docker/master/resources/images/banner.svg?sanitize=true[Unreal Engine and Docker Logos,align="center"]
+++++
+<p align="center"><img src="https://raw.githubusercontent.com/adamrehn/ue4-docker/master/resources/images/banner.svg?sanitize=true" alt="Unreal Engine and Docker Logos" height="100"></p>
+<h1 align="center"><strong>Unreal Engine 4 Docker Containers</strong></h1>
+<h3 align="center"><a href="https://docs.adamrehn.com/ue4-docker/use-cases/continuous-integration">Continuous Integration</a> &bull; <a href="https://docs.adamrehn.com/ue4-docker/use-cases/cloud-rendering">Cloud Rendering</a> &bull; <a href="https://docs.adamrehn.com/ue4-docker/use-cases/microservices">UE4-Powered Microservices</a></h3>
+<p>&nbsp;</p>
+++++
 
 *Looking for a place to start?
 Check out the https://unrealcontainers.com/[Unreal Containers community hub] for implementation-agnostic information on using the Unreal Engine inside Docker containers, and then head to the https://docs.adamrehn.com/ue4-docker/[comprehensive ue4-docker documentation] to view details specific to using the ue4-docker project.*
