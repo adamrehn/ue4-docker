@@ -3,6 +3,7 @@
 :icons: font
 :idprefix:
 :idseparator: -
+:linkcss:
 :source-highlighter: rouge
 :toc: left
 

@@ -5,8 +5,6 @@
 :source-highlighter: rouge
 :toc:
 
-== Overview
-
 The ue4-docker Python package contains a set of Dockerfiles and accompanying build infrastructure that allows you to build Docker images for Epic Games' https://www.unrealengine.com/[Unreal Engine].
 The images also incorporate the infrastructure from `ue4cli`, `conan-ue4cli`, and `ue4-ci-helpers` to facilitate a wide variety of use cases.
 
