@@ -30,3 +30,6 @@ Remove all ue4-docker images, applying the tag filter if one was specified
 
 *--dry-run*::
 If you're unsure as to exactly what images will be removed by a given invocation of the command, append the `--dry-run` flag to have ue4-docker print the generated `docker rmi` commands instead of running them.
+
+*--prune*::
+Run `docker system prune` after cleaning
