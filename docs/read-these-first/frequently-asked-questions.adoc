@@ -11,7 +11,7 @@ With the exception of the ../building-images/available-container-images.adoc#ue4
 
 The first purpose is self-documentation.
 These Docker images are the first publicly-available Windows and Linux images to provide comprehensive build capabilities for Unreal Engine 4.
-Along with the supporting documentation and https://adamrehn.com/articles/tag/Unreal%20Engine/[articles on adamrehn.com], the code in this repository represents an important source of information regarding the steps that must be taken to get UE4 working correctly inside a container.
+Along with the supporting documentation and https://adamrehn.com/articles/tag/Unreal%20Engine/[articles on adamrehn.com], the code in this repository represents an important source of information regarding the steps that must be taken to get Unreal Engine working correctly inside a container.
 The readability of the Dockerfiles is key, which is why they contain so many individual `RUN` directives with explanatory comments.
 Combining `RUN` directives would reduce readability and potentially obfuscate the significance of critical steps.
 

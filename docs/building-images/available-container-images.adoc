@@ -47,7 +47,7 @@ You can prevent unwanted images from being built by appending the relevant image
 
 **Dockerfiles:** https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-source/windows/Dockerfile[icon:windows[] Windows] | https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-source/linux/Dockerfile[icon:linux[] Linux]
 
-**Contents:** Contains the cloned source code for UE4, along with its downloaded dependency data.
+**Contents:** Contains the cloned source code for Unreal Engine, along with its downloaded dependency data.
 The ue4-minimal image uses this source code as the starting point for its build.
 
 **Uses:**
@@ -96,4 +96,4 @@ Afterwards, this image can be removed using `ue4-docker clean --source` to save 
 
 * xref:../use-cases/continuous-integration.adoc[CI pipelines] that require ue4cli, conan-ue4cli, or ue4-ci-helpers
 * Packaging or running cloud rendering projects that optionally utilise UE4Capture under Linux (**note that the (https://hub.docker.com/r/adamrehn/ue4-runtime[ue4-runtime]) image is the recommended base image for running cloud rendering workloads, since this avoids including the multi-gigabyte UE4 developer tools**)
-* Packaging xref:../use-cases/microservices.adoc[UE4-powered microservices]
+* Packaging xref:../use-cases/microservices.adoc[Unreal Engine-powered microservices]

@@ -18,7 +18,7 @@ If you would like to override the default `adamrehn/` prefix that is used when g
 
 === Specifying Git credentials
 
-The xref:../commands/ue4-docker-build.adoc[ue4-docker build] command supports three methods for specifying the credentials that will be used to clone the UE4 Git repository:
+The xref:../commands/ue4-docker-build.adoc[ue4-docker build] command supports three methods for specifying the credentials that will be used to clone the Unreal Engine Git repository:
 
 - **Command-line arguments**: the `-username` and `-password` command-line arguments can be used to specify the username and password, respectively.
 
@@ -33,10 +33,10 @@ Users who have enabled https://help.github.com/en/articles/about-two-factor-auth
 
 === Building a custom version of the Unreal Engine
 
-If you would like to build a custom version of UE4 rather than one of the official releases from Epic, you can specify "custom" as the release string and specify the Git repository and branch/tag that should be cloned.
+If you would like to build a custom version of Unreal Engine rather than one of the official releases from Epic, you can specify "custom" as the release string and specify the Git repository and branch/tag that should be cloned.
 When building a custom Engine version, **both the repository URL and branch/tag must be specified**:
 
-If you would like to build a custom version of UE4 rather than one of the official releases from Epic, you can specify "custom" as the release string and specify the Git repository and branch/tag that should be cloned.
+If you would like to build a custom version of Unreal Engine rather than one of the official releases from Epic, you can specify "custom" as the release string and specify the Git repository and branch/tag that should be cloned.
 When building a custom Engine version, **both the repository URL and branch/tag must be specified**:
 
 [source,shell]

@@ -19,7 +19,7 @@ This command can be used to export the following components:
 
 === Exporting Installed Builds under Linux
 
-Installed Builds of UE4 can be exported to the host system starting with version 4.21.0. Once you have built either the xref:../building-images/available-container-images.adoc#ue4-minimal[ue4-minimal] or xref:../building-images/available-container-images.adoc#ue4-full[ue4-full] image for the UE4 version that you want to export, you can export it to the host system like so:
+Installed Builds of Unreal Engine can be exported to the host system starting with version 4.21.0. Once you have built either the xref:../building-images/available-container-images.adoc#ue4-minimal[ue4-minimal] or xref:../building-images/available-container-images.adoc#ue4-full[ue4-full] image for the UE4 version that you want to export, you can export it to the host system like so:
 
 [source,shell]
 ----

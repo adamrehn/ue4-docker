@@ -12,14 +12,14 @@ Key features include:
 
 - Unreal Engine 4.20.0 and newer is supported.
 - Both Windows containers and Linux containers are supported.
-- Building and packaging UE4 projects is supported.
+- Building and packaging Unreal Engine projects is supported.
 - Running automation tests is supported.
-- Running built UE4 projects with offscreen rendering is supported via the NVIDIA Container Toolkit under Linux.
+- Running built Unreal Engine projects with offscreen rendering is supported via the NVIDIA Container Toolkit under Linux.
 
 == Important legal notice
 
-**Except for the xref:../building-images/available-container-images.adoc#ue4-build-prerequisites[ue4-build-prerequisites] image, the Docker images produced by the ue4-docker Python package contain the UE4 Engine Tools in both source code and object code form.
-As per Section 1A of the https://www.unrealengine.com/eula[Unreal Engine EULA], Engine Licensees are prohibited from public distribution of the Engine Tools unless such distribution takes place via the Unreal Marketplace or a fork of the Epic Games UE4 GitHub repository.
+**Except for the xref:../building-images/available-container-images.adoc#ue4-build-prerequisites[ue4-build-prerequisites] image, the Docker images produced by the ue4-docker Python package contain the Unreal Engine Tools in both source code and object code form.
+As per Section 1A of the https://www.unrealengine.com/eula[Unreal Engine EULA], Engine Licensees are prohibited from public distribution of the Engine Tools unless such distribution takes place via the Unreal Marketplace or a fork of the Epic Games Unreal Engine GitHub repository.
 **Public distribution of the built images via an openly accessible Docker Registry (e.g. Docker Hub) is a direct violation of the license terms.** It is your responsibility to ensure that any private distribution to other Engine Licensees (such as via an organisation's internal Docker Registry) complies with the terms of the Unreal Engine EULA.**
 
 For more details, see the https://unrealcontainers.com/docs/obtaining-images/eula-restrictions[Unreal Engine EULA Restrictions] page on the https://unrealcontainers.com/[Unreal Containers community hub].
