@@ -7,7 +7,7 @@ IFS=$'\n\t'
 project_dir="$(git rev-parse --show-toplevel)"
 
 function docker_asciidoctor() {
-    docker run --rm -it --user "$(id -u):$(id -g)" --volume "${project_dir}:/project/" asciidoctor/docker-asciidoctor "$@"
+    docker run --rm --user "$(id -u):$(id -g)" --volume "${project_dir}:/project/" asciidoctor/docker-asciidoctor "$@"
 }
 
 # HTML
