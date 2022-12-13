@@ -1,0 +1,274 @@
+'\" t
+.\"     Title: ue4-docker-build
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 2.0.18
+.\"      Date: 2022-12-13
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "UE4\-DOCKER\-BUILD" "1" "2022-12-13" "\ \&" "\ \&"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+ue4-docker-build \- build container image for a specific version of Unreal Engine
+.SH "SYNOPSIS"
+.sp
+\fBue4\-docker build\fP [\fIoption\fP]... \fIversion\fP
+.SH "DESCRIPTION"
+.sp
+To build container images for a specific version of the Unreal Engine, simply specify the \fIversion\fP that you would like to build using full \c
+.URL "https://semver.org/" "semver" ""
+syntax.
+For example, to build Unreal Engine 4.20.3, run:
+.sp
+.if n .RS 4
+.nf
+.fam C
+ue4\-docker build 4.20.3
+.fam
+.fi
+.if n .RE
+.sp
+You will be prompted for the Git credentials to be used when cloning the Unreal Engine GitHub repository (this will be the GitHub username and password you normally use when cloning \c
+.URL "https://github.com/EpicGames/UnrealEngine" "" "."
+The build process will then start automatically, displaying progress output from each of the \f(CRdocker build\fP commands that are being run in turn.
+.sp
+By default, all available images will be built.
+See the List of available container images for details on customising which images are built.
+.SH "OPTIONS"
+.sp
+\fB\-basetag\fP \fIbasetag\fP
+.RS 4
+Operating system base image tag to use.
+For Linux this is the version of Ubuntu (default is ubuntu18.04).
+For Windows this is the Windows Server Core base image tag (default is the host OS version)
+.RE
+.sp
+\fB\-branch\fP \fIbranch\fP
+.RS 4
+Set the custom branch/tag to clone when \fBcustom\fP is specified as the \fIversion\fP.
+.RE
+.sp
+\fB\-\-combine\fP
+.RS 4
+Combine generated Dockerfiles into a single multi\-stage build Dockerfile
+.RE
+.sp
+\fB\-conan\-ue4cli\fP \fIconan_ue4cli\fP
+.RS 4
+Override the default version of conan\-ue4cli installed in the ue4\-full image
+.RE
+.sp
+\fB\-\-dry\-run\fP
+.RS 4
+Use this if you would like to see what Docker commands would be run by \f(CRue4\-docker build\fP without actually building anything.
+Execution will proceed as normal, but no Git credentials will be requested and all Docker commands will be printed to standard output instead of being executed as child processes.
+.RE
+.sp
+\fB\-\-exclude {ddc,debug,templates}\fP
+.RS 4
+Exclude the specified component from the ue4\-minimal and ue4\-full images.
+.sp
+The following components can be excluded:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\f(CRddc\fP: disables building the DDC for the Engine.
+This significantly speeds up building the Engine itself but results in far longer cook times when subsequently packaging Unreal projects.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\f(CRdebug\fP: removes all debug symbols from the built images.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\f(CRtemplates\fP: removes the template projects and samples that ship with the Engine.
+.sp
+You can specify the \f(CR\-\-exclude\fP flag multiple times to exclude as many components as you like.
+For example:
+.sp
+.if n .RS 4
+.nf
+.fam C
+# Excludes both debug symbols and template projects
+ue4\-docker build 4.21.2 \-\-exclude debug \-\-exclude templates
+.fam
+.fi
+.if n .RE
+.RE
+.RE
+.sp
+\fB\-h, \-\-help\fP
+.RS 4
+Print help and exit
+.RE
+.sp
+\fB\-interval\fP \fIinverval\fP
+.RS 4
+Sampling interval in seconds when resource monitoring has been enabled using \-\-monitor (default is 20 seconds)
+.RE
+.sp
+\fB\-layout\fP \fIlayout\fP
+.RS 4
+Copy generated Dockerfiles to the specified directory and don\(cqt build the images
+.RE
+.sp
+\fB\-m\fP \fImemory\fP
+.RS 4
+Override the default memory limit under Windows (also overrides \-\-random\-memory)
+.RE
+.sp
+\fB\-\-monitor\fP
+.RS 4
+Monitor resource usage during builds (useful for debugging)
+.RE
+.sp
+\fB\-\-no\-cache\fP
+.RS 4
+Disable Docker build cache
+.RE
+.sp
+\fB\-\-no\-full\fP
+.RS 4
+Don\(cqt build the ue4\-full image (deprecated, use \fB\-\-target\fP \fItarget\fP instead)
+.RE
+.sp
+\fB\-\-no\-minimal\fP
+.RS 4
+Don\(cqt build the ue4\-minimal image (deprecated, use \fB\-\-target\fP \fItarget\fP instead)
+.RE
+.sp
+\fB\-\-opt\fP \fIopt\fP
+.RS 4
+Set an advanced configuration option (can be specified multiple times to specify multiple options)
+.RE
+.sp
+\fB\-password\fP \fIpassword\fP
+.RS 4
+Specify access token or password to use when cloning the git repository
+.RE
+.sp
+\fB\-\-rebuild\fP
+.RS 4
+Rebuild images even if they already exist
+.RE
+.sp
+\fB\-repo\fP \fIrepo\fP
+.RS 4
+Set the URL of custom git repository to clone when \fBcustom\fP is specified as the \fIversion\fP
+.RE
+.sp
+\fB\-suffix\fP \fIsuffix\fP
+.RS 4
+Add a suffix to the tags of the built images
+.RE
+.sp
+\fB\-\-target\fP \fItarget\fP
+.RS 4
+Tells ue4\-docker to build specific image (including its dependencies).
+.sp
+Supported values: \f(CRall\fP, \f(CRbuild\-prerequisites\fP, \f(CRfull\fP, \f(CRminimal\fP, \f(CRsource\fP.
+.sp
+You can specify the \f(CR\-\-target\fP option multiple times.
+.RE
+.sp
+\fB\-ue4cli\fP \fIue4cli\fP
+.RS 4
+Override the default version of ue4cli installed in the ue4\-full image
+.RE
+.sp
+\fB\-username\fP \fIusername\fP
+.RS 4
+Specify the username to use when cloning the git repository
+.RE
+.sp
+\fB\-v\fP, \fB\-\-verbose\fP
+.RS 4
+Enable verbose output during builds (useful for debugging)
+.RE
+.SH "LINUX\-SPECIFIC OPTIONS"
+.sp
+\fB\-\-cuda\fP \fIversion\fP
+.RS 4
+Add CUDA support as well as OpenGL support
+.RE
+.SH "WINDOWS\-SPECIFIC OPTIONS"
+.sp
+\fB\-\-ignore\-blacklist\fP
+.RS 4
+Run builds even on blacklisted versions of Windows (advanced use only)
+.RE
+.sp
+\fB\-isolation {process,hyperv}\fP
+.RS 4
+Set the isolation mode to use
+.RE
+.sp
+\fB\-\-linux\fP
+.RS 4
+Use Linux containers under Windows hosts (useful when testing Docker Desktop or LCOW support)
+.RE
+.sp
+\fB\-\-random\-memory\fP
+.RS 4
+Use a random memory limit for Windows containers
+.RE
+.sp
+\fB\-\-visual\-studio {2017,2019,2022}\fP
+.RS 4
+Specify Visual Studio Build Tools version.
+.sp
+By default, ue4\-docker uses Visual Studio Build Tools 2017 to build Unreal Engine.
+Starting with Unreal Engine 4.25, you may choose to use Visual Studio Build Tools 2019 instead.
+.sp
+Unreal Engine 5.0 adds support for VS2022 but removes support for VS2017.
+.RE
+.SH "ENVIRONMENT"
+.sp
+This section describes several environment variables that affect how \f(CRue4\-docker build\fP operates.
+.sp
+\fBUE4DOCKER_TAG_NAMESPACE\fP
+.RS 4
+If you would like to override the default \f(CRadamrehn/\fP prefix that is used when generating the tags for all built images, you can do so by specifying a custom value using the \f(CRUE4DOCKER_TAG_NAMESPACE\fP environment variable.
+.RE
+.SH "SEE ALSO"
+.sp
+\fBue4\-docker\-clean\fP(1)

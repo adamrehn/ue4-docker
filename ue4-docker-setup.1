@@ -1,0 +1,89 @@
+'\" t
+.\"     Title: ue4-docker-setup
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 2.0.18
+.\"      Date: 2022-12-13
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "UE4\-DOCKER\-SETUP" "1" "2022-12-13" "\ \&" "\ \&"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+ue4-docker-setup \- automatically configure the host system where possible
+.SH "SYNOPSIS"
+.sp
+\fBue4\-docker setup\fP
+.SH "DESCRIPTION"
+.sp
+This command will automatically configure a Linux or Windows Server host system with the settings required in order to build and run containers produced by ue4\-docker.
+.sp
+\fBUnder Linux:\fP
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+If an active firewall is detected then a firewall rule will be created to allow Docker containers to communicate with the host system, which is required during the build of the ue4\-source image.
+.RE
+.sp
+\fBUnder Windows Server:\fP
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+The Docker daemon will be configured to set the maximum image size for Windows containers to 400GB.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+A Windows Firewall rule will be created to allow Docker containers to communicate with the host system, which is required during the build of the ue4\-source image.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+Under Windows Server Core version 1809 and newer, any required DLL files will be copied to the host system from the \c
+.URL "https://hub.docker.com/_/microsoft\-windows" "full Windows base image" "."
+Note that the full base image was only introduced in Windows Server version 1809, so this step will not be performed under older versions of Windows Server.
+.RE
+.sp
+\fBUnder Windows 10 and macOS\fP this command will print a message informing the user that automatic configuration is not supported under their platform and that they will need to configure the system manually.

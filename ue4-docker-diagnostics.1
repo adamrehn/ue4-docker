@@ -1,0 +1,62 @@
+'\" t
+.\"     Title: ue4-docker-diagnostics
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 2.0.18
+.\"      Date: 2022-12-13
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "UE4\-DOCKER\-DIAGNOSTICS" "1" "2022-12-13" "\ \&" "\ \&"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+ue4-docker-diagnostics \- run diagnostics to detect issues with the host system configuration.
+.SH "SYNOPSIS"
+.sp
+\fBue4\-docker diagnostics\fP \fIdiagnostic\fP
+.SH "DESCRIPTION"
+.sp
+This command can be used to run the following diagnostics:
+.SS "Checking for the Docker 8GiB filesystem layer bug"
+.sp
+Some versions of Docker contain one or more of a series of separate but related bugs that prevent the creation of filesystem layers which are 8GiB in size or larger.
+This also causes \f(CRCOPY\fP directives to fail when copying data in excess of 8GiB in size, breaking Dockerfile steps during the creation of Installed Builds that contain debug symbols.
+.sp
+This diagnostic tests whether the host system\(cqs Docker daemon suffers from this issue, by attempting to build a simple test Dockerfile with an 8GiB filesystem layer:
+.sp
+.if n .RS 4
+.nf
+.fam C
+ue4\-docker diagnostics 8gig
+.fam
+.fi
+.if n .RE
+.SS "Checking for container network connectivity issues"
+.sp
+This diagnostic tests whether running containers are able to access the internet, resolve DNS entries, and download remote files:
+.sp
+.if n .RS 4
+.nf
+.fam C
+ue4\-docker diagnostics network
+.fam
+.fi
+.if n .RE

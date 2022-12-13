@@ -1,0 +1,2310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.18">
+<meta name="author" content="Adam Rehn, other contributors">
+<title>ue4-docker user manual</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="./asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="./rouge-github.css">
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<h1>ue4-docker user manual</h1>
+<div class="details">
+<span id="author" class="author">Adam Rehn</span><br>
+<span id="email" class="email"><a href="mailto:adam@adamrehn.com">adam@adamrehn.com</a></span><br>
+<span id="author2" class="author">other contributors</span><br>
+<span id="revdate">2022-12-13</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#read-these-first">Read these first</a>
+<ul class="sectlevel2">
+<li><a href="#introduction-to-ue4-docker">Introduction to ue4-docker</a></li>
+<li><a href="#large-container-images-primer">Large container images primer</a></li>
+<li><a href="#windows-containers-primer">Windows containers primer</a></li>
+<li><a href="#nvidia-container-toolkit-primer">NVIDIA Container Toolkit primer</a></li>
+</ul>
+</li>
+<li><a href="#configuration">Configuration</a>
+<ul class="sectlevel2">
+<li><a href="#supported-host-configurations">Supported host configurations</a></li>
+<li><a href="#configuring-linux">Configuring Linux</a></li>
+<li><a href="#configuring-windows-server">Configuring Windows Server</a></li>
+<li><a href="#configuring-windows-10-and-11">Configuring Windows 10 and 11</a></li>
+<li><a href="#configuring-macos">Configuring macOS</a></li>
+</ul>
+</li>
+<li><a href="#use-cases">Use cases</a>
+<ul class="sectlevel2">
+<li><a href="#use-cases-overview">Use cases overview</a></li>
+<li><a href="#continuous-integration-ci">Continuous Integration (CI)</a></li>
+<li><a href="#microservices">Microservices</a></li>
+<li><a href="#linux-installed-builds">Linux Installed Builds</a></li>
+</ul>
+</li>
+<li><a href="#building-images">Building images</a>
+<ul class="sectlevel2">
+<li><a href="#list-of-available-container-images">List of available container images</a></li>
+<li><a href="#advanced-build-options">Advanced build options</a></li>
+<li><a href="#troubleshooting-build-issues">Troubleshooting build issues</a></li>
+</ul>
+</li>
+<li><a href="#command-reference">Command reference</a>
+<ul class="sectlevel2">
+<li><a href="#ue4-docker-build">ue4-docker-build (1)</a></li>
+<li><a href="#ue4-docker-clean">ue4-docker-clean (1)</a></li>
+<li><a href="#ue4-docker-diagnostics">ue4-docker-diagnostics (1)</a></li>
+<li><a href="#ue4-docker-export">ue4-docker-export (1)</a></li>
+<li><a href="#ue4-docker-info">ue4-docker-info (1)</a></li>
+<li><a href="#ue4-docker-setup">ue4-docker-setup (1)</a></li>
+<li><a href="#ue4-docker-test">ue4-docker-test (1)</a></li>
+<li><a href="#ue4-docker-version">ue4-docker-version (1)</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="read-these-first"><a class="anchor" href="#read-these-first"></a><a class="link" href="#read-these-first">Read these first</a></h2>
+<div class="sectionbody">
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/introduction-to-ue4-docker.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+<div class="sect2">
+<h3 id="introduction-to-ue4-docker"><a class="anchor" href="#introduction-to-ue4-docker"></a><a class="link" href="#introduction-to-ue4-docker">Introduction to ue4-docker</a></h3>
+<div class="paragraph">
+<p>The ue4-docker Python package contains a set of Dockerfiles and accompanying build infrastructure that allows you to build Docker images for Epic Games' <a href="https://www.unrealengine.com/">Unreal Engine</a>.
+The images also incorporate the infrastructure from <code>ue4cli</code>, <code>conan-ue4cli</code>, and <code>ue4-ci-helpers</code> to facilitate a wide variety of use cases.</p>
+</div>
+<div class="paragraph">
+<p>Key features include:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Unreal Engine 4.20.0 and newer is supported.</p>
+</li>
+<li>
+<p>Both Windows containers and Linux containers are supported.</p>
+</li>
+<li>
+<p>Building and packaging Unreal Engine projects is supported.</p>
+</li>
+<li>
+<p>Running automation tests is supported.</p>
+</li>
+<li>
+<p>Running built Unreal Engine projects with offscreen rendering is supported via the NVIDIA Container Toolkit under Linux.</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="important-legal-notice"><a class="anchor" href="#important-legal-notice"></a><a class="link" href="#important-legal-notice">Important legal notice</a></h4>
+<div class="paragraph">
+<p><strong>Except for the <a href="#ue4-build-prerequisites">ue4-build-prerequisites</a> image, the Docker images produced by the ue4-docker Python package contain the Unreal Engine Tools in both source code and object code form.
+As per Section 1A of the <a href="https://www.unrealengine.com/eula">Unreal Engine EULA</a>, Engine Licensees are prohibited from public distribution of the Engine Tools unless such distribution takes place via the Unreal Marketplace or a fork of the Epic Games Unreal Engine GitHub repository.
+</strong>Public distribution of the built images via an openly accessible Docker Registry (e.g. Docker Hub) is a direct violation of the license terms.<strong> It is your responsibility to ensure that any private distribution to other Engine Licensees (such as via an organisation&#8217;s internal Docker Registry) complies with the terms of the Unreal Engine EULA.</strong></p>
+</div>
+<div class="paragraph">
+<p>For more details, see the <a href="https://unrealcontainers.com/docs/obtaining-images/eula-restrictions">Unreal Engine EULA Restrictions</a> page on the <a href="https://unrealcontainers.com/">Unreal Containers community hub</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="getting-started"><a class="anchor" href="#getting-started"></a><a class="link" href="#getting-started">Getting started</a></h4>
+<div class="paragraph">
+<p>Multipurpose Docker images for large, cross-platform projects such as the Unreal Engine involve a great deal more complexity than most typical Docker images.
+Before you start using ue4-docker it may be helpful to familiarise yourself with some of these complexities:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If you&#8217;ve never built large (multi-gigabyte) Docker images before, be sure to read the <a href="#">Large container images primer</a>.</p>
+</li>
+<li>
+<p>If you&#8217;ve never used Windows containers before, be sure to read the <a href="#">Windows containers primer</a>.</p>
+</li>
+<li>
+<p>If you&#8217;ve never used GPU-accelerated Linux containers with the NVIDIA Container Toolkit before, be sure to read the <a href="#">NVIDIA Container Toolkit primer</a>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Once you&#8217;re familiar with all the relevant background material, you can dive right in:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>First up, head to the <a href="#configuration">Configuration</a> section for details on how to install ue4-docker and configure your host system so that it is ready to build and run the Docker images.</p>
+</li>
+<li>
+<p>Next, check out the <a href="#use-cases">Use Cases</a> section for details on the various scenarios in which the Docker images can be used.
+Once you&#8217;ve selected the use case you&#8217;re interested in, you&#8217;ll find step-by-step instructions on how to build the necessary container images and start using them.</p>
+</li>
+<li>
+<p>If you run into any issues or want to customise your build with advanced options, the <a href="#building-images">Building Images</a> section provides all the relevant details.</p>
+</li>
+<li>
+<p>For more information, check out the <a href="frequently-asked-questions.html">FAQ</a> and the <a href="#command-reference">Command Reference</a> section.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="links"><a class="anchor" href="#links"></a><a class="link" href="#links">Links</a></h4>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/adamrehn/ue4-docker">ue4-docker GitHub repository</a></p>
+</li>
+<li>
+<p><a href="https://pypi.org/project/ue4-docker/">ue4-docker package on PyPI</a></p>
+</li>
+<li>
+<p><a href="https://adamrehn.com/articles/tag/Unreal%20Engine/">Related articles on adamrehn.com</a></p>
+</li>
+<li>
+<p><a href="https://unrealcontainers.com/">Unreal Containers community hub</a></p>
+</li>
+</ul>
+</div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/large-container-images-primer.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="large-container-images-primer"><a class="anchor" href="#large-container-images-primer"></a><a class="link" href="#large-container-images-primer">Large container images primer</a></h3>
+<div class="paragraph">
+<p>Although large container images are in no way different to smaller container images at a technical level, there are several aspects of the Docker build process that impact large images to a far greater extent than smaller images.
+This page provides an overview for users who have never built large (multi-gigabyte) container images before and may therefore be unfamiliar with these impacts.
+This information applies equally to both Linux containers and Windows containers.</p>
+</div>
+<div class="sect3">
+<h4 id="filesystem-layer-commit-performance"><a class="anchor" href="#filesystem-layer-commit-performance"></a><a class="link" href="#filesystem-layer-commit-performance">Filesystem layer commit performance</a></h4>
+<div class="paragraph">
+<p>The time taken to commit filesystem layers to disk when building smaller Docker images is low enough that many users may not even perceive this process as a distinct aspect of a <code>RUN</code> step in a Dockerfile.
+However, when a step generates a filesystem layer that is multiple gigabytes in size, the time taken to commit this data to disk becomes immediately noticeable.
+For some larger layers in the container images built by ue4-docker, the filesystem layer commit process can take well over 40 minutes to complete on consumer-grade hardware.
+(The Installed Build layer in the multi-stage build of the <a href="#ue4-minimal">ue4-minimal</a> image is the largest of all the filesystem layers, and has been observed to take well over an hour and a half to commit to disk on some hardware.)</p>
+</div>
+<div class="paragraph">
+<p>Since Docker does not emit any output during the layer commit process, users may become concerned that the build has hung.
+After the ue4-docker provided output <code>Performing filesystem layer commit&#8230;&#8203;</code>, the only indication that any processing is taking place is the high quantity of CPU usage and disk I/O present during this stage.
+There is no need for concern, as none of the steps in the ue4-docker Dockerfiles can run indefinitely without failing and emitting an error.
+When a build step ceases to produce output, it is merely a matter of waiting for the filesystem layer commit to complete.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="disk-space-consumption-during-the-build-process"><a class="anchor" href="#disk-space-consumption-during-the-build-process"></a><a class="link" href="#disk-space-consumption-during-the-build-process">Disk space consumption during the build process</a></h4>
+<div class="paragraph">
+<p>Due to overheads associated with temporary layers in multi-stage builds and layer difference computation, the Docker build process for an image will consume more disk space than is required to hold the final built image.
+These overheads are relatively modest when building smaller container images.
+However, these overheads are exacerbated significantly when building large container images, and it is important to be aware of the quantity of available disk space that is required to build any given image or set of images.</p>
+</div>
+<div class="paragraph">
+<p>Although none of the container images produced by ue4-docker currently exceed 100GB in size, the build process requires at least 400GB of available disk space under Linux and at least 800GB of available disk space under Windows.
+Once a build is complete, the <a href="#">ue4-docker clean</a> command can be used to clean up temporary layers leftover from multi-stage builds and reclaim all the disk space not occupied by the final built images.
+The <a href="https://docs.docker.com/engine/reference/commandline/system_prune/">docker system prune</a> command can also be useful for cleaning up data that is not used by any of the tagged images present on the system.</p>
+</div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/windows-container-primer.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="windows-containers-primer"><a class="anchor" href="#windows-containers-primer"></a><a class="link" href="#windows-containers-primer">Windows containers primer</a></h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The implementation-agnostic information from this page has migrated to the <a href="https://unrealcontainers.com/">Unreal Containers community hub</a>.
+You can find the new version here: <a href="https://unrealcontainers.com/docs/concepts/windows-containers">Key Concepts: Windows Containers</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><strong>Details specific to ue4-docker:</strong></p>
+</div>
+<div class="paragraph">
+<p>Due to the performance and stability issues currently associated with containers running in Hyper-V isolation mode, it is strongly recommended that process isolation mode be used for building and running Windows containers.
+This necessitates the use of Windows Server as the host system (<a href="https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/faq#can-i-run-windows-containers-in-process-isolated-mode-on-windows-10-enterprise-or-professional">or Windows 10 version 1809 or newer for development and testing purposes</a>) and requires that all container images use the same Windows version as the host system.
+A number of ue4-docker commands provide specific functionality to facilitate this:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <a href="#">ue4-docker build</a> command will automatically attempt to build images based on the same kernel version as the host system, and will default to process isolation mode if the operating system version and Docker daemon version allow it.
+Hyper-V isolation mode will still be used if the user explicitly <a href="#windows-base-tag">specifies a different kernel version</a> than that of the host system or <a href="#windows-isolation-mode">explicitly requests Hyper-V isolation mode</a>.</p>
+</li>
+<li>
+<p>The <a href="#">ue4-docker setup</a> command automates the configuration of Windows Server hosts, in order to provide a smoother experience for users who migrate their container hosts to the latest versions of Windows Server as they are released.</p>
+</li>
+</ul>
+</div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/nvidia-docker-primer.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="nvidia-container-toolkit-primer"><a class="anchor" href="#nvidia-container-toolkit-primer"></a><a class="link" href="#nvidia-container-toolkit-primer">NVIDIA Container Toolkit primer</a></h3>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+This page has migrated to the <a href="https://unrealcontainers.com/">Unreal Containers community hub</a>.
+You can find the new version here: <a href="https://unrealcontainers.com/docs/concepts/nvidia-docker">Key Concepts: NVIDIA Container Toolkit</a>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="configuration"><a class="anchor" href="#configuration"></a><a class="link" href="#configuration">Configuration</a></h2>
+<div class="sectionbody">
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/supported-host-configurations.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+<div class="sect2">
+<h3 id="supported-host-configurations"><a class="anchor" href="#supported-host-configurations"></a><a class="link" href="#supported-host-configurations">Supported host configurations</a></h3>
+<div class="paragraph">
+<p>The table below lists the host operating systems can be used to build and run the container images produced by ue4-docker, as well as which features are supported under each system.</p>
+</div>
+<div class="paragraph">
+<p><strong>Click on an operating system&#8217;s name to view the configuration instructions for that platform.</strong></p>
+</div>
+<table class="tableblock frame-all grid-all fit-content stretch">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Host OS</th>
+<th class="tableblock halign-left valign-top">Linux containers</th>
+<th class="tableblock halign-left valign-top">Windows containers</th>
+<th class="tableblock halign-left valign-top">NVIDIA Container Toolkit</th>
+<th class="tableblock halign-left valign-top">Optimality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#">Linux</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="icon"><i class="fa fa-check"></i></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="icon"><i class="fa fa-times"></i></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="icon"><i class="fa fa-check"></i></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optimal for Linux containers</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#">Windows Server</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="icon"><i class="fa fa-times"></i></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="icon"><i class="fa fa-check"></i></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="icon"><i class="fa fa-times"></i></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optimal for Windows containers when using process isolation mode</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#">Windows 10 and 11</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Works but not tested or supported</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="icon"><i class="fa fa-check"></i></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="icon"><i class="fa fa-times"></i></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optimal for Windows containers when using process isolation mode</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#">macOS</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="icon"><i class="fa fa-check"></i></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="icon"><i class="fa fa-times"></i></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="icon"><i class="fa fa-times"></i></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Suboptimal for Linux containers</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The <strong>Optimality</strong> column indicates whether a given host operating system provides the best experience for running the container types that it supports.
+The configuration instructions page for each operating system provides further details regarding the factors that make it either optimal or suboptimal.</p>
+</div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/configuring-linux.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="configuring-linux"><a class="anchor" href="#configuring-linux"></a><a class="link" href="#configuring-linux">Configuring Linux</a></h3>
+<div class="sect3">
+<h4 id="requirements"><a class="anchor" href="#requirements"></a><a class="link" href="#requirements">Requirements</a></h4>
+<div class="ulist">
+<ul>
+<li>
+<p>64-bit version of one of Docker&#8217;s <a href="https://docs.docker.com/install/#supported-platforms">supported Linux distributions</a> (CentOS 7+, Debian 7.7+, Fedora 26+, Ubuntu 14.04+)</p>
+</li>
+<li>
+<p>Minimum 8GB of RAM</p>
+</li>
+<li>
+<p>Minimum 400GB available disk space for building container images</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="step-1-install-docker-ce"><a class="anchor" href="#step-1-install-docker-ce"></a><a class="link" href="#step-1-install-docker-ce">Step 1: Install Docker CE</a></h4>
+<div class="paragraph">
+<p>Follow the official installation instructions from the Docker Documentation for your distribution:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.docker.com/install/linux/docker-ce/centos/">CentOS</a></p>
+</li>
+<li>
+<p><a href="https://docs.docker.com/install/linux/docker-ce/debian/">Debian</a></p>
+</li>
+<li>
+<p><a href="https://docs.docker.com/install/linux/docker-ce/fedora/">Fedora</a></p>
+</li>
+<li>
+<p><a href="https://docs.docker.com/install/linux/docker-ce/ubuntu/">Ubuntu</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Once Docker is installed, follow the instructions from the <a href="https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user">Post-installation steps for Linux</a> page of the Docker Documentation to allow Docker commands to be run by a non-root user.
+This step is required in order to enable audio support when performing cloud rendering using the NVIDIA Container Toolkit.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="step-2-install-python-3-6-or-newer"><a class="anchor" href="#step-2-install-python-3-6-or-newer"></a><a class="link" href="#step-2-install-python-3-6-or-newer">Step 2: Install Python 3.6 or newer</a></h4>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Note that older versions of these Linux distributions may not have Python 3.6 available in their system repositories by default.
+When working with an older distribution it may be necessary to configure community repositories that provide newer versions of Python.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Under CentOS, run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="nb">sudo </span>yum <span class="nb">install </span>python3 python3-devel python3-pip</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Under Debian and Ubuntu, run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="nb">sudo </span>apt-get <span class="nb">install </span>python3 python3-dev python3-pip</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Under Fedora, run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="nb">sudo </span>dnf <span class="nb">install </span>python3 python3-devel python3-pip</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="step-3-install-ue4-docker"><a class="anchor" href="#step-3-install-ue4-docker"></a><a class="link" href="#step-3-install-ue4-docker">Step 3: Install ue4-docker</a></h4>
+<div class="paragraph">
+<p>Install the ue4-docker Python package by running the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="nb">sudo </span>pip3 <span class="nb">install </span>ue4-docker</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="step-4-use-ue4-docker-to-automatically-configure-the-linux-firewall"><a class="anchor" href="#step-4-use-ue4-docker-to-automatically-configure-the-linux-firewall"></a><a class="link" href="#step-4-use-ue4-docker-to-automatically-configure-the-linux-firewall">Step 4: Use ue4-docker to automatically configure the Linux firewall</a></h4>
+<div class="paragraph">
+<p>If the host system is running an active firewall that blocks access to port 9876 (required during the build of the <a href="#ue4-source">ue4-source</a> image) then it is necessary to create a firewall rule to permit access to this port.
+The <a href="#">ue4-docker setup</a> command will detect this scenario and perform the appropriate firewall configuration automatically.
+Simply run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="nb">sudo </span>ue4-docker setup</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that the <code>iptables-persistent</code> service will need to be installed for the newly-created firewall rule to persist after the host system reboots.</p>
+</div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/configuring-windows-server.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="configuring-windows-server"><a class="anchor" href="#configuring-windows-server"></a><a class="link" href="#configuring-windows-server">Configuring Windows Server</a></h3>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Windows Server provides an optimal experience when running Windows containers, but <strong>only when process isolation mode is used</strong>.
+Using <a href="https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/hyperv-container">Hyper-V isolation mode</a> will result in a suboptimal experience due to <a href="#">several issues that impact performance and stability</a>.
+Process isolation mode is the default isolation mode under Windows Server.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="requirements-2"><a class="anchor" href="#requirements-2"></a><a class="link" href="#requirements-2">Requirements</a></h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Windows Server 2016 or newer</p>
+</li>
+<li>
+<p>Minimum 8GB of RAM</p>
+</li>
+<li>
+<p>Minimum 800GB available disk space for building container images</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="step-1-install-docker-ee"><a class="anchor" href="#step-1-install-docker-ee"></a><a class="link" href="#step-1-install-docker-ee">Step 1: Install Docker EE</a></h4>
+<div class="paragraph">
+<p>As per the instructions provided by the <a href="https://docs.docker.com/install/windows/docker-ee/">Install Docker Engine - Enterprise on Windows Servers</a> page of the Docker Documentation, run the following commands from an elevated PowerShell prompt:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="powershell"><span class="c"># Add the Docker provider to the PowerShell package manager</span><span class="w">
+</span><span class="n">Install-Module</span><span class="w"> </span><span class="nx">DockerMsftProvider</span><span class="w"> </span><span class="nt">-Force</span><span class="w">
+
+</span><span class="c"># Install Docker EE</span><span class="w">
+</span><span class="n">Install-Package</span><span class="w"> </span><span class="nx">Docker</span><span class="w"> </span><span class="nt">-ProviderName</span><span class="w"> </span><span class="nx">DockerMsftProvider</span><span class="w"> </span><span class="nt">-Force</span><span class="w">
+
+</span><span class="c"># Restart the computer to enable the containers feature</span><span class="w">
+</span><span class="n">Restart-Computer</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="step-2-install-python-3-via-chocolatey"><a class="anchor" href="#step-2-install-python-3-via-chocolatey"></a><a class="link" href="#step-2-install-python-3-via-chocolatey">Step 2: Install Python 3 via Chocolatey</a></h4>
+<div class="paragraph">
+<p>The simplest way to install Python and pip under Windows is to use the <a href="https://chocolatey.org/">Chocolatey package manager</a>.
+To do so, run the following command from an elevated PowerShell prompt:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="powershell"><span class="n">Set-ExecutionPolicy</span><span class="w"> </span><span class="nx">Bypass</span><span class="w"> </span><span class="nt">-Scope</span><span class="w"> </span><span class="nx">Process</span><span class="w"> </span><span class="nt">-Force</span><span class="p">;</span><span class="w"> </span><span class="p">[</span><span class="n">System.Net.ServicePointManager</span><span class="p">]::</span><span class="n">SecurityProtocol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">System.Net.ServicePointManager</span><span class="p">]::</span><span class="n">SecurityProtocol</span><span class="w"> </span><span class="o">-bor</span><span class="w"> </span><span class="nx">3072</span><span class="p">;</span><span class="w"> </span><span class="n">iex</span><span class="w"> </span><span class="p">((</span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Net.WebClient</span><span class="p">)</span><span class="o">.</span><span class="nf">DownloadString</span><span class="p">(</span><span class="s1">'https://community.chocolatey.org/install.ps1'</span><span class="p">))</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You may need to restart the system for your shell to recognise the updates that the Chocolatey installer makes to the system <code>PATH</code> environment variable.
+Once these changes are recognised, you can install Python by running the following command from either an elevated PowerShell prompt or an elevated Command Prompt:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">choco <span class="nb">install</span> <span class="nt">-y</span> python</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="step-3-install-ue4-docker-2"><a class="anchor" href="#step-3-install-ue4-docker-2"></a><a class="link" href="#step-3-install-ue4-docker-2">Step 3: Install ue4-docker</a></h4>
+<div class="paragraph">
+<p>Install the ue4-docker Python package by running the following command from an elevated Command Prompt:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">pip <span class="nb">install </span>ue4-docker</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="step-4-use-ue4-docker-to-automatically-configure-docker-and-windows-firewall"><a class="anchor" href="#step-4-use-ue4-docker-to-automatically-configure-docker-and-windows-firewall"></a><a class="link" href="#step-4-use-ue4-docker-to-automatically-configure-docker-and-windows-firewall">Step 4: Use ue4-docker to automatically configure Docker and Windows Firewall</a></h4>
+<div class="paragraph">
+<p>To automatically configure the required system settings, run the <a href="#">ue4-docker setup</a> command from an elevated Command Prompt:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">ue4-docker setup</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will configure the Docker daemon to set the maximum image size to 400GB, create a Windows Firewall rule to allow Docker containers to communicate with the host system (which is required during the build of the <a href="#ue4-source">ue4-source</a> image), and download any required DLL files under Windows Server version 1809 and newer.</p>
+</div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/configuring-windows-10.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="configuring-windows-10-and-11"><a class="anchor" href="#configuring-windows-10-and-11"></a><a class="link" href="#configuring-windows-10-and-11">Configuring Windows 10 and 11</a></h3>
+<div class="sect3">
+<h4 id="warning"><a class="anchor" href="#warning"></a><a class="link" href="#warning">Warning</a></h4>
+<div class="paragraph">
+<p>Windows 10 and 11 provide an optimal experience when running Windows containers, but <strong>only when process isolation mode is used</strong>.
+Using <a href="https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/hyperv-container">Hyper-V isolation mode</a> will result in a suboptimal experience due to <a href="#">several issues that impact performance and stability</a>.
+The default isolation mode depends on the specific version of Windows being used:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Under Windows 10, Hyper-V isolation mode is the default isolation mode and <a href="https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/faq#can-i-run-windows-containers-in-process-isolated-mode-on-windows-10-">process isolation mode must be manually enabled</a> each time a container is built or run.
+The <a href="#">ue4-docker build</a> command will automatically pass the flag to enable process isolation mode where possible. <strong>This requires Windows 10 version 1809 or newer.</strong></p>
+</li>
+<li>
+<p>Under Windows 11, process isolation mode is the default isolation mode.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="requirements-3"><a class="anchor" href="#requirements-3"></a><a class="link" href="#requirements-3">Requirements</a></h4>
+<div class="ulist">
+<ul>
+<li>
+<p>64-bit Windows 10 Pro, Enterprise, or Education (Version 1607 or newer)</p>
+</li>
+<li>
+<p>Hardware-accelerated virtualization enabled in the system BIOS/EFI</p>
+</li>
+<li>
+<p>Minimum 8GB of RAM</p>
+</li>
+<li>
+<p>Minimum 800GB available disk space for building container images</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="step-1-install-docker-ce-for-windows"><a class="anchor" href="#step-1-install-docker-ce-for-windows"></a><a class="link" href="#step-1-install-docker-ce-for-windows">Step 1: Install Docker CE for Windows</a></h4>
+<div class="paragraph">
+<p>Download and install <a href="https://store.docker.com/editions/community/docker-ce-desktop-windows">Docker CE for Windows from the Docker Store</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="step-2-install-python-3-via-chocolatey-2"><a class="anchor" href="#step-2-install-python-3-via-chocolatey-2"></a><a class="link" href="#step-2-install-python-3-via-chocolatey-2">Step 2: Install Python 3 via Chocolatey</a></h4>
+<div class="paragraph">
+<p>The simplest way to install Python and pip under Windows is to use the <a href="https://chocolatey.org/">Chocolatey package manager</a>.
+To do so, run the following command from an elevated PowerShell prompt:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="powershell"><span class="n">Set-ExecutionPolicy</span><span class="w"> </span><span class="nx">Bypass</span><span class="w"> </span><span class="nt">-Scope</span><span class="w"> </span><span class="nx">Process</span><span class="w"> </span><span class="nt">-Force</span><span class="p">;</span><span class="w"> </span><span class="p">[</span><span class="n">System.Net.ServicePointManager</span><span class="p">]::</span><span class="n">SecurityProtocol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">System.Net.ServicePointManager</span><span class="p">]::</span><span class="n">SecurityProtocol</span><span class="w"> </span><span class="o">-bor</span><span class="w"> </span><span class="nx">3072</span><span class="p">;</span><span class="w"> </span><span class="n">iex</span><span class="w"> </span><span class="p">((</span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Net.WebClient</span><span class="p">)</span><span class="o">.</span><span class="nf">DownloadString</span><span class="p">(</span><span class="s1">'https://community.chocolatey.org/install.ps1'</span><span class="p">))</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You may need to restart your shell for it to recognise the updates that the Chocolatey installer makes to the system <code>PATH</code> environment variable.</p>
+</div>
+<div class="paragraph">
+<p>Once these changes are recognised, you can install Python by running the following command from either an elevated PowerShell prompt or an elevated Command Prompt:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="powershell"><span class="n">choco</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nt">-y</span><span class="w"> </span><span class="nx">python</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="step-3-install-ue4-docker-3"><a class="anchor" href="#step-3-install-ue4-docker-3"></a><a class="link" href="#step-3-install-ue4-docker-3">Step 3: Install ue4-docker</a></h4>
+<div class="paragraph">
+<p>Install the ue4-docker Python package by running the following command from an elevated Command Prompt:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="powershell"><span class="n">pip</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nx">ue4-docker</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="step-4-manually-configure-docker-daemon-settings"><a class="anchor" href="#step-4-manually-configure-docker-daemon-settings"></a><a class="link" href="#step-4-manually-configure-docker-daemon-settings">Step 4: Manually configure Docker daemon settings</a></h4>
+<div class="paragraph">
+<p>For building and running Windows containers:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Configure the Docker daemon to <a href="https://docs.docker.com/desktop/windows/#switch-between-windows-and-linux-containers">use Windows containers</a> rather than Linux containers.</p>
+</li>
+<li>
+<p>Configure the Docker daemon to increase the maximum container disk size from the default 20GB limit by following <a href="https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/container-storage#storage-limits">the instructions provided by Microsoft</a>.
+The 120GB limit specified in the instructions is not quite enough, so set a 400GB limit instead. <strong>Be sure to restart the Docker daemon after applying the changes to ensure they take effect.</strong></p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<strong>The ue4-docker maintainers do not provide support for building and running Linux containers under Windows</strong>, due to the various technical limitations of the Hyper-V and WSL2 backends for Docker Desktop (see <a href="https://github.com/adamrehn/ue4-docker/issues/205">this issue</a> for details of these limitations).
+This functionality is still present in ue4-docker for those who choose to use it, but users are solely responsible for troubleshooting any issues they encounter when doing so.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>For building and running Linux containers:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Configure the Docker daemon to <a href="https://docs.docker.com/desktop/windows/#switch-between-windows-and-linux-containers">use Linux containers</a> rather than Windows containers.</p>
+</li>
+<li>
+<p><strong>If you are using the Hyper-V backend</strong> then use <a href="https://docs.docker.com/desktop/windows/#resources">the Advanced section under the Resources tab of the Docker Desktop settings pane</a> to set the memory allocation for the Moby VM to 8GB and the maximum VM disk image size to 400GB.</p>
+</li>
+<li>
+<p><strong>If you are using the WSL2 backend</strong> then <a href="https://docs.microsoft.com/en-us/windows/wsl/compare-versions#expanding-the-size-of-your-wsl-2-virtual-hard-disk">expand the WSL2 virtual hard disk</a> to at least 400GB.</p>
+</li>
+</ul>
+</div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/configuring-macos.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="configuring-macos"><a class="anchor" href="#configuring-macos"></a><a class="link" href="#configuring-macos">Configuring macOS</a></h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+macOS provides a suboptimal experience when running Linux containers, due to the following factors:
+Linux containers are unable to use GPU acceleration via the <a href="#">NVIDIA Container Toolkit</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="requirements-4"><a class="anchor" href="#requirements-4"></a><a class="link" href="#requirements-4">Requirements</a></h4>
+<div class="ulist">
+<ul>
+<li>
+<p>2010 or newer model Mac hardware</p>
+</li>
+<li>
+<p>macOS 10.10.3 Yosemite or newer</p>
+</li>
+<li>
+<p>Minimum 8GB of RAM</p>
+</li>
+<li>
+<p>Minimum 400GB available disk space for building container images</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="step-1-install-docker-ce-for-mac"><a class="anchor" href="#step-1-install-docker-ce-for-mac"></a><a class="link" href="#step-1-install-docker-ce-for-mac">Step 1: Install Docker CE for Mac</a></h4>
+<div class="paragraph">
+<p>Download and install <a href="https://store.docker.com/editions/community/docker-ce-desktop-mac">Docker CE for Mac from the Docker Store</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="step-2-install-python-3-via-homebrew"><a class="anchor" href="#step-2-install-python-3-via-homebrew"></a><a class="link" href="#step-2-install-python-3-via-homebrew">Step 2: Install Python 3 via Homebrew</a></h4>
+<div class="paragraph">
+<p>The simplest way to install Python 3 and pip under macOS is to use the <a href="https://brew.sh/">Homebrew package manager</a>.
+To do so, run the following commands from a Terminal prompt:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="c"># Install Homebrew</span>
+/bin/bash <span class="nt">-c</span> <span class="s2">"</span><span class="si">$(</span>curl <span class="nt">-fsSL</span> https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh<span class="si">)</span><span class="s2">"</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="install-python"><a class="anchor" href="#install-python"></a><a class="link" href="#install-python">Install Python</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">brew <span class="nb">install </span>python</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="step-3-install-ue4-docker-4"><a class="anchor" href="#step-3-install-ue4-docker-4"></a><a class="link" href="#step-3-install-ue4-docker-4">Step 3: Install ue4-docker</a></h4>
+<div class="paragraph">
+<p>Install the ue4-docker Python package by running the following command from a Terminal prompt:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="nb">sudo </span>pip3 <span class="nb">install </span>ue4-docker</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="step-4-manually-configure-docker-daemon-settings-2"><a class="anchor" href="#step-4-manually-configure-docker-daemon-settings-2"></a><a class="link" href="#step-4-manually-configure-docker-daemon-settings-2">Step 4: Manually configure Docker daemon settings</a></h4>
+<div class="paragraph">
+<p>Use <a href="https://docs.docker.com/desktop/mac/#resources">the Advanced section under the Resources tab of the Docker Desktop settings pane</a> to set the memory allocation for the Moby VM to 8GB and the maximum VM disk image size to 400GB.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="use-cases"><a class="anchor" href="#use-cases"></a><a class="link" href="#use-cases">Use cases</a></h2>
+<div class="sectionbody">
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/use-cases-overview.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+<div class="sect2">
+<h3 id="use-cases-overview"><a class="anchor" href="#use-cases-overview"></a><a class="link" href="#use-cases-overview">Use cases overview</a></h3>
+<div class="paragraph">
+<p>The container images produced by ue4-docker incorporate infrastructure to facilitate a wide variety of use cases.
+A number of key use cases are listed below.
+Select a use case to see detailed instructions on how to build and run the appropriate container images.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#">Continuous Integration</a></p>
+</li>
+<li>
+<p><a href="#">Linux installed builds</a></p>
+</li>
+<li>
+<p><a href="#">Microservices</a></p>
+</li>
+</ul>
+</div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/continuous-integration.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="continuous-integration-ci"><a class="anchor" href="#continuous-integration-ci"></a><a class="link" href="#continuous-integration-ci">Continuous Integration (CI)</a></h3>
+<div class="paragraph">
+<p>Use a controlled and reproducible environment to build, test, and package Unreal projects.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This page has migrated to the <a href="https://unrealcontainers.com/">Unreal Containers community hub</a>.
+You can find the new version here: <a href="https://unrealcontainers.com/docs/use-cases/continuous-integration">Use Cases: Continuous Integration and Deployment (CI/CD)</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/microservices.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="microservices"><a class="anchor" href="#microservices"></a><a class="link" href="#microservices">Microservices</a></h3>
+<div class="paragraph">
+<p>Thanks to the inclusion of conan-ue4cli infrastructure, the ue4-full image makes it easy to build Unreal Engine-powered microservices with Google&#8217;s popular gRPC framework.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This page has migrated to the <a href="https://unrealcontainers.com/">Unreal Containers community hub</a>.
+You can find the new version here: <a href="https://unrealcontainers.com/docs/use-cases/microservices">Use Cases: Microservices</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/linux-installed-builds"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="linux-installed-builds"><a class="anchor" href="#linux-installed-builds"></a><a class="link" href="#linux-installed-builds">Linux Installed Builds</a></h3>
+<div class="paragraph">
+<p>Under Windows and macOS, Engine licensees can easily download and manage Installed Builds of Unreal Engine through the Epic Games Launcher.
+Since version 4.21.0 of the Engine, ue4-docker provides an alternative source of Installed Builds under Linux in lieu of a native version of the launcher.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This page has migrated to the <a href="https://unrealcontainers.com/">Unreal Containers community hub</a>.
+You can find the new version here: <a href="https://unrealcontainers.com/docs/use-cases/linux-installed-builds">Use Cases: Linux Installed Builds</a>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="building-images"><a class="anchor" href="#building-images"></a><a class="link" href="#building-images">Building images</a></h2>
+<div class="sectionbody">
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/available-container-images.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+<div class="sect2">
+<h3 id="list-of-available-container-images"><a class="anchor" href="#list-of-available-container-images"></a><a class="link" href="#list-of-available-container-images">List of available container images</a></h3>
+<div class="paragraph">
+<p>You can build the following images using the <a href="#">ue4-docker build</a> command:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#ue4-build-prerequisites">ue4-build-prerequisites</a></p>
+</li>
+<li>
+<p><a href="#ue4-source">ue4-source</a></p>
+</li>
+<li>
+<p><a href="#ue4-minimal">ue4-minimal</a></p>
+</li>
+<li>
+<p><a href="#ue4-full">ue4-full</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>By default, all available images will be built.
+You can prevent unwanted images from being built by appending the relevant image-specific flag to the build command (see the <strong>"Flag to disable"</strong> entry for each image below.)</p>
+</div>
+<div class="sect3">
+<h4 id="ue4-build-prerequisites"><a class="anchor" href="#ue4-build-prerequisites"></a><a class="link" href="#ue4-build-prerequisites">ue4-build-prerequisites</a></h4>
+<div class="paragraph">
+<p><strong>Tags:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Windows containers</strong>: <code>adamrehn/ue4-build-prerequisites:BASETAG</code> where <code>BASETAG</code> is the <a href="#windows-base-tag">Windows Server Core base image tag</a></p>
+</li>
+<li>
+<p><strong>Linux containers</strong>: <code>adamrehn/ue4-build-prerequisites:CONFIGURATION</code> where <code>CONFIGURATION</code> is as follows:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>opengl</code> if CUDA support is not enabled</p>
+</li>
+<li>
+<p><code>cudaglVERSION</code> where <code>VERSION</code> is the CUDA version if <a href="#cuda">CUDA support is enabled</a> (e.g. <code>cudagl9.2</code>, <code>cudagl10.0</code>, etc.)</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Dockerfiles:</strong> <a href="https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-build-prerequisites/windows/Dockerfile"><span class="icon"><i class="fa fa-windows"></i></span> Windows</a> | <a href="https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-build-prerequisites/linux/Dockerfile"><span class="icon"><i class="fa fa-linux"></i></span> Linux</a></p>
+</div>
+<div class="paragraph">
+<p><strong>Contents:</strong> Contains the build prerequisites common to all Engine versions.</p>
+</div>
+<div class="paragraph">
+<p><strong>Uses:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Keep this image on disk to speed up subsequent container image builds.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="ue4-source"><a class="anchor" href="#ue4-source"></a><a class="link" href="#ue4-source">ue4-source</a></h4>
+<div class="paragraph">
+<p><strong>Tags:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>adamrehn/ue4-source:RELEASE</code> where <code>RELEASE</code> is the Engine release number</p>
+</li>
+<li>
+<p><code>adamrehn/ue4-source:RELEASE-PREREQS</code> where <code>RELEASE</code> is as above and <code>PREREQS</code> is the <a href="#ue4-build-prerequisites">ue4-build-prerequisites</a> image tag</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Dockerfiles:</strong> <a href="https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-source/windows/Dockerfile"><span class="icon"><i class="fa fa-windows"></i></span> Windows</a> | <a href="https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-source/linux/Dockerfile"><span class="icon"><i class="fa fa-linux"></i></span> Linux</a></p>
+</div>
+<div class="paragraph">
+<p><strong>Contents:</strong> Contains the cloned source code for Unreal Engine, along with its downloaded dependency data.
+The ue4-minimal image uses this source code as the starting point for its build.</p>
+</div>
+<div class="paragraph">
+<p><strong>Uses:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Only needed during the build process.
+Afterwards, this image can be removed using <code>ue4-docker clean --source</code> to save disk space.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="ue4-minimal"><a class="anchor" href="#ue4-minimal"></a><a class="link" href="#ue4-minimal">ue4-minimal</a></h4>
+<div class="paragraph">
+<p><strong>Tags:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>adamrehn/ue4-minimal:RELEASE</code> where <code>RELEASE</code> is the Engine release number</p>
+</li>
+<li>
+<p><code>adamrehn/ue4-minimal:RELEASE-PREREQS</code> where <code>RELEASE</code> is as above and <code>PREREQS</code> is the <a href="#ue4-build-prerequisites">ue4-build-prerequisites</a> image tag</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Dockerfiles:</strong> <a href="https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-minimal/windows/Dockerfile"><span class="icon"><i class="fa fa-windows"></i></span> Windows</a> | <a href="https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-minimal/linux/Dockerfile"><span class="icon"><i class="fa fa-linux"></i></span> Linux</a></p>
+</div>
+<div class="paragraph">
+<p><strong>Contents:</strong> Contains the absolute minimum set of components required for use in a Continuous Integration (CI) pipeline, consisting of only the build prerequisites and an Installed Build of the Engine.</p>
+</div>
+<div class="paragraph">
+<p><strong>Uses:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Use this image for <a href="#">CI pipelines</a> that do not require ue4cli, conan-ue4cli, or ue4-ci-helpers.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="ue4-full"><a class="anchor" href="#ue4-full"></a><a class="link" href="#ue4-full">ue4-full</a></h4>
+<div class="paragraph">
+<p><strong>Tags:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>adamrehn/ue4-full:RELEASE</code> where <code>RELEASE</code> is the Engine release number</p>
+</li>
+<li>
+<p><code>adamrehn/ue4-full:RELEASE-PREREQS</code> where <code>RELEASE</code> is as above and <code>PREREQS</code> is the <a href="#ue4-build-prerequisites">ue4-build-prerequisites</a> image tag</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Dockerfiles:</strong> <a href="https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-full/windows/Dockerfile"><span class="icon"><i class="fa fa-windows"></i></span> Windows</a> | <a href="https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-full/linux/Dockerfile"><span class="icon"><i class="fa fa-linux"></i></span> Linux</a></p>
+</div>
+<div class="paragraph">
+<p><strong>Contents:</strong> Contains everything from the <code>ue4-minimal</code> image, and adds the following:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>ue4cli</p>
+</li>
+<li>
+<p>conan-ue4cli</p>
+</li>
+<li>
+<p>ue4-ci-helpers</p>
+</li>
+<li>
+<p>PulseAudio support (Linux image only)</p>
+</li>
+<li>
+<p>X11 support (Linux image only)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Uses:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#">CI pipelines</a> that require ue4cli, conan-ue4cli, or ue4-ci-helpers</p>
+</li>
+<li>
+<p>Packaging <a href="#">Unreal Engine-powered microservices</a></p>
+</li>
+</ul>
+</div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/advanced-build-options.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="advanced-build-options"><a class="anchor" href="#advanced-build-options"></a><a class="link" href="#advanced-build-options">Advanced build options</a></h3>
+<div class="sect3">
+<h4 id="general-options"><a class="anchor" href="#general-options"></a><a class="link" href="#general-options">General options</a></h4>
+<div class="sect4">
+<h5 id="specifying-git-credentials"><a class="anchor" href="#specifying-git-credentials"></a><a class="link" href="#specifying-git-credentials">Specifying Git credentials</a></h5>
+<div class="paragraph">
+<p>The <a href="#">ue4-docker build</a> command supports three methods for specifying the credentials that will be used to clone the Unreal Engine Git repository:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Command-line arguments</strong>: the <code>-username</code> and <code>-password</code> command-line arguments can be used to specify the username and password, respectively.</p>
+</li>
+<li>
+<p><strong>Environment variables</strong>: the <code>UE4DOCKER_USERNAME</code> and <code>UE4DOCKER_PASSWORD</code> environment variables can be used to specify the username and password, respectively.
+Note that credentials specified via command-line arguments will take precedence over values defined in environment variables.</p>
+</li>
+<li>
+<p><strong>Standard input</strong>: if either the username or password has not been specified via a command-line argument or environment variable then the build command will prompt the user to enter the credential(s) for which values have not already been specified.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Note that the username and password are handled independently, which means you can use different methods to specify the two credentials (e.g. username specified via command-line argument and password supplied via standard input.)</p>
+</div>
+<div class="paragraph">
+<p>Users who have enabled <a href="https://help.github.com/en/articles/about-two-factor-authentication">Two-Factor Authentication (2FA)</a> for their GitHub account will need to generate a <a href="https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line">personal access token</a> and use that in place of their password.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="building-a-custom-version-of-the-unreal-engine"><a class="anchor" href="#building-a-custom-version-of-the-unreal-engine"></a><a class="link" href="#building-a-custom-version-of-the-unreal-engine">Building a custom version of the Unreal Engine</a></h5>
+<div class="paragraph">
+<p>If you would like to build a custom version of Unreal Engine rather than one of the official releases from Epic, you can specify "custom" as the release string and specify the Git repository and branch/tag that should be cloned.
+When building a custom Engine version, <strong>both the repository URL and branch/tag must be specified</strong>:</p>
+</div>
+<div class="paragraph">
+<p>If you would like to build a custom version of Unreal Engine rather than one of the official releases from Epic, you can specify "custom" as the release string and specify the Git repository and branch/tag that should be cloned.
+When building a custom Engine version, <strong>both the repository URL and branch/tag must be specified</strong>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">ue4-docker build custom <span class="nt">-repo</span><span class="o">=</span>https://github.com/MyUser/UnrealEngine.git <span class="nt">-branch</span><span class="o">=</span>MyBranch</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will produce images tagged <code>adamrehn/ue4-source:custom</code>, <code>adamrehn/ue4-minimal:custom</code>, etc.</p>
+</div>
+<div class="paragraph">
+<p>If you are performing multiple custom builds and wish to differentiate between them, it is recommended to also specify a name for the custom build:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">ue4-docker build custom:my-custom-build <span class="nt">-repo</span><span class="o">=</span>https://github.com/MyUser/UnrealEngine.git <span class="nt">-branch</span><span class="o">=</span>MyBranch</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will produce images tagged <code>adamrehn/ue4-source:my-custom-build</code>, <code>adamrehn/ue4-minimal:my-custom-build</code>, etc.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="exclude-components"><a class="anchor" href="#exclude-components"></a><a class="link" href="#exclude-components">Excluding Engine components to reduce the final image size</a></h5>
+<div class="paragraph">
+<p>Starting in ue4-docker version 0.0.30, you can use the <code>--exclude</code> flag when running the <a href="#">ue4-docker build</a> command to specify that certain Engine components should be excluded from the <a href="#ue4-minimal">ue4-minimal</a> and <a href="#ue4-full">ue4-full</a> images.
+The following components can be excluded:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>ddc</code>: disables building the DDC for the Engine.
+This significantly speeds up building the Engine itself but results in far longer cook times when subsequently packaging Unreal projects.</p>
+</li>
+<li>
+<p><code>debug</code>: removes all debug symbols from the built images.
+(When building Windows containers the files are actually truncated instead of removed, so they still exist but have a size of zero bytes.
+This is done for compatibility reasons.)</p>
+</li>
+<li>
+<p><code>templates</code>: removes the template projects and samples that ship with the Engine.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You can specify the <code>--exclude</code> flag multiple times to exclude as many components as you like.
+For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="c"># Excludes both debug symbols and template projects</span>
+ue4-docker build 4.21.2 <span class="nt">--exclude</span> debug <span class="nt">--exclude</span> templates</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="enabling-system-resource-monitoring-during-builds"><a class="anchor" href="#enabling-system-resource-monitoring-during-builds"></a><a class="link" href="#enabling-system-resource-monitoring-during-builds">Enabling system resource monitoring during builds</a></h5>
+<div class="paragraph">
+<p>Starting in ue4-docker version 0.0.46, you can use the <code>--monitor</code> flag to enable a background thread that will log information about system resource usage (available disk space and memory, CPU usage, etc.) at intervals during the build.
+You can also use the <code>-interval</code> flag to override the default interval of 20 seconds:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="c"># Logs system resource levels every 20 seconds</span>
+ue4-docker build 4.24.2 <span class="nt">--monitor</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="c"># Logs system resource levels every 20 seconds</span>
+ue4-docker build 4.24.2 <span class="nt">--monitor</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="c"># Logs system resource levels every 5 seconds</span>
+ue4-docker build 4.24.2 <span class="nt">--monitor</span> <span class="nt">-interval</span><span class="o">=</span>5</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="exporting-generated-dockerfiles"><a class="anchor" href="#exporting-generated-dockerfiles"></a><a class="link" href="#exporting-generated-dockerfiles">Exporting generated Dockerfiles</a></h5>
+<div class="paragraph">
+<p>Since ue4-docker version 0.0.78, the <a href="#">ue4-docker build</a> command supports a flag called <code>-layout</code> that allows the generated Dockerfiles to be exported to a filesystem directory instead of being built.
+In addition, version 0.0.80 of ue4-docker added support for a flag called <code>--combine</code> that allows you to combine multiple generated Dockerfiles into a single Dockerfile that performs a <a href="https://docs.docker.com/develop/develop-images/multistage-build/">multi-stage build</a>.
+You can use these flags like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="c"># Exports Dockerfiles for all images to the specified filesystem directory</span>
+ue4-docker build 4.25.4 <span class="nt">-layout</span> <span class="s2">"/path/to/Dockerfiles"</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="c"># Exports Dockerfiles for all images</span>
+ue4-docker build 4.25.4 <span class="nt">-layout</span> <span class="s2">"/path/to/Dockerfiles"</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="c"># Exports Dockerfiles for all images and combines them into a single Dockerfile</span>
+ue4-docker build 4.25.4 <span class="nt">-layout</span> <span class="s2">"/path/to/Dockerfiles"</span> <span class="nt">--combine</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Exporting Dockerfiles is useful for debugging or contributing to the development of ue4-docker itself.
+You can also use the generated Dockerfiles to build container images independently of ue4-docker, but only under the following circumstances:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>When building Windows container images, you must specify the <a href="#advanced-options-for-dockerfile-generation">advanced option</a> <code>source_mode</code> and set it to <code>copy</code>.
+This generates Dockerfiles that copy the Unreal Engine source code from the host filesystem rather than cloning it from a git repository, thus eliminating the dependency on ue4-docker&#8217;s credential endpoint to securely provide git credentials and allowing container images to be built without the need for ue4-docker itself.</p>
+</li>
+<li>
+<p>When building Linux container images, you must either set the <a href="#advanced-options-for-dockerfile-generation">advanced option</a> <code>source_mode</code> to <code>copy</code> as detailed above, or else specify the <code>credential_mode</code> option and set it to <code>secrets</code>.
+This generates Dockerfiles that use the Linux-only <a href="https://docs.docker.com/develop/develop-images/build_enhancements/#new-docker-build-secret-information">BuildKit build secrets</a> functionality to securely provide git credentials, eliminating the dependency on ue4-docker&#8217;s credential endpoint whilst still facilitating the use of a git repository to provide the Unreal Engine source code.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="advanced-options-for-dockerfile-generation"><a class="anchor" href="#advanced-options-for-dockerfile-generation"></a><a class="link" href="#advanced-options-for-dockerfile-generation">Advanced options for Dockerfile generation</a></h5>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Note that option names are all listed with underscores between words below (e.g. <code>source_mode</code>), but in some examples you will see dashes used as the delimiter instead (e.g. <code>source-mode</code>). <strong>These uses are actually equivalent, since ue4-docker automatically converts any dashes in the option name into underscores.</strong> This is because dashes are more stylistically consistent with command-line flags (and thus preferable in examples), but underscores must be used in the underlying Dockerfile template code since dashes cannot be used in <a href="https://jinja.palletsprojects.com/en/2.11.x/api/#notes-on-identifiers">Jinja identifiers</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Since ue4-docker version 0.0.78, the <a href="#">ue4-docker build</a> command supports a flag called <code>--opt</code> that allows users to directly set the context values passed to the underlying <a href="https://jinja.palletsprojects.com/">Jinja templating engine</a> used to generate Dockerfiles.
+Some of these options (such as <code>source_mode</code>) can only be used when <a href="#exporting-generated-dockerfiles">exporting generated Dockerfiles</a>, whereas others can be used with the regular ue4-docker build process. <strong>Note that incorrect use of these options can break build behaviour, so only use an option if you have read through both this documentation and the ue4-docker source code itself and understand exactly what that option does.</strong> The following options are supported as of the latest version of ue4-docker:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong><code>source_mode</code></strong>: <strong>(string)</strong> controls how the <a href="#ue4-source">ue4-source</a> Dockerfile obtains the source code for the Unreal Engine.
+Valid options are:</p>
+</li>
+<li>
+<p><code>git</code>: the default mode, whereby the Unreal Engine source code is cloned from a git repository.
+This is the only mode that can be used when not <a href="#exporting-generated-dockerfiles">exporting generated Dockerfiles</a>.</p>
+</li>
+<li>
+<p><code>copy</code>: copies the Unreal Engine source code from the host filesystem.
+The filesystem path can be specified using the <code>SOURCE_LOCATION</code> Docker build argument, and of course must be a child path of the build context.</p>
+</li>
+<li>
+<p><strong><code>credential_mode</code></strong>: <strong>(string)</strong> controls how the <a href="#ue4-source">ue4-source</a> Dockerfile securely obtains credentials for authenticating with remote git repositories when <code>source_mode</code> is set to <code>git</code>.
+Valid options are:</p>
+</li>
+<li>
+<p><code>endpoint</code>: the default mode, whereby ue4-docker exposes an HTTP endpoint that responds with credentials when presented with a randomly-generated security token, which is injected into the <a href="#ue4-source">ue4-source</a> container during the build process by way of a Docker build argument.
+This mode will not work when <a href="#exporting-generated-dockerfiles">exporting generated Dockerfiles</a>, since the credential endpoint will not be available during the build process.</p>
+</li>
+<li>
+<p><code>secrets</code>: <strong>(Linux containers only)</strong> uses <a href="https://docs.docker.com/develop/develop-images/build_enhancements/#new-docker-build-secret-information">BuildKit build secrets</a> to securely inject the git credentials into the <a href="#ue4-source">ue4-source</a> container during the build process.</p>
+</li>
+<li>
+<p><strong><code>buildgraph_args</code></strong>: <strong>(string)</strong> allows you to specify additional arguments to pass to the <a href="https://docs.unrealengine.com/en-US/ProductionPipelines/BuildTools/AutomationTool/BuildGraph/index.html">BuildGraph system</a> when creating an Installed Build of the Unreal Engine in the <a href="#ue4-minimal">ue4-minimal</a> image.</p>
+</li>
+<li>
+<p><strong><code>disable_labels</code></strong>: <strong>(boolean)</strong> prevents ue4-docker from applying labels to built container images.
+This includes the labels which specify the <a href="#exclude-components">components excluded from the ue4-minimal image</a> as well as the sentinel labels that the <a href="#">ue4-docker clean</a> command uses to identify container images, and will therefore break the functionality of that command.</p>
+</li>
+<li>
+<p><strong><code>disable_all_patches</code></strong>: <strong>(boolean)</strong> disables all the patches that ue4-docker ordinarily applies to the Unreal Engine source code.
+This is useful when building a custom fork of the Unreal Engine to which the appropriate patches have already been applied, <strong>but will break the build process when used with a version of the Unreal Engine that requires one or more patches</strong>.
+It is typically safer to disable individual patches using the specific flag for each patch instead of simply disabling everything:</p>
+</li>
+<li>
+<p><strong><code>disable_release_patches</code></strong>: <strong>(boolean)</strong> disables the patches that ue4-docker ordinarily applies to versions of the Unreal Engine which are known to contain bugs, such as Unreal Engine 4.25.4. This will obviously break the build process when building these known broken releases, but will have no effect when building other versions of the Unreal Engine.</p>
+</li>
+<li>
+<p><strong><code>disable_windows_setup_patch</code></strong>: <strong>(boolean)</strong> prevents ue4-docker from patching <code>Setup.bat</code> under Windows to comment out the calls to the Unreal Engine prerequisites installer and UnrealVersionSelector, both of which are known to cause issues during the build process for Windows containers.</p>
+</li>
+<li>
+<p><strong><code>disable_linker_fixup</code></strong>: <strong>(boolean)</strong> prevents ue4-docker from replacing the linker in the Unreal Engine&#8217;s bundled toolchain with a symbolic link to the system linker under Linux.</p>
+</li>
+<li>
+<p><strong><code>disable_example_platform_cleanup</code></strong>: <strong>(boolean)</strong> prevents ue4-docker from removing the <code>Engine/Platforms/XXX</code> directory that was introduced in Unreal Engine 4.24.0 and subsequently removed in Unreal Engine 4.26.0. This directory represents a "dummy" target platform for demonstration purposes, and the presence of this directory will typically break the build process.</p>
+</li>
+<li>
+<p><strong><code>disable_ubt_patches</code></strong>: <strong>(boolean)</strong> disables the patches that ue4-docker ordinarily applies to fix bugs in UnrealBuildTool (UBT) under various versions of the Unreal Engine.</p>
+</li>
+<li>
+<p><strong><code>disable_opengl_patch</code></strong>: <strong>(boolean)</strong> prevents ue4-docker from attempting to re-enable the OpenGL RHI under Linux for versions of the Unreal Engine in which it is present but deprecated.</p>
+</li>
+<li>
+<p><strong><code>disable_buildgraph_patches</code></strong>: <strong>(boolean)</strong> disables the patches that ue4-docker ordinarily applies to the BuildGraph XML files used to create an Installed Build of the Unreal Engine.
+These patches fix various bugs under both Windows and Linux across multiple versions of the Unreal Engine.</p>
+</li>
+<li>
+<p><strong><code>disable_target_patches</code></strong>: <strong>(boolean)</strong> disables the patches that ue4-docker ordinarily applies to fix broken <code>PlatformType</code> fields for client and server targets in <code>BaseEngine.ini</code> under Unreal Engine versions where these values are set incorrectly.</p>
+</li>
+<li>
+<p><strong><code>disable_unrealpak_copy</code></strong>: <strong>(boolean)</strong> prevents ue4-docker from ensuring the UnrealPak tool is correctly copied into Installed Builds of the Unreal Engine under Linux.
+Some older versions of the Unreal Engine did not copy this correctly, breaking the functionality of created Installed Builds.</p>
+</li>
+<li>
+<p><strong><code>disable_toolchain_copy</code></strong>: <strong>(boolean)</strong> prevents ue4-docker from ensuring the bundled clang toolchain is correctly copied into Installed Builds of the Unreal Engine under Linux.
+Some older versions of the Unreal Engine did not copy this correctly, breaking the functionality of created Installed Builds.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="windows-specific-options"><a class="anchor" href="#windows-specific-options"></a><a class="link" href="#windows-specific-options">Windows-specific options</a></h4>
+<div class="sect4">
+<h5 id="windows-base-tag"><a class="anchor" href="#windows-base-tag"></a><a class="link" href="#windows-base-tag">Specifying the Windows Server Core base image tag</a></h5>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The <code>-basetag</code> flag controls how the <a href="#ue4-build-prerequisites">ue4-build-prerequisites</a> image is built and tagged, which has a flow-on effect to all the other images.
+If you are building multiple related images over separate invocations of the build command (e.g. building the <a href="#ue4-source">ue4-source</a> image in one command and then subsequently building the <a href="#ue4-minimal">ue4-minimal</a> image in another command), be sure to specify the same <code>-basetag</code> flag each time to avoid unintentionally building two sets of unrelated images with different configurations.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>By default, Windows container images are based on the Windows Server Core release that best matches the version of the host operating system.
+However, Windows containers cannot run a newer kernel version than that of the host operating system, rendering the latest images unusable under older versions of Windows 10 and Windows Server.
+(See the <a href="https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/version-compatibility">Windows Container Version Compatibility</a> page for a table detailing which configurations are supported.)</p>
+</div>
+<div class="paragraph">
+<p>If you are building images with the intention of subsequently running them under an older version of Windows 10 or Windows Server, you will need to build images based on the same kernel version as the target system (or older.) The kernel version can be specified by providing the appropriate base OS image tag via the <code>-basetag=TAG</code> flag when invoking the build command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">ue4-docker build 4.20.3 <span class="nt">-basetag</span><span class="o">=</span>ltsc2016 <span class="c"># Uses Windows Server 2016 (Long Term Support Channel)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For a list of supported base image tags, see the <a href="https://hub.docker.com/r/microsoft/windowsservercore/">Windows Server Core base image on Docker Hub</a>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="windows-isolation-mode"><a class="anchor" href="#windows-isolation-mode"></a><a class="link" href="#windows-isolation-mode">Specifying the isolation mode under Windows</a></h5>
+<div class="paragraph">
+<p>The isolation mode can be explicitly specified via the <code>-isolation=MODE</code> flag when invoking the build command.
+Valid values are <code>process</code> (supported under Windows Server and <a href="https://docs.microsoft.com/en-us/virtualization/windowscontainers/about/faq#can-i-run-windows-containers-in-process-isolated-mode-on-windows-10-enterprise-or-professional">Windows 10 version 1809 or newer</a>) or <code>hyperv</code> (supported under both Windows 10 and Windows Server.) If you do not explicitly specify an isolation mode then the appropriate default for the host system will be used.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="specifying-visual-studio-build-tools-version-under-windows"><a class="anchor" href="#specifying-visual-studio-build-tools-version-under-windows"></a><a class="link" href="#specifying-visual-studio-build-tools-version-under-windows">Specifying Visual Studio Build Tools version under Windows</a></h5>
+
+</div>
+<div class="sect4">
+<h5 id="keeping-or-excluding-installed-build-debug-symbols-under-windows"><a class="anchor" href="#keeping-or-excluding-installed-build-debug-symbols-under-windows"></a><a class="link" href="#keeping-or-excluding-installed-build-debug-symbols-under-windows">Keeping or excluding Installed Build debug symbols under Windows</a></h5>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Excluding debug symbols is necessary under some versions of Docker as a workaround for a bug that limits the amount of data that a <code>COPY</code> directive can process to 8GB.
+See <a href="#copy-8gb-20gb">this section of the Troubleshooting Build Issues page</a> for further details on this issue.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Prior to version 0.0.30, ue4-docker defaulted to truncating all <code>.pdb</code> files when building the Installed Build for the <a href="#ue4-minimal">ue4-minimal</a> Windows image.
+This was done primarily to address the bug described in the warning alert above, and also had the benefit of reducing the overall size of the built container images.
+However, if you required the debug symbols for producing debuggable builds, you had to opt to retain all <code>.pdb</code> files by specifying the <code>--keep-debug</code> flag when invoking the build command.
+(This flag was removed in ue4-docker version 0.0.30, when the default behaviour was changed and replaced with a more generic, cross-platform approach.)</p>
+</div>
+<div class="paragraph">
+<p>Since ue4-docker version 0.0.30, debug symbols are kept intact by default, and can be removed by using the <code>--exclude debug</code> flag as described in the section <a href="#exclude-components">Excluding Engine components to reduce the final image size</a>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="building-linux-container-images-under-windows"><a class="anchor" href="#building-linux-container-images-under-windows"></a><a class="link" href="#building-linux-container-images-under-windows">Building Linux container images under Windows</a></h5>
+<div class="paragraph">
+<p>By default, Windows container images are built when running the build command under Windows.
+To build Linux container images instead, simply specify the <code>--linux</code> flag when invoking the build command.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="linux-specific-options"><a class="anchor" href="#linux-specific-options"></a><a class="link" href="#linux-specific-options">Linux-specific options</a></h4>
+<div class="sect4">
+<h5 id="cuda"><a class="anchor" href="#cuda"></a><a class="link" href="#cuda">Enabling CUDA support for GPU-enabled Linux images</a></h5>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+The <code>--cuda</code> flag controls how the <a href="#ue4-build-prerequisites">ue4-build-prerequisites</a> image is built and tagged, which has a flow-on effect to all the other images.
+If you are building multiple related images over separate invocations of the build command (e.g. building the <a href="#ue4-source">ue4-source</a> image in one command and then subsequently building the <a href="#ue4-minimal">ue4-minimal</a> image in another command), be sure to specify the same <code>--cuda</code> flag each time to avoid unintentionally building two sets of unrelated images with different configurations.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>By default, the Linux images built by ue4-docker support hardware-accelerated OpenGL when run via the NVIDIA Container Toolkit.
+If you would like CUDA support in addition to OpenGL support, simply specify the <code>--cuda</code> flag when invoking the build command.</p>
+</div>
+<div class="paragraph">
+<p>You can also control the version of the CUDA base image that is used by appending a version number when specifying the <code>--cuda</code> flag, as demonstrated below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="c"># Uses the default CUDA base image (currently CUDA 9.2)</span>
+ue4-docker build RELEASE <span class="nt">--cuda</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="c"># Uses the CUDA 10.0 base image</span>
+ue4-docker build RELEASE <span class="nt">--cuda</span><span class="o">=</span>10.0
+<span class="o">{</span>% endhighlight %<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For a list of supported CUDA versions, see the list of Ubuntu 18.04 image tags for the <a href="https://hub.docker.com/r/nvidia/cudagl/">nvidia/cudagl</a> base image.</p>
+</div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/troubleshooting-build-issues.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="troubleshooting-build-issues"><a class="anchor" href="#troubleshooting-build-issues"></a><a class="link" href="#troubleshooting-build-issues">Troubleshooting build issues</a></h3>
+<div class="sect3">
+<h4 id="general-issues"><a class="anchor" href="#general-issues"></a><a class="link" href="#general-issues">General issues</a></h4>
+<div class="sect4">
+<h5 id="building-the-ue4-build-prerequisites-image-fails-with-a-network-related-error"><a class="anchor" href="#building-the-ue4-build-prerequisites-image-fails-with-a-network-related-error"></a><a class="link" href="#building-the-ue4-build-prerequisites-image-fails-with-a-network-related-error">Building the <code>ue4-build-prerequisites</code> image fails with a network-related error</a></h5>
+<div class="paragraph">
+<p>This indicates an underlying network or proxy server issue outside ue4-docker itself that you will need to troubleshoot.
+You can use the <a href="#">ue4-docker diagnostics</a> command to test container network connectivity during the troubleshooting process.
+Here are some steps to try:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If your host system accesses the network through a proxy server, make sure that <a href="https://docs.docker.com/network/proxy/">Docker is configured to use the correct proxy server settings</a>.</p>
+</li>
+<li>
+<p>If DNS resolution is failing then try adding the following entry to your <a href="https://docs.docker.com/engine/reference/commandline/dockerd/#daemon-configuration-file">Docker daemon configuration file</a> (accessed through the Docker Engine settings pane if you&#8217;re using Docker Desktop) and restarting the daemon:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="json"><span class="p">{</span><span class="w">
+  </span><span class="nl">"dns"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"8.8.8.8"</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="cloning-the-unrealengine-git-repository-fails-with-the-message-error-unable-to-read-askpass-response-from-cgit-credential-helper-bat-for-windows-containers-or-tmpgit-credential-helper-sh-for-linux-containers"><a class="anchor" href="#cloning-the-unrealengine-git-repository-fails-with-the-message-error-unable-to-read-askpass-response-from-cgit-credential-helper-bat-for-windows-containers-or-tmpgit-credential-helper-sh-for-linux-containers"></a><a class="link" href="#cloning-the-unrealengine-git-repository-fails-with-the-message-error-unable-to-read-askpass-response-from-cgit-credential-helper-bat-for-windows-containers-or-tmpgit-credential-helper-sh-for-linux-containers">Cloning the UnrealEngine Git repository fails with the message <code>error: unable to read askpass response from 'C:\git-credential-helper.bat'</code> (for Windows containers) or <code>'/tmp/git-credential-helper.sh'</code> (for Linux containers)</a></h5>
+<div class="paragraph">
+<p>This typically indicates that the firewall on the host system is blocking connections from the Docker container, preventing it from retrieving the Git credentials supplied by the build command.
+This is particularly noticeable under a clean installation of Windows Server, which blocks connections from other subnets by default.
+The firewall will need to be configured appropriately to allow the connection, or else temporarily disabled.
+(Under Windows Server, the <a href="#">ue4-docker setup</a> command can configure the firewall rule for you automatically.)</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="building-the-derived-data-cache-ddc-for-the-installed-build-of-the-engine-fails-with-a-message-about-failed-shader-compilation-or-being-unable-to-open-a-uasset-file"><a class="anchor" href="#building-the-derived-data-cache-ddc-for-the-installed-build-of-the-engine-fails-with-a-message-about-failed-shader-compilation-or-being-unable-to-open-a-uasset-file"></a><a class="link" href="#building-the-derived-data-cache-ddc-for-the-installed-build-of-the-engine-fails-with-a-message-about-failed-shader-compilation-or-being-unable-to-open-a-uasset-file">Building the Derived Data Cache (DDC) for the Installed Build of the Engine fails with a message about failed shader compilation or being unable to open a <code>.uasset</code> file</a></h5>
+<div class="paragraph">
+<p>This is typically caused by insufficient available disk space.
+To fix this, simply free up some disk space and run the build again.
+Running <a href="https://docs.docker.com/engine/reference/commandline/system_prune/">docker system prune</a> can be helpful for freeing up space occupied by untagged images.
+Note that restarting the Docker daemon and/or rebooting the host system may also help, since some versions of Docker have a bug that results in the amount of required disk space slowly increasing as more and more builds are run.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="building-windows-containers-fails-with-the-message-hcsshimimportlayer-failed-in-win32-the-system-cannot-find-the-path-specified-or-building-linux-containers-fails-with-a-message-about-insufficient-disk-space"><a class="anchor" href="#building-windows-containers-fails-with-the-message-hcsshimimportlayer-failed-in-win32-the-system-cannot-find-the-path-specified-or-building-linux-containers-fails-with-a-message-about-insufficient-disk-space"></a><a class="link" href="#building-windows-containers-fails-with-the-message-hcsshimimportlayer-failed-in-win32-the-system-cannot-find-the-path-specified-or-building-linux-containers-fails-with-a-message-about-insufficient-disk-space">Building Windows containers fails with the message <code>hcsshim::ImportLayer failed in Win32: The system cannot find the path specified</code> or building Linux containers fails with a message about insufficient disk space</a></h5>
+<div class="paragraph">
+<p>Assuming you haven&#8217;t actually run out of disk space, this means that the maximum Docker image size has not been configured correctly.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>For Windows containers, follow <a href="https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container#step-4-expand-maximum-container-disk-size">the instructions provided by Microsoft</a>, making sure you restart the Docker daemon after you&#8217;ve modified the config JSON.
+(Under Windows Server, the <a href="#">ue4-docker setup</a> command can configure this for you automatically.)</p>
+</li>
+<li>
+<p>For Linux containers, use the <a href="https://docs.docker.com/docker-for-windows/#advanced">Docker for Windows "Advanced" settings tab</a> under Windows or the <a href="https://docs.docker.com/docker-for-mac/#disk">Docker for Mac "Disk" settings tab</a> under macOS.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="copy-8gb-20gb"><a class="anchor" href="#copy-8gb-20gb"></a><a class="link" href="#copy-8gb-20gb">Building the <code>ue4-minimal</code> image fails on the <code>COPY --from=builder</code> directive that copies the Installed Build from the intermediate image into the final image</a></h5>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Modern versions of Docker Desktop for Windows and Docker EE for Windows Server suffer from issues with 8GiB filesystem layers, albeit due to different underlying bugs.
+Since ue4-docker version 0.0.47, you can use the <a href="#">ue4-docker diagnostics</a> command to check whether the Docker daemon on your system suffers from this issue.
+If it does, you may need to <a href="#exclude-components">exclude debug symbols</a> when building Windows images.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Some versions of Docker contain one or more of a series of separate but related bugs that prevent the creation of filesystem layers which are 8GiB in size or larger:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/moby/moby/issues/37581" class="bare">https://github.com/moby/moby/issues/37581</a> (affects all platforms)</p>
+</li>
+<li>
+<p><a href="https://github.com/moby/moby/issues/40444" class="bare">https://github.com/moby/moby/issues/40444</a> (affects Windows containers only)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/moby/moby/issues/37581">#37581</a> was <a href="https://github.com/moby/moby/pull/37771">fixed</a> in Docker CE 18.09.0, whilst <a href="https://github.com/moby/moby/issues/40444">#40444</a> was <a href="https://github.com/moby/moby/pull/41430">fixed</a> in Docker CE 20.10.0.</p>
+</div>
+<div class="paragraph">
+<p>If you are using a version of Docker that contains one of these bugs then you will need to <a href="#exclude-components">exclude debug symbols</a>, which reduces the size of the Installed Build below the 8GiB threshold.
+If debug symbols are required then it will be necessary to upgrade or downgrade to a version of Docker that does not suffer from the 8GiB size limit issue (although finding such a version under Windows may prove quite difficult.)</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="linux-specific-issues"><a class="anchor" href="#linux-specific-issues"></a><a class="link" href="#linux-specific-issues">Linux-specific issues</a></h4>
+<div class="sect4">
+<h5 id="building-the-engine-in-a-linux-container-fails-with-an-error-indicating-that-a-compatible-version-of-clang-cannot-be-found-or-the-file-toolchainversion-txt-is-missing"><a class="anchor" href="#building-the-engine-in-a-linux-container-fails-with-an-error-indicating-that-a-compatible-version-of-clang-cannot-be-found-or-the-file-toolchainversion-txt-is-missing"></a><a class="link" href="#building-the-engine-in-a-linux-container-fails-with-an-error-indicating-that-a-compatible-version-of-clang-cannot-be-found-or-the-file-toolchainversion-txt-is-missing">Building the Engine in a Linux container fails with an error indicating that a compatible version of clang cannot be found or the file <code>ToolchainVersion.txt</code> is missing</a></h5>
+<div class="paragraph">
+<p>This is typically caused by the download of the Unreal Engine&#8217;s toolchain archive from the Epic Games CDN becoming corrupted and failing to extract correctly.
+This issue can occur both inside containers and when running directly on a host system, and the fix is to simply delete the corrupted files and try again:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Untag the available-container-images.adoc#ue4-source[ue4-source] image.</p>
+</li>
+<li>
+<p>Clear the Docker filesystem layer cache by running <a href="https://docs.docker.com/engine/reference/commandline/system_prune/">docker system prune</a>.</p>
+</li>
+<li>
+<p>Re-run the <a href="#">ue4-docker build</a> command.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="windows-specific-issues"><a class="anchor" href="#windows-specific-issues"></a><a class="link" href="#windows-specific-issues">Windows-specific issues</a></h4>
+<div class="sect4">
+<h5 id="building-the-ue4-build-prerequisites-image-fails-with-an-unknown-error"><a class="anchor" href="#building-the-ue4-build-prerequisites-image-fails-with-an-unknown-error"></a><a class="link" href="#building-the-ue4-build-prerequisites-image-fails-with-an-unknown-error">Building the <code>ue4-build-prerequisites</code> image fails with an unknown error</a></h5>
+<div class="paragraph">
+<p>Microsoft issued a security update in February 2020 that <a href="https://support.microsoft.com/en-us/help/4542617/you-might-encounter-issues-when-using-windows-server-containers-with-t">broke container compatibility for all versions of Windows Server and caused 32-bit applications to fail silently when run</a>.
+The issue is resolved by ensuring that both the host system and the container image are using versions of Windows that incorporate the fix:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Make sure your host system is up-to-date and all available Windows updates are installed.</p>
+</li>
+<li>
+<p>Make sure you are using the latest version of ue4-docker, which automatically uses container images that incorporate the fix.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="hcsshim-timeout"><a class="anchor" href="#hcsshim-timeout"></a><a class="link" href="#hcsshim-timeout">Building Windows containers fails with the message <code>hcsshim: timeout waiting for notification extra info</code> or the message <code>This operation ended because the timeout has expired</code></a></h5>
+<div class="paragraph">
+<p>Recent versions of Docker under Windows may sometimes encounter the error <a href="https://github.com/Microsoft/hcsshim/issues/152">hcsshim: timeout waiting for notification extra info</a> when building or running Windows containers.
+This is a known issue when using Windows containers in <a href="https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/hyperv-container">Hyper-V isolation mode</a>.
+At the time of writing, Microsoft have stated that they are aware of the problem, but an official fix is yet to be released.</p>
+</div>
+<div class="paragraph">
+<p>As a workaround until a proper fix is issued, it seems that altering the memory limit for containers between subsequent invocations of the <code>docker</code> command can reduce the frequency with which this error occurs.
+(Changing the memory limit when using Hyper-V isolation likely forces Docker to provision a new Hyper-V VM, preventing it from re-using an existing one that has become unresponsive.) Please note that this workaround has been devised based on my own testing under Windows 10 and may not hold true when using Hyper-V isolation under Windows Server.</p>
+</div>
+<div class="paragraph">
+<p>To enable the workaround, specify the <code>--random-memory</code> flag when invoking the build command.
+This will set the container memory limit to a random value between 10GB and 12GB when the build command starts.
+If a build fails with the <code>hcsshim</code> timeout error, simply re-run the build command and in most cases the build will continue successfully, even if only for a short while.
+Restarting the Docker daemon may also help.</p>
+</div>
+<div class="paragraph">
+<p>Note that some older versions of UnrealBuildTool will crash with an error stating <strong>"The process cannot access the file because it is being used by another process"</strong> when using a memory limit that is not a multiple of 4GB.
+If this happens, simply run the build command again with an appropriate memory limit (e.g. <code>-m 8GB</code> or <code>-m 12GB</code>.) If the access error occurs even when using an appropriate memory limit, this likely indicates that Windows is unable to allocate the full amount of memory to the container.
+Rebooting the host system may help to alleviate this issue.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="building-or-running-windows-containers-fails-with-the-message-the-operating-system-of-the-container-does-not-match-the-operating-system-of-the-host"><a class="anchor" href="#building-or-running-windows-containers-fails-with-the-message-the-operating-system-of-the-container-does-not-match-the-operating-system-of-the-host"></a><a class="link" href="#building-or-running-windows-containers-fails-with-the-message-the-operating-system-of-the-container-does-not-match-the-operating-system-of-the-host">Building or running Windows containers fails with the message <code>The operating system of the container does not match the operating system of the host</code></a></h5>
+<div class="paragraph">
+<p>This error is shown in two situations:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The host system is running an <strong>older kernel version</strong> than the container image.
+In this case, you will need to build the images using the same kernel version as the host system or older.
+See <a href="#windows-base-tag">Specifying the Windows Server Core base image tag</a> for details on specifying the correct kernel version when building Windows container images.</p>
+</li>
+<li>
+<p>The host system is running a <strong>newer kernel version</strong> than the container image, and you are attempting to use process isolation mode instead of Hyper-V isolation mode.
+(Process isolation mode is the default under Windows Server.) In this case, you will need to use Hyper-V isolation mode instead.
+See <a href="#windows-isolation-mode">Specifying the isolation mode under Windows</a> for details on how to do this.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="pulling-the-net-framework-base-image-fails-with-the-message-processutilityvmimage-long-path-hereutilityvm-the-system-cannot-find-the-path-specified"><a class="anchor" href="#pulling-the-net-framework-base-image-fails-with-the-message-processutilityvmimage-long-path-hereutilityvm-the-system-cannot-find-the-path-specified"></a><a class="link" href="#pulling-the-net-framework-base-image-fails-with-the-message-processutilityvmimage-long-path-hereutilityvm-the-system-cannot-find-the-path-specified">Pulling the .NET Framework base image fails with the message <code>ProcessUtilityVMImage \\?\</code>(long path here)<code>\UtilityVM: The system cannot find the path specified</code></a></h5>
+<div class="paragraph">
+<p>This is a known issue when the host system is running an older kernel version than the container image.
+Just like in the case of <strong>"The operating system of the container does not match the operating system of the host"</strong> error mentioned above, you will need to build the images using the same kernel version as the host system or older.
+See <a href="#windows-base-tag">Specifying the Windows Server Core base image tag</a> for details on specifying the correct kernel version when building Windows container images.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="building-the-engine-in-a-windows-container-fails-with-the-message-the-process-cannot-access-the-file-because-it-is-being-used-by-another-process"><a class="anchor" href="#building-the-engine-in-a-windows-container-fails-with-the-message-the-process-cannot-access-the-file-because-it-is-being-used-by-another-process"></a><a class="link" href="#building-the-engine-in-a-windows-container-fails-with-the-message-the-process-cannot-access-the-file-because-it-is-being-used-by-another-process">Building the Engine in a Windows container fails with the message <code>The process cannot access the file because it is being used by another process</code></a></h5>
+<div class="paragraph">
+<p>This is a known bug in some older versions of UnrealBuildTool when using a memory limit that is not a multiple of 4GB.
+To alleviate this issue, specify an appropriate memory limit override (e.g. <code>-m 8GB</code> or <code>-m 12GB</code>.) For more details on this issue, see the last paragraph of the <a href="#hcsshim-timeout"><code>hcsshim</code> timeout issues</a> section.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="building-the-engine-in-a-windows-container-fails-with-the-message-fatal-error-lnk1318-unexpected-pdb-error-ok-0"><a class="anchor" href="#building-the-engine-in-a-windows-container-fails-with-the-message-fatal-error-lnk1318-unexpected-pdb-error-ok-0"></a><a class="link" href="#building-the-engine-in-a-windows-container-fails-with-the-message-fatal-error-lnk1318-unexpected-pdb-error-ok-0">Building the Engine in a Windows container fails with the message <code>fatal error LNK1318: Unexpected PDB error; OK (0)</code></a></h5>
+<div class="paragraph">
+<p>This is a known bug in some versions of Visual Studio which only appears to occur intermittently.
+The simplest fix is to simply reboot the host system and then re-run the build command.
+Insufficient available memory may also contribute to triggering this bug.
+Note that a linker wrapper <a href="https://docs.unrealengine.com/en-US/Support/Builds/ReleaseNotes/4_24/index.html">was added in Unreal Engine 4.24.0</a> to automatically retry link operations in the event that this bug occurs, so it shouldn&#8217;t be an issue when building version 4.24.0 or newer.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="pagefile"><a class="anchor" href="#pagefile"></a><a class="link" href="#pagefile">Building the Engine in a Windows container fails with the message <code>fatal error C1060: the compiler is out of heap space</code></a></h5>
+<div class="paragraph">
+<p>This error typically occurs when the Windows pagefile size is not large enough.
+As stated in the <a href="#pagefile">Troubleshooting build issues</a>, there is currently no exposed mechanism to control the pagefile size for containers running in Hyper-V isolation mode.
+However, containers running in process isolation mode will use the pagefile settings of the host system.
+When using process isolation mode, this error can be resolved by increasing the pagefile size on the host system.
+(Note that the host system will usually need to be rebooted for the updated pagefile settings to take effect.)</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="windows-bind-mount"><a class="anchor" href="#windows-bind-mount"></a><a class="link" href="#windows-bind-mount">Building an Unreal project in a Windows container fails when the project files are located in a directory that is bind-mounted from the host operating system</a></h5>
+<div class="paragraph">
+<p>The paths associated with Windows bind-mounted directories inside Hyper-V isolation mode VMs can cause issues for certain build tools, including UnrealBuildTool and CMake.
+As a result, building Unreal projects located in Windows bind-mounted directories is not advised when using Hyper-V isolation mode.
+The solution is to copy the Unreal project to a temporary directory within the container&#8217;s filesystem and build it there, copying any produced build artifacts back to the host system via the bind-mounted directory as necessary.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="command-reference"><a class="anchor" href="#command-reference"></a><a class="link" href="#command-reference">Command reference</a></h2>
+<div class="sectionbody">
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/ue4-docker-build.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ue4-docker-build"><a class="anchor" href="#ue4-docker-build"></a><a class="link" href="#ue4-docker-build">ue4-docker-build (1)</a></h3>
+<div class="sect3">
+<h4 id="name"><a class="anchor" href="#name"></a><a class="link" href="#name">Name</a></h4>
+<div class="paragraph">
+<p>ue4-docker-build - build container image for a specific version of Unreal Engine</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="synopsis"><a class="anchor" href="#synopsis"></a><a class="link" href="#synopsis">Synopsis</a></h4>
+<div class="paragraph">
+<p><strong>ue4-docker build</strong> [<em>option</em>]&#8230;&#8203; <em>version</em></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="description"><a class="anchor" href="#description"></a><a class="link" href="#description">Description</a></h4>
+<div class="paragraph">
+<p>To build container images for a specific version of the Unreal Engine, simply specify the <em>version</em> that you would like to build using full <a href="https://semver.org/">semver</a> syntax.
+For example, to build Unreal Engine 4.20.3, run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">ue4-docker build 4.20.3</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You will be prompted for the Git credentials to be used when cloning the Unreal Engine GitHub repository (this will be the GitHub username and password you normally use when cloning <a href="https://github.com/EpicGames/UnrealEngine" class="bare">https://github.com/EpicGames/UnrealEngine</a>.
+The build process will then start automatically, displaying progress output from each of the <code>docker build</code> commands that are being run in turn.</p>
+</div>
+<div class="paragraph">
+<p>By default, all available images will be built.
+See the <a href="#">List of available container images</a> for details on customising which images are built.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="options"><a class="anchor" href="#options"></a><a class="link" href="#options">Options</a></h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>-basetag</strong> <em>basetag</em></dt>
+<dd>
+<p>Operating system base image tag to use.
+For Linux this is the version of Ubuntu (default is ubuntu18.04).
+For Windows this is the Windows Server Core base image tag (default is the host OS version)</p>
+</dd>
+<dt class="hdlist1"><strong>-branch</strong> <em>branch</em></dt>
+<dd>
+<p>Set the custom branch/tag to clone when <strong>custom</strong> is specified as the <em>version</em>.</p>
+</dd>
+<dt class="hdlist1"><strong>--combine</strong></dt>
+<dd>
+<p>Combine generated Dockerfiles into a single multi-stage build Dockerfile</p>
+</dd>
+<dt class="hdlist1"><strong>-conan-ue4cli</strong> <em>conan_ue4cli</em></dt>
+<dd>
+<p>Override the default version of conan-ue4cli installed in the ue4-full image</p>
+</dd>
+<dt class="hdlist1"><strong>--dry-run</strong></dt>
+<dd>
+<p>Use this if you would like to see what Docker commands would be run by <code>ue4-docker build</code> without actually building anything.
+Execution will proceed as normal, but no Git credentials will be requested and all Docker commands will be printed to standard output instead of being executed as child processes.</p>
+</dd>
+<dt class="hdlist1"><strong>--exclude {ddc,debug,templates}</strong></dt>
+<dd>
+<p>Exclude the specified component from the <a href="#ue4-minimal">ue4-minimal</a> and <a href="#ue4-full">ue4-full</a> images.</p>
+<div class="paragraph">
+<p>The following components can be excluded:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>ddc</code>: disables building the DDC for the Engine.
+This significantly speeds up building the Engine itself but results in far longer cook times when subsequently packaging Unreal projects.</p>
+</li>
+<li>
+<p><code>debug</code>: removes all debug symbols from the built images.</p>
+</li>
+<li>
+<p><code>templates</code>: removes the template projects and samples that ship with the Engine.</p>
+<div class="paragraph">
+<p>You can specify the <code>--exclude</code> flag multiple times to exclude as many components as you like.
+For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="c"># Excludes both debug symbols and template projects</span>
+ue4-docker build 4.21.2 <span class="nt">--exclude</span> debug <span class="nt">--exclude</span> templates</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><strong>-h, --help</strong></dt>
+<dd>
+<p>Print help and exit</p>
+</dd>
+<dt class="hdlist1"><strong>-interval</strong> <em>inverval</em></dt>
+<dd>
+<p>Sampling interval in seconds when resource monitoring has been enabled using --monitor (default is 20 seconds)</p>
+</dd>
+<dt class="hdlist1"><strong>-layout</strong> <em>layout</em></dt>
+<dd>
+<p>Copy generated Dockerfiles to the specified directory and don&#8217;t build the images</p>
+</dd>
+<dt class="hdlist1"><strong>-m</strong> <em>memory</em></dt>
+<dd>
+<p>Override the default memory limit under Windows (also overrides --random-memory)</p>
+</dd>
+<dt class="hdlist1"><strong>--monitor</strong></dt>
+<dd>
+<p>Monitor resource usage during builds (useful for debugging)</p>
+</dd>
+<dt class="hdlist1"><strong>--no-cache</strong></dt>
+<dd>
+<p>Disable Docker build cache</p>
+</dd>
+<dt class="hdlist1"><strong>--no-full</strong></dt>
+<dd>
+<p>Don&#8217;t build the ue4-full image (deprecated, use <strong>--target</strong> <em>target</em> instead)</p>
+</dd>
+<dt class="hdlist1"><strong>--no-minimal</strong></dt>
+<dd>
+<p>Don&#8217;t build the ue4-minimal image (deprecated, use <strong>--target</strong> <em>target</em> instead)</p>
+</dd>
+<dt class="hdlist1"><strong>--opt</strong> <em>opt</em></dt>
+<dd>
+<p>Set an advanced configuration option (can be specified multiple times to specify multiple options)</p>
+</dd>
+<dt class="hdlist1"><strong>-password</strong> <em>password</em></dt>
+<dd>
+<p>Specify access token or password to use when cloning the git repository</p>
+</dd>
+<dt class="hdlist1"><strong>--rebuild</strong></dt>
+<dd>
+<p>Rebuild images even if they already exist</p>
+</dd>
+<dt class="hdlist1"><strong>-repo</strong> <em>repo</em></dt>
+<dd>
+<p>Set the URL of custom git repository to clone when <strong>custom</strong> is specified as the <em>version</em></p>
+</dd>
+<dt class="hdlist1"><strong>-suffix</strong> <em>suffix</em></dt>
+<dd>
+<p>Add a suffix to the tags of the built images</p>
+</dd>
+<dt class="hdlist1"><strong>--target</strong> <em>target</em></dt>
+<dd>
+<p>Tells ue4-docker to build specific image (including its dependencies).</p>
+<div class="paragraph">
+<p>Supported values: <code>all</code>, <code>build-prerequisites</code>, <code>full</code>, <code>minimal</code>, <code>source</code>.</p>
+</div>
+<div class="paragraph">
+<p>You can specify the <code>--target</code> option multiple times.</p>
+</div>
+</dd>
+<dt class="hdlist1"><strong>-ue4cli</strong> <em>ue4cli</em></dt>
+<dd>
+<p>Override the default version of ue4cli installed in the ue4-full image</p>
+</dd>
+<dt class="hdlist1"><strong>-username</strong> <em>username</em></dt>
+<dd>
+<p>Specify the username to use when cloning the git repository</p>
+</dd>
+<dt class="hdlist1"><strong>-v</strong>, <strong>--verbose</strong></dt>
+<dd>
+<p>Enable verbose output during builds (useful for debugging)</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="linux-specific-options-2"><a class="anchor" href="#linux-specific-options-2"></a><a class="link" href="#linux-specific-options-2">Linux-specific options</a></h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>--cuda</strong> <em>version</em></dt>
+<dd>
+<p>Add CUDA support as well as OpenGL support</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="windows-specific-options-2"><a class="anchor" href="#windows-specific-options-2"></a><a class="link" href="#windows-specific-options-2">Windows-specific options</a></h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>--ignore-blacklist</strong></dt>
+<dd>
+<p>Run builds even on blacklisted versions of Windows (advanced use only)</p>
+</dd>
+<dt class="hdlist1"><strong>-isolation {process,hyperv}</strong></dt>
+<dd>
+<p>Set the isolation mode to use</p>
+</dd>
+<dt class="hdlist1"><strong>--linux</strong></dt>
+<dd>
+<p>Use Linux containers under Windows hosts (useful when testing Docker Desktop or LCOW support)</p>
+</dd>
+<dt class="hdlist1"><strong>--random-memory</strong></dt>
+<dd>
+<p>Use a random memory limit for Windows containers</p>
+</dd>
+<dt class="hdlist1"><strong>--visual-studio {2017,2019,2022}</strong></dt>
+<dd>
+<p>Specify Visual Studio Build Tools version.</p>
+<div class="paragraph">
+<p>By default, ue4-docker uses Visual Studio Build Tools 2017 to build Unreal Engine.
+Starting with Unreal Engine 4.25, you may choose to use Visual Studio Build Tools 2019 instead.</p>
+</div>
+<div class="paragraph">
+<p>Unreal Engine 5.0 adds support for VS2022 but removes support for VS2017.</p>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="environment"><a class="anchor" href="#environment"></a><a class="link" href="#environment">Environment</a></h4>
+<div class="paragraph">
+<p>This section describes several environment variables that affect how <code>ue4-docker build</code> operates.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>UE4DOCKER_TAG_NAMESPACE</strong></dt>
+<dd>
+<p>If you would like to override the default <code>adamrehn/</code> prefix that is used when generating the tags for all built images, you can do so by specifying a custom value using the <code>UE4DOCKER_TAG_NAMESPACE</code> environment variable.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="see-also"><a class="anchor" href="#see-also"></a><a class="link" href="#see-also">See also</a></h4>
+<div class="paragraph">
+<p><a href="#ue4-docker-clean"><strong>ue4-docker-clean</strong>(1)</a></p>
+</div>
+<div style="page-break-after: always;"></div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/ue4-docker-clean.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ue4-docker-clean"><a class="anchor" href="#ue4-docker-clean"></a><a class="link" href="#ue4-docker-clean">ue4-docker-clean (1)</a></h3>
+<div class="sect3">
+<h4 id="name-2"><a class="anchor" href="#name-2"></a><a class="link" href="#name-2">Name</a></h4>
+<div class="paragraph">
+<p>ue4-docker-clean - cleans built container images.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="synopsis-2"><a class="anchor" href="#synopsis-2"></a><a class="link" href="#synopsis-2">Synopsis</a></h4>
+<div class="paragraph">
+<p><strong>ue4-docker clean</strong> [<strong>-tag</strong> <em>tag</em>] [<strong>--source</strong>] [<strong>--all</strong>] [<strong>--dry-run</strong>]</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="description-2"><a class="anchor" href="#description-2"></a><a class="link" href="#description-2">Description</a></h4>
+<div class="paragraph">
+<p>By default, only dangling intermediate images leftover from ue4-docker multi-stage builds are removed.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="options-2"><a class="anchor" href="#options-2"></a><a class="link" href="#options-2">Options</a></h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>--all</strong></dt>
+<dd>
+<p>Remove all ue4-docker images, applying the tag filter if one was specified</p>
+</dd>
+<dt class="hdlist1"><strong>--dry-run</strong></dt>
+<dd>
+<p>If you&#8217;re unsure as to exactly what images will be removed by a given invocation of the command, append the <code>--dry-run</code> flag to have ue4-docker print the generated <code>docker rmi</code> commands instead of running them.</p>
+</dd>
+<dt class="hdlist1"><strong>--prune</strong></dt>
+<dd>
+<p>Run <code>docker system prune</code> after cleaning</p>
+</dd>
+<dt class="hdlist1"><strong>--source</strong></dt>
+<dd>
+<p>Remove ../building-images/available-container-images.adoc#ue4-source[ue4-source] images, applying the tag filter if one was specified</p>
+</dd>
+<dt class="hdlist1"><strong>-tag</strong> <em>tag</em></dt>
+<dd>
+<p>Apply a filter for the three flags below, restricting them to removing only images with the specified <em>tag</em> (e.g. <code>-tag 4.21.0</code> will only remove images for 4.21.0)</p>
+</dd>
+</dl>
+</div>
+<div style="page-break-after: always;"></div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/ue4-docker-diagnostics.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ue4-docker-diagnostics"><a class="anchor" href="#ue4-docker-diagnostics"></a><a class="link" href="#ue4-docker-diagnostics">ue4-docker-diagnostics (1)</a></h3>
+<div class="sect3">
+<h4 id="name-3"><a class="anchor" href="#name-3"></a><a class="link" href="#name-3">Name</a></h4>
+<div class="paragraph">
+<p>ue4-docker-diagnostics - run diagnostics to detect issues with the host system configuration.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="synopsis-3"><a class="anchor" href="#synopsis-3"></a><a class="link" href="#synopsis-3">Synopsis</a></h4>
+<div class="paragraph">
+<p><strong>ue4-docker diagnostics</strong> <em>diagnostic</em></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="description-3"><a class="anchor" href="#description-3"></a><a class="link" href="#description-3">Description</a></h4>
+<div class="paragraph">
+<p>This command can be used to run the following diagnostics:</p>
+</div>
+<div class="sect4">
+<h5 id="checking-for-the-docker-8gib-filesystem-layer-bug"><a class="anchor" href="#checking-for-the-docker-8gib-filesystem-layer-bug"></a><a class="link" href="#checking-for-the-docker-8gib-filesystem-layer-bug">Checking for the Docker 8GiB filesystem layer bug</a></h5>
+<div class="paragraph">
+<p>Some versions of Docker contain one or more of a series of separate but related bugs that prevent the creation of filesystem layers which are 8GiB in size or larger.
+This also causes <code>COPY</code> directives to fail when copying data in excess of 8GiB in size, <a href="#copy-8gb-20gb">breaking Dockerfile steps during the creation of Installed Builds that contain debug symbols</a>.</p>
+</div>
+<div class="paragraph">
+<p>This diagnostic tests whether the host system&#8217;s Docker daemon suffers from this issue, by attempting to build a simple test Dockerfile with an 8GiB filesystem layer:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">ue4-docker diagnostics 8gig</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="checking-for-container-network-connectivity-issues"><a class="anchor" href="#checking-for-container-network-connectivity-issues"></a><a class="link" href="#checking-for-container-network-connectivity-issues">Checking for container network connectivity issues</a></h5>
+<div class="paragraph">
+<p>This diagnostic tests whether running containers are able to access the internet, resolve DNS entries, and download remote files:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">ue4-docker diagnostics network</code></pre>
+</div>
+</div>
+<div style="page-break-after: always;"></div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/ue4-docker-export.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ue4-docker-export"><a class="anchor" href="#ue4-docker-export"></a><a class="link" href="#ue4-docker-export">ue4-docker-export (1)</a></h3>
+<div class="sect3">
+<h4 id="name-4"><a class="anchor" href="#name-4"></a><a class="link" href="#name-4">Name</a></h4>
+<div class="paragraph">
+<p>ue4-docker-export - export components from built container image to the host system</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="synopsis-4"><a class="anchor" href="#synopsis-4"></a><a class="link" href="#synopsis-4">Synopsis</a></h4>
+<div class="paragraph">
+<p><strong>ue4-docker export</strong> <em>component</em> <em>tag</em> <em>destination</em></p>
+</div>
+<div class="paragraph">
+<p>This command can be used to export the following components:</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="description-4"><a class="anchor" href="#description-4"></a><a class="link" href="#description-4">Description</a></h4>
+<div class="sect4">
+<h5 id="exporting-installed-builds-under-linux"><a class="anchor" href="#exporting-installed-builds-under-linux"></a><a class="link" href="#exporting-installed-builds-under-linux">Exporting Installed Builds under Linux</a></h5>
+<div class="paragraph">
+<p>Installed Builds of Unreal Engine can be exported to the host system starting with version 4.21.0. Once you have built either the <a href="#ue4-minimal">ue4-minimal</a> or <a href="#ue4-full">ue4-full</a> image for the UE4 version that you want to export, you can export it to the host system like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="c"># Example: specify a version without a full image tag (assumes `adamrehn/ue4-full`)</span>
+<span class="c"># Exports the Installed Build from `adamrehn/ue4-full:4.27.0` to the directory `~/UnrealInstalled` on the host system</span>
+ue4-docker <span class="nb">export </span>installed <span class="s2">"4.27.0"</span> ~/UnrealInstalled</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="c"># Example: specify a full image tag</span>
+<span class="c"># Exports the Installed Build from `adamrehn/ue4-minimal:4.27.0` to the directory `~/UnrealInstalled` on the host system</span>
+ue4-docker <span class="nb">export </span>installed <span class="s2">"adamrehn/ue4-minimal:4.27.0"</span> ~/UnrealInstalled</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"><span class="c"># Example: use a container image based on ue4-minimal with a completely different tag</span>
+<span class="c"># Exports the Installed Build from `ghcr.io/epicgames/unreal-engine:dev-4.27.0` to the directory `~/UnrealInstalled` on the host system</span>
+ue4-docker <span class="nb">export </span>installed <span class="s2">"ghcr.io/epicgames/unreal-engine:dev-4.27.0"</span> ~/UnrealInstalled</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="exporting-conan-packages"><a class="anchor" href="#exporting-conan-packages"></a><a class="link" href="#exporting-conan-packages">Exporting Conan packages</a></h5>
+<div class="paragraph">
+<p>The Conan wrapper packages generated by <code>conan-ue4cli</code> can be exported from the <a href="#ue4-full">ue4-full</a> image to the local Conan package cache on the host system like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">ue4-docker <span class="nb">export </span>packages 4.27.0 cache</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><a href="https://conan.io/">Conan</a> will need to be installed on the host system for this to work.
+To use the exported packages for development on the host system, you will also need to generate the accompanying profile-wide packages by running the command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">ue4 conan generate <span class="nt">--profile-only</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will require both <code>ue4cli</code> and <code>conan-ue4cli</code> to be installed on the host system.</p>
+</div>
+<div style="page-break-after: always;"></div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/ue4-docker-info.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ue4-docker-info"><a class="anchor" href="#ue4-docker-info"></a><a class="link" href="#ue4-docker-info">ue4-docker-info (1)</a></h3>
+<div class="sect3">
+<h4 id="name-5"><a class="anchor" href="#name-5"></a><a class="link" href="#name-5">Name</a></h4>
+<div class="paragraph">
+<p>ue4-docker-info - display information about the host system and Docker daemon</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="synopsis-5"><a class="anchor" href="#synopsis-5"></a><a class="link" href="#synopsis-5">Synopsis</a></h4>
+<div class="paragraph">
+<p><strong>ue4-docker info</strong></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="description-5"><a class="anchor" href="#description-5"></a><a class="link" href="#description-5">Description</a></h4>
+<div class="paragraph">
+<p>The command will output the following information:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The ue4-docker version</p>
+</li>
+<li>
+<p>The host OS version</p>
+</li>
+<li>
+<p>The Docker daemon version</p>
+</li>
+<li>
+<p>Whether the NVIDIA Container Toolkit is supported under the current host configuration</p>
+</li>
+<li>
+<p>The detected configuration value for the maximum image size for Windows containers</p>
+</li>
+<li>
+<p>The total amount of detected system memory</p>
+</li>
+<li>
+<p>The number of detected physical and logical CPUs</p>
+</li>
+</ul>
+</div>
+<div style="page-break-after: always;"></div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/ue4-docker-setup.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ue4-docker-setup"><a class="anchor" href="#ue4-docker-setup"></a><a class="link" href="#ue4-docker-setup">ue4-docker-setup (1)</a></h3>
+<div class="sect3">
+<h4 id="name-6"><a class="anchor" href="#name-6"></a><a class="link" href="#name-6">Name</a></h4>
+<div class="paragraph">
+<p>ue4-docker-setup - automatically configure the host system where possible</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="synopsis-6"><a class="anchor" href="#synopsis-6"></a><a class="link" href="#synopsis-6">Synopsis</a></h4>
+<div class="paragraph">
+<p><strong>ue4-docker setup</strong></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="description-6"><a class="anchor" href="#description-6"></a><a class="link" href="#description-6">Description</a></h4>
+<div class="paragraph">
+<p>This command will automatically configure a Linux or Windows Server host system with the settings required in order to build and run containers produced by ue4-docker.</p>
+</div>
+<div class="paragraph">
+<p><strong>Under Linux:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If an active firewall is detected then a firewall rule will be created to allow Docker containers to communicate with the host system, which is required during the build of the <a href="#ue4-source">ue4-source</a> image.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Under Windows Server:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The Docker daemon will be configured to set the maximum image size for Windows containers to 400GB.</p>
+</li>
+<li>
+<p>A Windows Firewall rule will be created to allow Docker containers to communicate with the host system, which is required during the build of the <a href="#ue4-source">ue4-source</a> image.</p>
+</li>
+<li>
+<p>Under Windows Server Core version 1809 and newer, any required DLL files will be copied to the host system from the <a href="https://hub.docker.com/_/microsoft-windows">full Windows base image</a>.
+Note that the full base image was only introduced in Windows Server version 1809, so this step will not be performed under older versions of Windows Server.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Under Windows 10 and macOS</strong> this command will print a message informing the user that automatic configuration is not supported under their platform and that they will need to configure the system manually.</p>
+</div>
+<div style="page-break-after: always;"></div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/ue4-docker-test.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ue4-docker-test"><a class="anchor" href="#ue4-docker-test"></a><a class="link" href="#ue4-docker-test">ue4-docker-test (1)</a></h3>
+<div class="sect3">
+<h4 id="name-7"><a class="anchor" href="#name-7"></a><a class="link" href="#name-7">Name</a></h4>
+<div class="paragraph">
+<p>ue4-docker-test - run tests to verify the correctness of built container images</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="synopsis-7"><a class="anchor" href="#synopsis-7"></a><a class="link" href="#synopsis-7">Synopsis</a></h4>
+<div class="paragraph">
+<p><strong>ue4-docker test</strong> <em>tag</em></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="description-7"><a class="anchor" href="#description-7"></a><a class="link" href="#description-7">Description</a></h4>
+<div class="paragraph">
+<p>This command runs a suite of tests to verify that built <a href="#ue4-full">ue4-full</a> container images are functioning correctly and can be used to build and package Unreal projects and plugins.</p>
+</div>
+<div class="paragraph">
+<p>This command is primarily intended for use by developers who are contributing to the ue4-docker project itself.</p>
+</div>
+<div style="page-break-after: always;"></div>
+<div class="imageblock right">
+<div class="content">
+<a class="image" href="https://github.com/adamrehn/ue4-docker/edit/master/docs/ue4-docker-version.adoc"><img src="https://img.shields.io/badge/improve-this%20doc-orange.svg" alt="improve this%20doc orange"></a>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ue4-docker-version"><a class="anchor" href="#ue4-docker-version"></a><a class="link" href="#ue4-docker-version">ue4-docker-version (1)</a></h3>
+<div class="sect3">
+<h4 id="name-8"><a class="anchor" href="#name-8"></a><a class="link" href="#name-8">Name</a></h4>
+<div class="paragraph">
+<p>ue4-docker-version - display version information about ue4-docker</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="synopsis-8"><a class="anchor" href="#synopsis-8"></a><a class="link" href="#synopsis-8">Synopsis</a></h4>
+<div class="paragraph">
+<p><strong>ue4-docker version</strong></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="description-8"><a class="anchor" href="#description-8"></a><a class="link" href="#description-8">Description</a></h4>
+<div class="paragraph">
+<p>Prints ue4-docker version on the standard output.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2022-12-13 07:18:47 UTC
+</div>
+</div>
+</body>
+</html>

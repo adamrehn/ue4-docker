@@ -1,0 +1,63 @@
+'\" t
+.\"     Title: ue4-docker-clean
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 2.0.18
+.\"      Date: 2022-12-13
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "UE4\-DOCKER\-CLEAN" "1" "2022-12-13" "\ \&" "\ \&"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+ue4-docker-clean \- cleans built container images.
+.SH "SYNOPSIS"
+.sp
+\fBue4\-docker clean\fP [\fB\-tag\fP \fItag\fP] [\fB\-\-source\fP] [\fB\-\-all\fP] [\fB\-\-dry\-run\fP]
+.SH "DESCRIPTION"
+.sp
+By default, only dangling intermediate images leftover from ue4\-docker multi\-stage builds are removed.
+.SH "OPTIONS"
+.sp
+\fB\-\-all\fP
+.RS 4
+Remove all ue4\-docker images, applying the tag filter if one was specified
+.RE
+.sp
+\fB\-\-dry\-run\fP
+.RS 4
+If you\(cqre unsure as to exactly what images will be removed by a given invocation of the command, append the \f(CR\-\-dry\-run\fP flag to have ue4\-docker print the generated \f(CRdocker rmi\fP commands instead of running them.
+.RE
+.sp
+\fB\-\-prune\fP
+.RS 4
+Run \f(CRdocker system prune\fP after cleaning
+.RE
+.sp
+\fB\-\-source\fP
+.RS 4
+Remove ../building\-images/available\-container\-images.adoc#ue4\-source[ue4\-source] images, applying the tag filter if one was specified
+.RE
+.sp
+\fB\-tag\fP \fItag\fP
+.RS 4
+Apply a filter for the three flags below, restricting them to removing only images with the specified \fItag\fP (e.g. \f(CR\-tag 4.21.0\fP will only remove images for 4.21.0)
+.RE
