@@ -1,3 +1,4 @@
+[[ue4-docker-build]]
 = ue4-docker-build (1)
 :doctype: manpage
 :icons: font
@@ -15,7 +16,7 @@ ue4-docker-build - build container image for a specific version of Unreal Engine
 
 == Description
 
-To build container images for a specific version of the Unreal Engine, simply specify the release that you would like to build using full https://semver.org/[semver] version syntax.
+To build container images for a specific version of the Unreal Engine, simply specify the _version_ that you would like to build using full https://semver.org/[semver] syntax.
 For example, to build Unreal Engine 4.20.3, run:
 
 [source,shell]
@@ -49,10 +50,10 @@ Use this if you would like to see what Docker commands would be run by `ue4-dock
 Execution will proceed as normal, but no Git credentials will be requested and all Docker commands will be printed to standard output instead of being executed as child processes.
 
 *--no-minimal*::
-Don't build the ue4-minimal image (deprecated, use *--target* _TARGET_ instead)
+Don't build the ue4-minimal image (deprecated, use *--target* _target_ instead)
 
 *--no-full*::
-Don't build the ue4-full image (deprecated, use *--target* _TARGET_ instead)
+Don't build the ue4-full image (deprecated, use *--target* _target_ instead)
 
 *--no-cache*::
 Disable Docker build cache
@@ -64,9 +65,7 @@ The following components can be excluded:
 +
 - `ddc`: disables building the DDC for the Engine.
 This significantly speeds up building the Engine itself but results in far longer cook times when subsequently packaging Unreal projects.
-
 - `debug`: removes all debug symbols from the built images.
-
 - `templates`: removes the template projects and samples that ship with the Engine.
 +
 You can specify the `--exclude` flag multiple times to exclude as many components as you like.
@@ -135,7 +134,7 @@ Add CUDA support as well as OpenGL support
 *--ignore-blacklist*::
 Run builds even on blacklisted versions of Windows (advanced use only)
 
-*-isolation {process,hyperv}::
+*-isolation {process,hyperv}*::
 Set the isolation mode to use
 
 *--linux*::
@@ -161,4 +160,4 @@ If you would like to override the default `adamrehn/` prefix that is used when g
 
 == See also
 
-xref:ue4-docker-clean.adoc[*ue4-docker-clean* (1)]
+xref:ue4-docker-clean.adoc#ue4-docker-clean[*ue4-docker-clean*(1)]

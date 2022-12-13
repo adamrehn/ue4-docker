@@ -1,3 +1,4 @@
+[[ue4-docker-info]]
 = ue4-docker-info (1)
 :doctype: manpage
 :icons: font

@@ -1,3 +1,4 @@
+[[ue4-docker-diagnostics]]
 = ue4-docker-diagnostics (1)
 :doctype: manpage
 :icons: font

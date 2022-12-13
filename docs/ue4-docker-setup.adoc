@@ -1,3 +1,4 @@
+[[ue4-docker-setup]]
 = ue4-docker-setup (1)
 :doctype: manpage
 :icons: font

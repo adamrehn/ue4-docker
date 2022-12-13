@@ -1,3 +1,4 @@
+[[ue4-docker-test]]
 = ue4-docker-test (1)
 :doctype: manpage
 :icons: font
