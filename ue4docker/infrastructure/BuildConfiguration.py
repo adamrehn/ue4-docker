@@ -526,6 +526,13 @@ class BuildConfiguration(object):
             "templates": ExcludedComponent.Templates in self.excludedComponents,
         }
 
+        if "gitdependencies_args" not in self.opts:
+            self.opts["gitdependencies_args"] = (
+                "--exclude=Android --exclude=Mac --exclude=Linux"
+                if self.containerPlatform == "windows"
+                else "--exclude=Android --exclude=Mac --exclude=Win32 --exclude=Win64"
+            )
+
         # Warn user that they are in danger of Docker 20GB COPY bug
         # Unfortunately, we don't have a cheap way to check whether user environment is affected
         # See https://github.com/adamrehn/ue4-docker/issues/99

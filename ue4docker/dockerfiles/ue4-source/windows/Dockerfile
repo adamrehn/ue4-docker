@@ -71,7 +71,7 @@ RUN python C:\patch-broken-releases.py C:\UnrealEngine %VERBOSE_OUTPUT%
 # Run post-clone setup steps
 # (Note that the `-no-cache` flag disables caching of dependency data in `.git/ue4-gitdeps`, saving disk space)
 WORKDIR C:\UnrealEngine
-RUN Setup.bat -no-cache
+RUN Setup.bat -no-cache {{ gitdependencies_args }}
 
 {% if (not disable_all_patches) and (not disable_example_platform_cleanup) %}
 # Remove the sample `XXX` example platform code, since this breaks builds from 4.24.0 onwards

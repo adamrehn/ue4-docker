@@ -101,11 +101,7 @@ RUN mkdir "$UE_GITDEPS"
 # When running with BuildKit, we use a cache mount to cache the dependency data across multiple build invocations
 WORKDIR /home/ue4/UnrealEngine
 RUN --mount=type=cache,target=/home/ue4/gitdeps,uid=1000,gid=1000 sudo apt-get update && \
-	./Setup.sh \
-		--exclude=Android \
-		--exclude=Mac \
-		--exclude=Win32 \
-		--exclude=Win64 && \
+	./Setup.sh {{ gitdependencies_args }} && \
 	sudo rm -rf /var/lib/apt/lists/*
 
 {% else %}
@@ -113,11 +109,7 @@ RUN --mount=type=cache,target=/home/ue4/gitdeps,uid=1000,gid=1000 sudo apt-get u
 # When running without BuildKit, we use the `-no-cache` flag to disable caching of dependency data in `.git/ue4-gitdeps`, saving disk space
 WORKDIR /home/ue4/UnrealEngine
 RUN sudo apt-get update && \
-	./Setup.sh -no-cache \
-		--exclude=Android \
-		--exclude=Mac \
-		--exclude=Win32 \
-		--exclude=Win64 && \
+	./Setup.sh -no-cache {{ gitdependencies_args }} && \
 	sudo rm -rf /var/lib/apt/lists/*
 
 {% endif %}
