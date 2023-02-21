@@ -30,7 +30,6 @@ class allDiagnostics(DiagnosticBase):
             diagnosticNetwork(),
         ]
         for index, diagnostic in enumerate(diagnostics):
-
             # Run the diagnostic and report its result
             logger.info(
                 '[all] Running individual diagnostic: "{}"'.format(

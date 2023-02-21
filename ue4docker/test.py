@@ -4,7 +4,6 @@ import docker, os, platform, sys
 
 
 def test():
-
     # Create our logger to generate coloured output on stderr
     logger = Logger(prefix="[{} test] ".format(sys.argv[0]))
 
@@ -13,7 +12,6 @@ def test():
 
     # Check that an image tag has been specified
     if len(sys.argv) > 1 and sys.argv[1].strip("-") not in ["h", "help"]:
-
         # Verify that the specified container image exists
         tag = sys.argv[1]
         image = GlobalConfiguration.resolveTag(
@@ -37,7 +35,6 @@ def test():
         )
         container = ContainerUtils.start_for_exec(client, image, isolation=isolation)
         with ContainerUtils.automatically_stop(container):
-
             # Create the workspace directory in the container
             workspaceDir = ContainerUtils.workspace_dir(container)
             ContainerUtils.exec(
@@ -78,7 +75,6 @@ def test():
             logger.action("All tests passed.", False)
 
     else:
-
         # Print usage syntax
         print("Usage: {} test TAG".format(sys.argv[0]))
         print("Runs tests to verify the correctness of built container images\n")

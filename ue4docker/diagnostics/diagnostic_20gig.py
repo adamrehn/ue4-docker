@@ -6,12 +6,10 @@ from os.path import abspath, dirname, join
 
 
 class diagnostic20Gig(DiagnosticBase):
-
     # The tag we use for built images
     IMAGE_TAG = "adamrehn/ue4-docker/diagnostics:20gig"
 
     def __init__(self):
-
         # Setup our argument parser so we can use its help message output in our description text
         self._parser = argparse.ArgumentParser(prog="ue4-docker diagnostics 20gig")
         self._parser.add_argument(

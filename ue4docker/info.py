@@ -19,7 +19,6 @@ def _formatSize(size):
 
 
 def info():
-
     # Verify that Docker is installed
     if DockerUtils.installed() == False:
         print(

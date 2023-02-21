@@ -4,12 +4,10 @@ import argparse, platform
 
 
 class diagnosticNetwork(DiagnosticBase):
-
     # The tag we use for built images
     IMAGE_TAG = "adamrehn/ue4-docker/diagnostics:network"
 
     def __init__(self):
-
         # Setup our argument parser so we can use its help message output in our description text
         self._parser = argparse.ArgumentParser(prog="ue4-docker diagnostics network")
         self._parser.add_argument(

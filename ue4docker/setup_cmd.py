@@ -1,6 +1,7 @@
 import docker, os, platform, requests, shutil, subprocess, sys
 from .infrastructure import *
 
+
 # Runs a command without displaying its output and returns the exit code
 def _runSilent(command):
     result = SubprocessUtils.capture(command, check=False)
@@ -9,7 +10,6 @@ def _runSilent(command):
 
 # Performs setup for Linux hosts
 def _setupLinux():
-
     # Pull the latest version of the Alpine container image
     alpineImage = "alpine:latest"
     SubprocessUtils.capture(["docker", "pull", alpineImage])
@@ -19,7 +19,6 @@ def _setupLinux():
     endpoint.start()
 
     try:
-
         # Run an Alpine container to see if we can access the host port for the credential endpoint
         SubprocessUtils.capture(
             [
@@ -39,7 +38,6 @@ def _setupLinux():
         print("No firewall configuration required.")
 
     except:
-
         # The host port is blocked, so we need to perform firewall configuration
         print("Creating firewall rule for credential endpoint...")
 
@@ -61,18 +59,15 @@ def _setupLinux():
         print("be installed for the rule to persist after the host system reboots.")
 
     finally:
-
         # Stop the credential endpoint
         endpoint.stop()
 
 
 # Performs setup for Windows Server hosts
 def _setupWindowsServer():
-
     # Check if we need to configure the maximum image size
     requiredLimit = WindowsUtils.requiredSizeLimit()
     if DockerUtils.maxsize() < requiredLimit:
-
         # Attempt to stop the Docker daemon
         print("Stopping the Docker daemon...")
         subprocess.run(["sc.exe", "stop", "docker"], check=True)
@@ -117,7 +112,6 @@ def _setupWindowsServer():
         == 0
     )
     if ruleExists == False:
-
         # Add a rule to ensure Windows firewall allows access to the credential helper from our containers
         print("Creating firewall rule for credential endpoint...")
         subprocess.run(
@@ -141,7 +135,6 @@ def _setupWindowsServer():
 
 
 def setup():
-
     # We don't currently support auto-config for VM-based containers
     if platform.system() == "Darwin" or (
         platform.system() == "Windows" and WindowsUtils.isWindowsServer() == False

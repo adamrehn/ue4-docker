@@ -218,7 +218,6 @@ class DockerUtils(object):
         )
         if runMatches is not None:
             for match in runMatches:
-
                 # Append the `echo` commands to the directive
                 contents = contents.replace(
                     match[0], "RUN{}{}\n".format(match[1], echoCommands)

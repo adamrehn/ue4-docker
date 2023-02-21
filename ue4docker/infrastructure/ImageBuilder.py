@@ -122,12 +122,10 @@ class ImageBuilder(object):
 
         # Create a temporary directory to hold any files needed for the build
         with tempfile.TemporaryDirectory() as tempDir:
-
             # Determine whether we are building using `docker buildx` with build secrets
             imageTags = self._formatTags(name, tags)
 
             if self.platform == "linux" and secrets is not None and len(secrets) > 0:
-
                 # Create temporary files to store the contents of each of our secrets
                 secretFlags = []
                 for secret, contents in secrets.items():
@@ -220,10 +218,8 @@ class ImageBuilder(object):
 
         # Determine if we're just copying the Dockerfile to an output directory
         if self.layoutDir is not None:
-
             # Determine whether we're performing a simple copy or combining generated Dockerfiles
             if self.combine:
-
                 # Ensure the destination directory exists
                 dest = join(self.layoutDir, "combined")
                 self.logger.action(
@@ -261,7 +257,6 @@ class ImageBuilder(object):
                 )
 
             else:
-
                 # Copy the source directory to the destination
                 dest = join(self.layoutDir, basename(name))
                 self.logger.action(

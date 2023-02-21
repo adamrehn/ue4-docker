@@ -2,6 +2,7 @@
 import glob, os, shutil, sys
 from os.path import basename, dirname, exists, join
 
+
 # Logs a message to stderr
 def log(message):
     print(message, file=sys.stderr)
@@ -10,7 +11,6 @@ def log(message):
 
 # Extracts the files and directories for the specified component and moves them to a separate output directory
 def extractComponent(inputDir, outputDir, component, description, items):
-
     # Print progress output
     log("\nExtracting {}...".format(description))
 
@@ -20,7 +20,6 @@ def extractComponent(inputDir, outputDir, component, description, items):
 
     # Move each file and directory for the component to the output directory
     for item in items:
-
         # Verify that the item exists
         if not exists(item):
             log("Skipping non-existent item: {}".format(item))

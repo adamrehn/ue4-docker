@@ -386,7 +386,6 @@ class BuildConfiguration(object):
             # Determine if we are building a custom version of UE4 rather than an official release
             self.args.release = self.args.release.lower()
             if self.args.release == "custom" or self.args.release.startswith("custom:"):
-
                 # Both a custom repository and a custom branch/tag must be specified
                 if self.args.repo is None or self.args.branch is None:
                     raise RuntimeError(
@@ -405,7 +404,6 @@ class BuildConfiguration(object):
                 self.custom = True
 
             else:
-
                 # Validate the specified version string
                 try:
                     ue4Version = semver.parse(self.args.release)
@@ -642,7 +640,6 @@ class BuildConfiguration(object):
         if self.args.isolation is not None:
             self.isolation = self.args.isolation
         else:
-
             # If we are able to use process isolation mode then use it, otherwise use Hyper-V isolation mode
             differentKernels = self.basetag != self.hostBasetag
             dockerSupportsProcess = parse_version(
@@ -666,7 +663,6 @@ class BuildConfiguration(object):
             except:
                 raise RuntimeError('invalid memory limit "{}"'.format(self.args.m))
         else:
-
             # Only specify a memory limit when using Hyper-V isolation mode, in order to override the 1GB default limit
             # (Process isolation mode does not impose any memory limits by default)
             if self.isolation == "hyperv":
@@ -683,7 +679,6 @@ class BuildConfiguration(object):
             self.platformArgs.extend(["-m", "{:.2f}GB".format(self.memLimit)])
 
     def _generateLinuxConfig(self):
-
         # Verify that any user-specified tag suffix does not collide with our base tags
         if self.suffix.startswith("opengl") or self.suffix.startswith("cudagl"):
             raise RuntimeError('tag suffix cannot begin with "opengl" or "cudagl".')
@@ -691,7 +686,6 @@ class BuildConfiguration(object):
         # Determine if we are building CUDA-enabled container images
         self.cuda = None
         if self.args.cuda is not None:
-
             # Verify that the specified CUDA version is valid
             self.cuda = self.args.cuda if self.args.cuda != "" else DEFAULT_CUDA_VERSION
             # Use the appropriate base image for the specified CUDA version
@@ -709,7 +703,6 @@ class BuildConfiguration(object):
         )
 
     def _processPackageVersion(self, package, version):
-
         # Leave the version value unmodified if a blank version was specified or a fully-qualified version was specified
         # (e.g. package==X.X.X, package>=X.X.X, git+https://url/for/package/repo.git, etc.)
         if version is None or "/" in version or version.lower().startswith(package):
@@ -723,7 +716,6 @@ class BuildConfiguration(object):
         return "{}=={}".format(package, version)
 
     def _processTemplateValue(self, value):
-
         # If the value is a boolean (either raw or represented by zero or one) then parse it
         if value.lower() in ["true", "1"]:
             return True

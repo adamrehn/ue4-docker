@@ -19,7 +19,6 @@ sdkGlob = join(
     "x86_64-unknown-linux-gnu",
 )
 for bundled in glob.glob(sdkGlob):
-
     # Extract the root path for the toolchain
     toolchain = dirname(bundled)
 

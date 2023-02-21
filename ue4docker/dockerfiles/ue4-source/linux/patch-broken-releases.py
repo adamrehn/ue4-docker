@@ -24,13 +24,11 @@ if (
     and versionDetails["MinorVersion"] == 25
     and versionDetails["PatchVersion"] == 4
 ):
-
     # If `Commit.gitdeps.xml` is missing the changes from CL 14469950 then inject them
     # (See: <https://github.com/EpicGames/UnrealEngine/commit/84e4ea3241c294c04fdf7d8fb63f99a3109c8edd>)
     gitdepsFile = join(engineRoot, "Engine", "Build", "Commit.gitdeps.xml")
     gitdepsXml = readFile(gitdepsFile)
     if '<File Name="cpp.hint"' not in gitdepsXml:
-
         gitdepsXml = gitdepsXml.replace(
             '<File Name=".tgitconfig" Hash="d3d7bbcf9b2fc8b6e4f2965354a5633c4f175589" />',
             '<File Name=".tgitconfig" Hash="d3d7bbcf9b2fc8b6e4f2965354a5633c4f175589" />\n    '

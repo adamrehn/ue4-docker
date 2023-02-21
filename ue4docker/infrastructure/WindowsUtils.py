@@ -8,7 +8,6 @@ if platform.system() == "Windows":
 
 
 class WindowsUtils(object):
-
     # The oldest Windows build we support
     _minimumRequiredBuild = 17763
 

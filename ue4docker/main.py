@@ -22,11 +22,9 @@ def _exitWithError(err):
 
 
 def main():
-
     # Configure verbose logging if the user requested it
     # (NOTE: in a future version of ue4-docker the `Logger` class will be properly integrated with standard logging)
     if "-v" in sys.argv or "--verbose" in sys.argv:
-
         # Enable verbose logging
         logging.getLogger().setLevel(logging.DEBUG)
 
@@ -100,7 +98,6 @@ def main():
 
     # Determine if a command has been specified
     if len(sys.argv) > 1:
-
         # Verify that the specified command is valid
         command = sys.argv[1]
         if command not in COMMANDS:
@@ -112,7 +109,6 @@ def main():
         COMMANDS[command]["function"]()
 
     else:
-
         # Print usage syntax
         print("Usage: {} COMMAND [OPTIONS]\n".format(sys.argv[0]))
         print("Windows and Linux containers for Unreal Engine 4\n")

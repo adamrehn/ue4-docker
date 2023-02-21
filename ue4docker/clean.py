@@ -15,7 +15,6 @@ def _cleanMatching(cleaner, filter, tag, dryRun):
 
 
 def clean():
-
     # Create our logger to generate coloured output on stderr
     logger = Logger(prefix="[{} clean] ".format(sys.argv[0]))
 

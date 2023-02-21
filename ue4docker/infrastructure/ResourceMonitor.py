@@ -44,7 +44,6 @@ class ResourceMonitor(threading.Thread):
 
         # Loop until asked to stop
         while True:
-
             # Check that the thread has not been asked to stop
             with self._lock:
                 if self._shouldStop == True:

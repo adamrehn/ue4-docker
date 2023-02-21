@@ -4,7 +4,6 @@ import sys
 
 
 def diagnostics():
-
     # The diagnostics that can be run
     DIAGNOSTICS = {
         "all": allDiagnostics(),
@@ -32,7 +31,6 @@ def diagnostics():
 
     # Determine if we are running a diagnostic
     if args["help"] == False and args["diagnostic"] is not None:
-
         # Run the diagnostic
         diagnostic = DIAGNOSTICS[args["diagnostic"]]
         logger.action('Running diagnostic: "{}"'.format(diagnostic.getName()), False)
@@ -46,7 +44,6 @@ def diagnostics():
 
     # Determine if we are displaying the help for a specific diagnostic
     elif args["help"] == True and args["diagnostic"] is not None:
-
         # Display the help for the diagnostic
         diagnostic = DIAGNOSTICS[args["diagnostic"]]
         print("{} diagnostics {}".format(sys.argv[0], args["diagnostic"]))
@@ -54,7 +51,6 @@ def diagnostics():
         print(diagnostic.getDescription())
 
     else:
-
         # Print usage syntax
         print("Usage: {} diagnostics DIAGNOSTIC\n".format(sys.argv[0]))
         print("Runs diagnostics to detect issues with the host system configuration\n")

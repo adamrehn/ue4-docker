@@ -30,7 +30,6 @@ user: password
 
 
 def exportPackages(image, destination, extraArgs):
-
     # Create our logger to generate coloured output on stderr
     logger = Logger()
 
@@ -73,7 +72,6 @@ def exportPackages(image, destination, extraArgs):
 
     # Create an auto-deleting temporary directory to hold our server config file
     with tempfile.TemporaryDirectory() as tempDir:
-
         # Progress output
         print("Starting conan_server in a container...")
 
@@ -109,7 +107,6 @@ def exportPackages(image, destination, extraArgs):
         serverOutput = None
 
         try:
-
             # Copy the server config file to the expected location inside the container
             DockerUtils.execMultiple(
                 container,
@@ -176,7 +173,6 @@ def exportPackages(image, destination, extraArgs):
             serverOutput = None
 
         finally:
-
             # Stop the container, irrespective of whether or not the export succeeded
             print("Stopping conan_server...")
             container.stop()

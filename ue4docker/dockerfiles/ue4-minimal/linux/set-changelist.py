@@ -17,10 +17,8 @@ def writeFile(filename, data):
 # Determine whether a changelist override value was specified
 changelistOverride = None
 if len(sys.argv) > 2:
-
     # If the override was "auto" then attempt to retrieve the CL number from the git commit message
     if sys.argv[2] == "auto":
-
         # Retrieve the commit message from git
         engineRoot = dirname(dirname(dirname(sys.argv[1])))
         commitMessage = run(

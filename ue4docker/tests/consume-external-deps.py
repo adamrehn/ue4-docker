@@ -26,7 +26,6 @@ version = manager.getEngineVersion("short")
 
 # Create an auto-deleting temporary directory to work in
 with tempfile.TemporaryDirectory() as tempDir:
-
     # Clone a simple C++ project
     repo = "https://gitlab.com/ue4-test-projects/{}/BasicCxx.git".format(version)
     projectDir = os.path.join(tempDir, "BasicCxx")

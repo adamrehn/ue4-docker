@@ -20,7 +20,6 @@ def _stripHelpFlags(args):
 
 
 def export():
-
     # The components that can be exported
     COMPONENTS = {
         "installed": {
@@ -59,7 +58,6 @@ def export():
     if args["help"] == False and _notNone(
         [args["component"], args["tag"], args["destination"]]
     ):
-
         # Determine if the user specified an image and a tag or just a tag
         tag = args["tag"]
         details = COMPONENTS[args["component"]]
@@ -81,7 +79,6 @@ def export():
 
     # Determine if we are displaying the help for a specific component
     elif args["help"] == True and args["component"] is not None:
-
         # Display the help for the component
         component = sys.argv[1]
         details = COMPONENTS[component]
@@ -91,7 +88,6 @@ def export():
         print(details["help"])
 
     else:
-
         # Print usage syntax
         print("Usage: {} export COMPONENT TAG DESTINATION\n".format(sys.argv[0]))
         print("Exports components from built container images to the host system\n")
