@@ -124,9 +124,6 @@ You can also use the generated Dockerfiles to build container images independent
 - When building Windows container images, you must specify the <<advanced-options-for-dockerfile-generation,advanced option>> `source_mode` and set it to `copy`.
 This generates Dockerfiles that copy the Unreal Engine source code from the host filesystem rather than cloning it from a git repository, thus eliminating the dependency on ue4-docker's credential endpoint to securely provide git credentials and allowing container images to be built without the need for ue4-docker itself.
 
-- When building Linux container images, you must either set the <<advanced-options-for-dockerfile-generation,advanced option>> `source_mode` to `copy` as detailed above, or else specify the `credential_mode` option and set it to `secrets`.
-This generates Dockerfiles that use the Linux-only https://docs.docker.com/develop/develop-images/build_enhancements/#new-docker-build-secret-information[BuildKit build secrets] functionality to securely provide git credentials, eliminating the dependency on ue4-docker's credential endpoint whilst still facilitating the use of a git repository to provide the Unreal Engine source code.
-
 [[advanced-options-for-dockerfile-generation]]
 === Advanced options for Dockerfile generation
 
@@ -147,10 +144,10 @@ The filesystem path can be specified using the `SOURCE_LOCATION` Docker build ar
 - **`credential_mode`**: *(string)* controls how the xref:available-container-images.adoc#ue4-source[ue4-source] Dockerfile securely obtains credentials for authenticating with remote git repositories when `source_mode` is set to `git`.
 Valid options are:
 
-- `endpoint`: the default mode, whereby ue4-docker exposes an HTTP endpoint that responds with credentials when presented with a randomly-generated security token, which is injected into the xref:available-container-images.adoc#ue4-source[ue4-source] container during the build process by way of a Docker build argument.
+- `endpoint`: the default mode for Windows Containers, whereby ue4-docker exposes an HTTP endpoint that responds with credentials when presented with a randomly-generated security token, which is injected into the xref:available-container-images.adoc#ue4-source[ue4-source] container during the build process by way of a Docker build argument.
 This mode will not work when <<exporting-generated-dockerfiles,exporting generated Dockerfiles>>, since the credential endpoint will not be available during the build process.
 
-- `secrets`: **(Linux containers only)** uses https://docs.docker.com/develop/develop-images/build_enhancements/#new-docker-build-secret-information[BuildKit build secrets] to securely inject the git credentials into the xref:available-container-images.adoc#ue4-source[ue4-source] container during the build process.
+- `secrets`: **(Linux containers only)** default mode for Linux Containers, uses https://docs.docker.com/develop/develop-images/build_enhancements/#new-docker-build-secret-information[BuildKit build secrets] to securely inject the git credentials into the xref:available-container-images.adoc#ue4-source[ue4-source] container during the build process.
 
 - **`buildgraph_args`**: *(string)* allows you to specify additional arguments to pass to the https://docs.unrealengine.com/en-US/ProductionPipelines/BuildTools/AutomationTool/BuildGraph/index.html[BuildGraph system] when creating an Installed Build of the Unreal Engine in the xref:available-container-images.adoc#ue4-minimal[ue4-minimal] image.
 
