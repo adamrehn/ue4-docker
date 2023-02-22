@@ -411,13 +411,13 @@ def build():
             # Build the UE4 source image
             if config.buildTargets["source"]:
                 # Start the HTTP credential endpoint as a child process and wait for it to start
-                if config.opts.get("credential_mode", "endpoint") == "endpoint":
+                if config.opts["credential_mode"] == "endpoint":
                     endpoint = CredentialEndpoint(username, password)
                     endpoint.start()
 
                 # If we're using build secrets then pass the Git username and password to the UE4 source image as secrets
                 secrets = {}
-                if config.opts.get("credential_mode", "endpoint") == "secrets":
+                if config.opts["credential_mode"] == "secrets":
                     secrets = {"username": username, "password": password}
                 credentialArgs = [] if len(secrets) > 0 else endpoint.args()
 

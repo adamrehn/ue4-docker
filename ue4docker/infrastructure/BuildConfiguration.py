@@ -504,13 +504,19 @@ class BuildConfiguration(object):
                     )
                 )
 
+            if "credential_mode" not in self.opts:
+                # On Linux, default to secrets mode that causes fewer issues with firewalls
+                self.opts = (
+                    "secrets" if self.containerPlatform == "linux" else "endpoint"
+                )
+
             # Verify that the value for `credential_mode` is valid if specified
             validCredentialModes = (
                 ["endpoint", "secrets"]
                 if self.containerPlatform == "linux"
                 else ["endpoint"]
             )
-            if self.opts.get("credential_mode", "endpoint") not in validCredentialModes:
+            if self.opts["credential_mode"] not in validCredentialModes:
                 raise RuntimeError(
                     "invalid value specified for the `credential_mode` option, valid values are {} when building {} containers".format(
                         validCredentialModes, self.containerPlatform.title()
