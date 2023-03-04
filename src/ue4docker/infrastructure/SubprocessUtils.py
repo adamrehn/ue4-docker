@@ -36,7 +36,7 @@ class SubprocessUtils(object):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 check=check,
-                **kwargs
+                **kwargs,
             )
         except subprocess.CalledProcessError as e:
             raise VerboseCalledProcessError(e) from None
