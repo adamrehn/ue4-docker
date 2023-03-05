@@ -1,7 +1,8 @@
 import os
 
-import requests
 from packaging.version import Version
+from urllib.request import urlopen
+import json
 
 # The default namespace for our tagged container images
 DEFAULT_TAG_NAMESPACE = "adamrehn"
@@ -17,13 +18,10 @@ class GlobalConfiguration(object):
         """
         Queries PyPI to determine the latest available release of ue4-docker
         """
-        releases = [
-            Version(release)
-            for release in requests.get("https://pypi.org/pypi/ue4-docker/json").json()[
-                "releases"
-            ]
-        ]
-        return sorted(releases)[-1]
+        with urlopen("https://pypi.org/pypi/ue4-docker/json") as url:
+            data = json.load(url)
+            releases = [Version(release) for release in data["releases"]]
+            return sorted(releases)[-1]
 
     @staticmethod
     def getTagNamespace():
