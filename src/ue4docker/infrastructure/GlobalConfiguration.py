@@ -1,6 +1,7 @@
-from pkg_resources import parse_version
-import os, requests
+import os
 
+import requests
+from packaging.version import Version
 
 # The default namespace for our tagged container images
 DEFAULT_TAG_NAMESPACE = "adamrehn"
@@ -17,7 +18,7 @@ class GlobalConfiguration(object):
         Queries PyPI to determine the latest available release of ue4-docker
         """
         releases = [
-            parse_version(release)
+            Version(release)
             for release in requests.get("https://pypi.org/pypi/ue4-docker/json").json()[
                 "releases"
             ]
