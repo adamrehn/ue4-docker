@@ -8,7 +8,6 @@ from .ImageBuilder import ImageBuilder
 from .ImageCleaner import ImageCleaner
 from .Logger import Logger
 from .NetworkUtils import NetworkUtils
-from .PackageUtils import PackageUtils
 from .PrettyPrinting import PrettyPrinting
 from .ResourceMonitor import ResourceMonitor
 from .SubprocessUtils import SubprocessUtils

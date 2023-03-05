@@ -1,13 +1,12 @@
-from .DockerUtils import DockerUtils
-from .PackageUtils import PackageUtils
-from .WindowsUtils import WindowsUtils
-import humanfriendly, json, os, platform, random
-from pkg_resources import parse_version
+import json
+import platform
+import random
 
-# Import the `semver` package even when the conflicting `node-semver` package is present
-semver = PackageUtils.importFile(
-    "semver", os.path.join(PackageUtils.getPackageLocation("semver"), "semver.py")
-)
+import humanfriendly
+from packaging.version import Version, InvalidVersion
+
+from .DockerUtils import DockerUtils
+from .WindowsUtils import WindowsUtils
 
 # The default Unreal Engine git repository
 DEFAULT_GIT_REPO = "https://github.com/EpicGames/UnrealEngine.git"
@@ -55,17 +54,17 @@ class VisualStudio(object):
 
     SupportedSince = {
         # We do not support versions older than 4.20
-        VS2017: semver.VersionInfo(4.20),
+        VS2017: Version("4.20"),
         # Unreal Engine 4.23.1 is the first that successfully builds with Visual Studio v16.3
         # See https://github.com/EpicGames/UnrealEngine/commit/2510d4fd07a35ba5bff6ac2c7becaa6e8b7f11fa
         #
         # Unreal Engine 4.25 is the first that works with .NET SDK 4.7+
         # See https://github.com/EpicGames/UnrealEngine/commit/5256eedbdef30212ab69fdf4c09e898098959683
-        VS2019: semver.VersionInfo(4, 25),
-        VS2022: semver.VersionInfo(5, 0, 0),
+        VS2019: Version("4.25"),
+        VS2022: Version("5.0.0"),
     }
 
-    UnsupportedSince = {VS2017: semver.VersionInfo(5, 0)}
+    UnsupportedSince = {VS2017: Version("5.0")}
 
 
 class ExcludedComponent(object):
@@ -406,16 +405,13 @@ class BuildConfiguration(object):
             else:
                 # Validate the specified version string
                 try:
-                    ue4Version = semver.parse(self.args.release)
-                    if (
-                        ue4Version["major"] not in [4, 5]
-                        or ue4Version["prerelease"] != None
-                    ):
+                    ue4Version = Version(self.args.release)
+                    if ue4Version.major not in [4, 5] or ue4Version.pre != 0:
                         raise Exception()
-                    self.release = semver.format_version(
-                        ue4Version["major"], ue4Version["minor"], ue4Version["patch"]
+                    self.release = (
+                        f"{ue4Version.major}.{ue4Version.minor}.{ue4Version.micro}"
                     )
-                except:
+                except InvalidVersion:
                     raise RuntimeError(
                         'invalid Unreal Engine release number "{}", full semver format required (e.g. "4.20.0")'.format(
                             self.args.release
@@ -545,11 +541,7 @@ class BuildConfiguration(object):
             if ExcludedComponent.Debug not in self.excludedComponents:
                 logger.warning("Warning: You didn't pass --exclude debug", False)
                 warn20GiB = True
-            if (
-                self.release
-                and not self.custom
-                and semver.VersionInfo.parse(self.release) >= semver.VersionInfo(5, 0)
-            ):
+            if self.release and not self.custom and Version(self.release).major >= 5:
                 logger.warning("Warning: You're building Unreal Engine 5", False)
                 warn20GiB = True
 
@@ -592,10 +584,7 @@ class BuildConfiguration(object):
         if self.release is not None and not self.custom:
             # Check whether specified Unreal Engine release is compatible with specified Visual Studio
             supportedSince = VisualStudio.SupportedSince.get(self.visualStudio, None)
-            if (
-                supportedSince is not None
-                and semver.VersionInfo.parse(self.release) < supportedSince
-            ):
+            if supportedSince is not None and Version(self.release) < supportedSince:
                 raise RuntimeError(
                     "specified version of Unreal Engine is too old for Visual Studio {}".format(
                         self.visualStudio
@@ -607,7 +596,7 @@ class BuildConfiguration(object):
             )
             if (
                 unsupportedSince is not None
-                and semver.VersionInfo.parse(self.release) >= unsupportedSince
+                and Version(self.release) >= unsupportedSince
             ):
                 raise RuntimeError(
                     "Visual Studio {} is too old for specified version of Unreal Engine".format(
@@ -648,9 +637,9 @@ class BuildConfiguration(object):
         else:
             # If we are able to use process isolation mode then use it, otherwise use Hyper-V isolation mode
             differentKernels = self.basetag != self.hostBasetag
-            dockerSupportsProcess = parse_version(
+            dockerSupportsProcess = Version(
                 DockerUtils.version()["Version"]
-            ) >= parse_version("18.09.0")
+            ) >= Version("18.09.0")
             if not differentKernels and dockerSupportsProcess:
                 self.isolation = "process"
             else:

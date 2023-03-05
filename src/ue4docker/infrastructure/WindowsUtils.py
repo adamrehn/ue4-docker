@@ -1,5 +1,5 @@
 from .DockerUtils import DockerUtils
-from pkg_resources import parse_version
+from packaging.version import Version
 import platform, sys
 from typing import Optional
 
@@ -94,11 +94,10 @@ class WindowsUtils(object):
         Determines if host Windows version is one with bugs that make it unsuitable for use
         (defaults to checking the host OS release if one is not specified)
         """
-        dockerVersion = parse_version(DockerUtils.version()["Version"])
+        dockerVersion = Version(DockerUtils.version()["Version"])
         build = WindowsUtils.getWindowsBuild()
-        return (
-            build in WindowsUtils._blacklistedHosts
-            and dockerVersion < parse_version("19.03.6")
+        return build in WindowsUtils._blacklistedHosts and dockerVersion < Version(
+            "19.03.6"
         )
 
     @staticmethod

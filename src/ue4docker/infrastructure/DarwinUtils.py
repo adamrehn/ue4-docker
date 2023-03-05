@@ -1,17 +1,18 @@
-from packaging import version
-import os, platform
+import platform
+
+from packaging.version import Version
 
 
 class DarwinUtils(object):
     @staticmethod
-    def minimumRequiredVersion():
+    def minimumRequiredVersion() -> Version:
         """
         Returns the minimum required version of macOS, which is 10.10.3 Yosemite
 
         (10.10.3 is the minimum required version for Docker for Mac, as per:
         <https://store.docker.com/editions/community/docker-ce-desktop-mac>)
         """
-        return "10.10.3"
+        return Version("10.10.3")
 
     @staticmethod
     def systemString():
@@ -23,17 +24,15 @@ class DarwinUtils(object):
         )
 
     @staticmethod
-    def getMacOsVersion():
+    def getMacOsVersion() -> Version:
         """
         Returns the version number for the macOS host system
         """
-        return platform.mac_ver()[0]
+        return Version(platform.mac_ver()[0])
 
     @staticmethod
     def isSupportedMacOsVersion():
         """
         Verifies that the macOS host system meets our minimum version requirements
         """
-        return version.parse(DarwinUtils.getMacOsVersion()) >= version.parse(
-            DarwinUtils.minimumRequiredVersion()
-        )
+        return DarwinUtils.getMacOsVersion() >= DarwinUtils.minimumRequiredVersion()
