@@ -1,6 +1,16 @@
-from .infrastructure import DockerUtils, GlobalConfiguration, Logger
-from container_utils import ContainerUtils, ImageUtils
-import docker, os, platform, sys
+import ntpath
+import os
+import posixpath
+import sys
+
+import docker
+from docker.errors import ImageNotFound
+
+from .infrastructure import (
+    ContainerUtils,
+    GlobalConfiguration,
+    Logger,
+)
 
 
 def test():
@@ -14,32 +24,43 @@ def test():
     if len(sys.argv) > 1 and sys.argv[1].strip("-") not in ["h", "help"]:
         # Verify that the specified container image exists
         tag = sys.argv[1]
-        image = GlobalConfiguration.resolveTag(
+        image_name = GlobalConfiguration.resolveTag(
             "ue4-full:{}".format(tag) if ":" not in tag else tag
         )
-        if DockerUtils.exists(image) == False:
+
+        try:
+            image = client.images.get(image_name)
+        except ImageNotFound:
             logger.error(
                 'Error: the specified container image "{}" does not exist.'.format(
-                    image
+                    image_name
                 )
             )
             sys.exit(1)
 
         # Use process isolation mode when testing Windows containers, since running Hyper-V containers don't currently support manipulating the filesystem
-        platform = ImageUtils.image_platform(client, image)
+        platform = image.attrs["Os"]
         isolation = "process" if platform == "windows" else None
 
         # Start a container to run our tests in, automatically stopping and removing the container when we finish
         logger.action(
-            'Starting a container using the "{}" image...'.format(image), False
+            'Starting a container using the "{}" image...'.format(image_name), False
         )
-        container = ContainerUtils.start_for_exec(client, image, isolation=isolation)
+        container = ContainerUtils.start_for_exec(
+            client, image_name, platform, isolation=isolation
+        )
         with ContainerUtils.automatically_stop(container):
             # Create the workspace directory in the container
-            workspaceDir = ContainerUtils.workspace_dir(container)
+            workspaceDir = (
+                "C:\\workspace" if platform == "windows" else "/tmp/workspace"
+            )
+            shell_prefix = (
+                ["cmd", "/S", "/C"] if platform == "windows" else ["bash", "-c"]
+            )
+
             ContainerUtils.exec(
                 container,
-                ContainerUtils.shell_prefix(container) + ["mkdir " + workspaceDir],
+                shell_prefix + ["mkdir " + workspaceDir],
             )
 
             # Copy our test scripts into the container
@@ -47,12 +68,8 @@ def test():
             ContainerUtils.copy_from_host(container, testDir, workspaceDir)
 
             # Create a harness to invoke individual tests
-            containerPath = ContainerUtils.path(container)
-            pythonCommand = (
-                "python"
-                if ContainerUtils.container_platform(container) == "windows"
-                else "python3"
-            )
+            containerPath = ntpath if platform == "windows" else posixpath
+            pythonCommand = "python" if platform == "windows" else "python3"
 
             def runTest(script):
                 logger.action('Running test "{}"...'.format(script), False)
