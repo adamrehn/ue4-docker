@@ -29,7 +29,6 @@ dependencies = [
     "Jinja2>=2.11.3",
     "packaging>=19.1",
     "psutil",
-    "requests",
     "termcolor",
 ]
 
