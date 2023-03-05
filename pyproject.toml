@@ -44,3 +44,11 @@ requires = [
     "wheel",
 ]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.package-data]
+ue4docker = [
+    "dockerfiles/*/*/.dockerignore",
+    "dockerfiles/diagnostics/*/*/*",
+    "dockerfiles/*/*/*",
+    "tests/*.py",
+]
