@@ -33,7 +33,7 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://github.com/adamrehn/ue4-docker"
+"Homepage" = "https://github.com/adamrehn/ue4-docker"
 
 [project.scripts]
 ue4-docker = "ue4docker:main"
