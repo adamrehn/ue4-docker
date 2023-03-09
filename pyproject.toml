@@ -22,7 +22,6 @@ classifiers = [
 ]
 dependencies = [
     "colorama",
-    "container-utils",
     "docker>=3.0.0",
     "humanfriendly",
     "importlib-metadata>=1.0;python_version<'3.8'",

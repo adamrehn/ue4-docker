@@ -166,7 +166,7 @@ class DockerUtils(object):
         return images
 
     @staticmethod
-    def exec(container, command, **kwargs):
+    def exec(container, command: [str], **kwargs):
         """
         Executes a command in a container returned by `DockerUtils.start()` and returns the output
         """
@@ -182,7 +182,7 @@ class DockerUtils(object):
         return output
 
     @staticmethod
-    def execMultiple(container, commands, **kwargs):
+    def execMultiple(container, commands: [[str]], **kwargs):
         """
         Executes multiple commands in a container returned by `DockerUtils.start()`
         """
