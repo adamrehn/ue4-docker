@@ -16,9 +16,11 @@ jobs:
       with:
         python-version: "3.10"
     - name: Install dependencies
-      run: pip install --upgrade build
+      run: pip install --upgrade build twine
     - name: Build package
       run: python -m build
+    - name: Check package
+      run: twine check --strict dist/*
     - name: Publish to PyPI
       if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
       uses: pypa/gh-action-pypi-publish@release/v1
