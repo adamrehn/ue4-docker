@@ -502,7 +502,7 @@ class BuildConfiguration(object):
 
             if "credential_mode" not in self.opts:
                 # On Linux, default to secrets mode that causes fewer issues with firewalls
-                self.opts = (
+                self.opts["credential_mode"] = (
                     "secrets" if self.containerPlatform == "linux" else "endpoint"
                 )
 
