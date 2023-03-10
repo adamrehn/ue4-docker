@@ -4,6 +4,7 @@ version = "0.0.104"
 description = "Windows and Linux containers for Unreal Engine"
 requires-python = ">= 3.7"
 license = { file = "LICENSE" }
+readme = "README.md"
 authors = [
     { name = "Adam Rehn", email = "adam@adamrehn.com" },
     { name = "Marat Radchenko", email = "marat@slonopotamus.org" },
