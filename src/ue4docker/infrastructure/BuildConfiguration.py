@@ -406,8 +406,8 @@ class BuildConfiguration(object):
                 # Validate the specified version string
                 try:
                     ue4Version = Version(self.args.release)
-                    if ue4Version.major not in [4, 5] or ue4Version.pre != 0:
-                        raise Exception()
+                    if ue4Version.major not in [4, 5] or ue4Version.pre is not None:
+                        raise Exception(f"unsupported engine version: {ue4Version}")
                     self.release = (
                         f"{ue4Version.major}.{ue4Version.minor}.{ue4Version.micro}"
                     )
