@@ -13,7 +13,7 @@ Linux containers are unable to use GPU acceleration via the xref:nvidia-docker-p
 - 2010 or newer model Mac hardware
 - macOS 10.10.3 Yosemite or newer
 - Minimum 8GB of RAM
-- Minimum 400GB available disk space for building container images
+- Minimum 800GB available disk space for building container images
 
 == Step 1: Install Docker CE for Mac
 
@@ -48,4 +48,4 @@ sudo pip3 install ue4-docker
 
 == Step 4: Manually configure Docker daemon settings
 
-Use https://docs.docker.com/desktop/mac/#resources[the Advanced section under the Resources tab of the Docker Desktop settings pane] to set the memory allocation for the Moby VM to 8GB and the maximum VM disk image size to 400GB.
+Use https://docs.docker.com/desktop/mac/#resources[the Advanced section under the Resources tab of the Docker Desktop settings pane] to set the memory allocation for the Moby VM to 8GB and the maximum VM disk image size to 800GB.
