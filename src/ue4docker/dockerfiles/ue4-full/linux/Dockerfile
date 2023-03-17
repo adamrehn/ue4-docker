@@ -1,5 +1,6 @@
 ARG UE4CLI_VERSION="ue4cli>=0.0.45"
 ARG CONAN_UE4CLI_VERSION="conan-ue4cli>=0.0.27"
+ARG CONAN_VERSION="conan>=1.59.0,<2"
 {% if combine %}
 FROM source as conan
 {% else %}
@@ -10,11 +11,12 @@ FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS conan
 {% endif %}
 ARG UE4CLI_VERSION
 ARG CONAN_UE4CLI_VERSION
+ARG CONAN_VERSION
 
 # Install ue4cli and conan-ue4cli
 USER root
 RUN pip3 install --upgrade pip setuptools wheel
-RUN pip3 install "$UE4CLI_VERSION" "$CONAN_UE4CLI_VERSION"
+RUN pip3 install "$CONAN_VERSION" "$UE4CLI_VERSION" "$CONAN_UE4CLI_VERSION"
 USER ue4
 
 # Extract the third-party library details from UBT
@@ -29,6 +31,7 @@ FROM ${NAMESPACE}/ue4-minimal:${TAG}-${PREREQS_TAG}
 {% endif %}
 ARG UE4CLI_VERSION
 ARG CONAN_UE4CLI_VERSION
+ARG CONAN_VERSION
 
 # Install CMake, ue4cli, conan-ue4cli, and ue4-ci-helpers
 USER root
