@@ -1,6 +1,7 @@
 # escape=`
 ARG UE4CLI_VERSION="ue4cli>=0.0.45"
 ARG CONAN_UE4CLI_VERSION="conan-ue4cli>=0.0.27"
+ARG CONAN_VERSION="conan>=1.59.0,<2"
 {% if combine %}
 FROM source as conan
 {% else %}
@@ -11,10 +12,11 @@ FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS conan
 {% endif %}
 ARG UE4CLI_VERSION
 ARG CONAN_UE4CLI_VERSION
+ARG CONAN_VERSION
 
 # Install ue4cli and conan-ue4cli
 RUN pip install setuptools wheel --no-warn-script-location
-RUN pip install "%UE4CLI_VERSION%" "%CONAN_UE4CLI_VERSION%" --no-warn-script-location
+RUN pip install "%CONAN_VERSION%" "%UE4CLI_VERSION%" "%CONAN_UE4CLI_VERSION%" --no-warn-script-location
 
 # Build UBT, and extract the third-party library details from UBT
 # (Remove the profile base packages to avoid a bug where Windows locks the files and breaks subsequent profile generation)
@@ -30,10 +32,11 @@ FROM ${NAMESPACE}/ue4-minimal:${TAG}-${PREREQS_TAG}
 {% endif %}
 ARG UE4CLI_VERSION
 ARG CONAN_UE4CLI_VERSION
+ARG CONAN_VERSION
 
 # Install ue4cli conan-ue4cli, and ue4-ci-helpers
 RUN pip install setuptools wheel --no-warn-script-location
-RUN pip install "%UE4CLI_VERSION%" "%CONAN_UE4CLI_VERSION%" ue4-ci-helpers --no-warn-script-location
+RUN pip install "%CONAN_VERSION%" "%UE4CLI_VERSION%" "%CONAN_UE4CLI_VERSION%" ue4-ci-helpers --no-warn-script-location
 
 # Explicitly set the configuration directory for ue4cli
 # (This prevents things from breaking when using CI/CD systems that override the $HOME environment variable)
