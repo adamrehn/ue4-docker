@@ -51,7 +51,7 @@ class WindowsUtils(object):
         """
         Returns the minimum required image size limit (in GB) for Windows containers
         """
-        return 400.0
+        return 800.0
 
     @staticmethod
     def minimumRequiredBuild() -> int:

@@ -24,7 +24,7 @@ This command will automatically configure a Linux or Windows Server host system 
 
 **Under Windows Server:**
 
-- The Docker daemon will be configured to set the maximum image size for Windows containers to 400GB.
+- The Docker daemon will be configured to set the maximum image size for Windows containers to 800GB.
 - A Windows Firewall rule will be created to allow Docker containers to communicate with the host system, which is required during the build of the xref:available-container-images.adoc#ue4-source[ue4-source] image.
 - Under Windows Server Core version 1809 and newer, any required DLL files will be copied to the host system from the https://hub.docker.com/_/microsoft-windows[full Windows base image].
 Note that the full base image was only introduced in Windows Server version 1809, so this step will not be performed under older versions of Windows Server.

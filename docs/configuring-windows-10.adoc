@@ -61,7 +61,7 @@ For building and running Windows containers:
 
 - Configure the Docker daemon to https://docs.docker.com/desktop/windows/#switch-between-windows-and-linux-containers[use Windows containers] rather than Linux containers.
 - Configure the Docker daemon to increase the maximum container disk size from the default 20GB limit by following https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/container-storage#storage-limits[the instructions provided by Microsoft].
-The 120GB limit specified in the instructions is not quite enough, so set a 400GB limit instead. **Be sure to restart the Docker daemon after applying the changes to ensure they take effect.**
+The 120GB limit specified in the instructions is not quite enough, so set an 800GB limit instead. **Be sure to restart the Docker daemon after applying the changes to ensure they take effect.**
 
 WARNING: **The ue4-docker maintainers do not provide support for building and running Linux containers under Windows**, due to the various technical limitations of the Hyper-V and WSL2 backends for Docker Desktop (see https://github.com/adamrehn/ue4-docker/issues/205[this issue] for details of these limitations).
 This functionality is still present in ue4-docker for those who choose to use it, but users are solely responsible for troubleshooting any issues they encounter when doing so.
@@ -70,6 +70,6 @@ For building and running Linux containers:
 
 - Configure the Docker daemon to https://docs.docker.com/desktop/windows/#switch-between-windows-and-linux-containers[use Linux containers] rather than Windows containers.
 
-- **If you are using the Hyper-V backend** then use https://docs.docker.com/desktop/windows/#resources[the Advanced section under the Resources tab of the Docker Desktop settings pane] to set the memory allocation for the Moby VM to 8GB and the maximum VM disk image size to 400GB.
+- **If you are using the Hyper-V backend** then use https://docs.docker.com/desktop/windows/#resources[the Advanced section under the Resources tab of the Docker Desktop settings pane] to set the memory allocation for the Moby VM to 8GB and the maximum VM disk image size to 800GB.
 
-- **If you are using the WSL2 backend** then https://docs.microsoft.com/en-us/windows/wsl/compare-versions#expanding-the-size-of-your-wsl-2-virtual-hard-disk[expand the WSL2 virtual hard disk] to at least 400GB.
+- **If you are using the WSL2 backend** then https://docs.microsoft.com/en-us/windows/wsl/compare-versions#expanding-the-size-of-your-wsl-2-virtual-hard-disk[expand the WSL2 virtual hard disk] to at least 800GB.

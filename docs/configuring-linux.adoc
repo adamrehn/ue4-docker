@@ -9,7 +9,7 @@
 
 - 64-bit version of one of Docker's https://docs.docker.com/install/#supported-platforms[supported Linux distributions] (CentOS 7+, Debian 7.7+, Fedora 26+, Ubuntu 14.04+)
 - Minimum 8GB of RAM
-- Minimum 400GB available disk space for building container images
+- Minimum 800GB available disk space for building container images
 
 == Step 1: Install Docker CE
 
