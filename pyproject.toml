@@ -30,6 +30,8 @@ dependencies = [
     "packaging>=19.1",
     "psutil",
     "termcolor",
+    # Workaround for https://github.com/docker/docker-py/issues/3113
+    "urllib3<2",
 ]
 
 [project.urls]
