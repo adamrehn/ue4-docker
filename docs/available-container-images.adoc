@@ -26,7 +26,7 @@ You can prevent unwanted images from being built by appending the relevant image
 
 ** `opengl` if CUDA support is not enabled
 
-** `cudaglVERSION` where `VERSION` is the CUDA version if xref:advanced-build-options.adoc#cuda[CUDA support is enabled] (e.g. `cudagl9.2`, `cudagl10.0`, etc.)
+** `cudaVERSION` where `VERSION` is the CUDA version if xref:advanced-build-options.adoc#cuda[CUDA support is enabled] (e.g. `cuda9.2`, `cuda10.0`, etc.)
 
 **Dockerfiles:** https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-build-prerequisites/windows/Dockerfile[icon:windows[] Windows] | https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-build-prerequisites/linux/Dockerfile[icon:linux[] Linux]
 

@@ -253,4 +253,4 @@ ue4-docker build RELEASE --cuda=10.0
 {% endhighlight %}
 ----
 
-For a list of supported CUDA versions, see the list of Ubuntu 18.04 image tags for the https://hub.docker.com/r/nvidia/cudagl/[nvidia/cudagl] base image.
+For a list of supported CUDA versions, see the list of Ubuntu 18.04 image tags for the https://hub.docker.com/r/nvidia/cuda/[nvidia/cuda] base image.

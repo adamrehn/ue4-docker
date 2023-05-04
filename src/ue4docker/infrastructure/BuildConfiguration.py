@@ -14,7 +14,7 @@ DEFAULT_GIT_REPO = "https://github.com/EpicGames/UnrealEngine.git"
 # The base images for Linux containers
 LINUX_BASE_IMAGES = {
     "opengl": "nvidia/opengl:1.0-glvnd-devel-{ubuntu}",
-    "cudagl": "nvidia/cudagl:{cuda}-devel-{ubuntu}",
+    "cuda": "nvidia/cuda:{cuda}-devel-{ubuntu}",
 }
 
 # The default ubuntu base to use
@@ -675,8 +675,8 @@ class BuildConfiguration(object):
 
     def _generateLinuxConfig(self):
         # Verify that any user-specified tag suffix does not collide with our base tags
-        if self.suffix.startswith("opengl") or self.suffix.startswith("cudagl"):
-            raise RuntimeError('tag suffix cannot begin with "opengl" or "cudagl".')
+        if self.suffix.startswith("opengl") or self.suffix.startswith("cuda"):
+            raise RuntimeError('tag suffix cannot begin with "opengl" or "cuda".')
 
         # Determine if we are building CUDA-enabled container images
         self.cuda = None
@@ -684,8 +684,8 @@ class BuildConfiguration(object):
             # Verify that the specified CUDA version is valid
             self.cuda = self.args.cuda if self.args.cuda != "" else DEFAULT_CUDA_VERSION
             # Use the appropriate base image for the specified CUDA version
-            self.baseImage = LINUX_BASE_IMAGES["cudagl"]
-            self.prereqsTag = "cudagl{cuda}-{ubuntu}"
+            self.baseImage = LINUX_BASE_IMAGES["cuda"]
+            self.prereqsTag = "cuda{cuda}-{ubuntu}"
         else:
             self.baseImage = LINUX_BASE_IMAGES["opengl"]
             self.prereqsTag = "opengl-{ubuntu}"
