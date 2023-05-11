@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json, os, subprocess, sys
 from os.path import join
+from urllib.request import urlopen
 
 
 def readFile(filename):
@@ -19,14 +20,30 @@ verboseOutput = len(sys.argv) > 2 and sys.argv[2] == "1"
 versionDetails = json.loads(
     readFile(join(engineRoot, "Engine", "Build", "Build.version"))
 )
-if (
-    versionDetails["MajorVersion"] == 4
-    and versionDetails["MinorVersion"] == 25
-    and versionDetails["PatchVersion"] == 4
-):
+
+major = versionDetails["MajorVersion"]
+minor = versionDetails["MinorVersion"]
+patch = versionDetails["PatchVersion"]
+
+gitdepsFile = join(engineRoot, "Engine", "Build", "Commit.gitdeps.xml")
+
+if major < 5 or major == 5 and (minor < 1 or (minor == 0 and patch <= 1)):
+    # See https://forums.unrealengine.com/t/upcoming-disruption-of-service-impacting-unreal-engine-users-on-github/1155880
+    # In May 2023, Epics broke Commit.gitdeps.xml for *all existing releases up to 5.1.1* due to changes in their CDN
+    gitdepsUrl = f"https://github.com/EpicGames/UnrealEngine/releases/download/{major}.{minor}.{patch}-release/Commit.gitdeps.xml"
+
+    # TODO: we need to authenticate
+    with urlopen(gitdepsUrl) as gitdepsXml:
+        writeFile(gitdepsFile, gitdepsXml)
+
+        if verboseOutput:
+            print("PATCHED {}:\n\n{}".format(gitdepsFile, gitdepsXml), file=sys.stderr)
+        else:
+            print("PATCHED {}".format(gitdepsFile), file=sys.stderr)
+
+if major == 4 and minor == 25 and patch == 4:
     # If `Commit.gitdeps.xml` is missing the changes from CL 14469950 then inject them
     # (See: <https://github.com/EpicGames/UnrealEngine/commit/84e4ea3241c294c04fdf7d8fb63f99a3109c8edd>)
-    gitdepsFile = join(engineRoot, "Engine", "Build", "Commit.gitdeps.xml")
     gitdepsXml = readFile(gitdepsFile)
     if '<File Name="cpp.hint"' not in gitdepsXml:
         gitdepsXml = gitdepsXml.replace(
@@ -47,18 +64,14 @@ if (
 
         writeFile(gitdepsFile, gitdepsXml)
 
-        if verboseOutput == True:
+        if verboseOutput:
             print("PATCHED {}:\n\n{}".format(gitdepsFile, gitdepsXml), file=sys.stderr)
         else:
             print("PATCHED {}".format(gitdepsFile), file=sys.stderr)
 
 
 # Determine if we are building UE 5.1.0
-if (
-    versionDetails["MajorVersion"] == 5
-    and versionDetails["MinorVersion"] == 1
-    and versionDetails["PatchVersion"] == 0
-):
+if major == 5 and minor == 1 and patch == 0:
     # Hack InstalledEngineFilters.xml with the changes from CL 23300641
     # (See: <https://github.com/EpicGames/UnrealEngine/commit/ae9de79b7012fc33df355c8dbfe5096b94545e3c>)
     buildFile = join(engineRoot, "Engine", "Build", "InstalledEngineFilters.xml")
@@ -72,7 +85,7 @@ if (
 
         writeFile(buildFile, buildXml)
 
-        if verboseOutput == True:
+        if verboseOutput:
             print("PATCHED {}:\n\n{}".format(buildFile, buildFile), file=sys.stderr)
         else:
             print("PATCHED {}".format(buildFile), file=sys.stderr)
