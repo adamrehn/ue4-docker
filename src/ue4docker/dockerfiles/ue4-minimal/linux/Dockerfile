@@ -140,8 +140,16 @@ RUN EDITOR_TARGET=$(python3 /tmp/print-editor-target.py /home/ue4/UnrealEngine) 
 
 # Enable Vulkan support for NVIDIA GPUs
 USER root
-RUN apt-get update && apt-get install -y --no-install-recommends libvulkan1 && \
-	rm -rf /var/lib/apt/lists/* && \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	libvulkan1 \
+	libglvnd0 \
+	libgl1 \
+	libglx0 \
+	libegl1  \
+	libgles2  \
+	libxcb1-dev \
+	vulkan-tools \
+	&& rm -rf /var/lib/apt/lists/* && \
 	VULKAN_API_VERSION=`dpkg -s libvulkan1 | grep -oP 'Version: [0-9|\.]+' | grep -oP '[0-9|\.]+'` && \
 	mkdir -p /etc/vulkan/icd.d/ && \
 	echo \
