@@ -56,5 +56,7 @@ jobs:
         python-version: ${{ matrix.python }}
     - name: Install
       run: pip install . --user
-    - name: Test
+    - name: Build prerequisites
       run: ue4-docker build --target=build-prerequisites --visual-studio ${{ matrix.visual-studio || '2017' }}
+    - name: Run diagnostics
+      run: ue4-docker diagnostics all
