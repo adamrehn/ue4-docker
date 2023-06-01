@@ -37,6 +37,8 @@ ENV HOST_TOKEN=${HOST_TOKEN_ARG}
 # Install our git credential helper that forwards requests to the host
 COPY git-credential-helper.bat C:\git-credential-helper.bat
 ENV GIT_ASKPASS=C:\git-credential-helper.bat
+# See https://github.com/git-ecosystem/git-credential-manager/blob/main/docs/environment.md#GCM_INTERACTIVE
+ENV GCM_INTERACTIVE=false
 
 # Clone the UE4 git repository using the host-supplied credentials
 WORKDIR C:\
