@@ -50,4 +50,4 @@ RUN ue4 setroot C:\UnrealEngine
 RUN ue4 conan generate --profile-only
 
 # Install CMake and add it to the system PATH
-RUN choco install -y cmake --installargs "ADD_CMAKE_TO_PATH=System"
+RUN choco install --no-progress -y cmake --installargs "ADD_CMAKE_TO_PATH=System"
