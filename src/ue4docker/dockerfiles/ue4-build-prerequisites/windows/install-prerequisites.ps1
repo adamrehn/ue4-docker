@@ -8,10 +8,10 @@ $env:ChocolateyInstall = Convert-Path "$( (Get-Command choco).Path )\..\.."
 Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 
 # Install the chocolatey packages we need
-choco install -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'"
+choco install --no-progress -y git --params "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'"
 
 # pdbcopy.exe from Windows SDK is needed for creating an Installed Build of the Engine
-choco install -y choco-cleaner python vcredist-all windows-sdk-10-version-1809-windbg
+choco install --no-progress -y choco-cleaner python vcredist-all windows-sdk-10-version-1809-windbg
 
 # Reload our environment variables from the registry so the `git` command works
 Update-SessionEnvironment
