@@ -285,9 +285,9 @@ class BuildConfiguration(object):
         using_target_specifier_old = self.args.no_minimal or self.args.no_full
         using_target_specifier_new = self.args.target is not None
 
-        # If we specified nothing, it's the same as specifying `all`
+        # If we specified nothing, it's the same as specifying `minimal`
         if not using_target_specifier_old and not using_target_specifier_new:
-            self.args.target = ["all"]
+            self.args.target = ["minimal"]
         elif using_target_specifier_old and not using_target_specifier_new:
             # Convert these to the new style
             logger.warning(
