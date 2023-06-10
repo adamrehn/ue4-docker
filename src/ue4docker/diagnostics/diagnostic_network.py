@@ -101,7 +101,7 @@ class diagnosticNetwork(DiagnosticBase):
                 True,
             )
             logger.error(
-                "[network] https://docs.adamrehn.com/ue4-docker/building-images/troubleshooting-build-issues#building-the-ue4-build-prerequisites-image-fails-with-a-network-related-error\n",
+                "[network] https://adamrehn.github.io/ue4-docker/#building-the-ue4-build-prerequisites-image-fails-with-a-network-related-error\n",
                 False,
             )
 
