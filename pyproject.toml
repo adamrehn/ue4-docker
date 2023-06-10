@@ -32,8 +32,11 @@ dependencies = [
     "termcolor",
 ]
 
+# See https://packaging.python.org/en/latest/specifications/declaring-project-metadata/#urls
 [project.urls]
-"Homepage" = "https://github.com/adamrehn/ue4-docker"
+Homepage = "https://github.com/adamrehn/ue4-docker"
+Documentation = "https://adamrehn.github.io/ue4-docker"
+Repository = "https://github.com/adamrehn/ue4-docker.git"
 
 [project.scripts]
 ue4-docker = "ue4docker:main"

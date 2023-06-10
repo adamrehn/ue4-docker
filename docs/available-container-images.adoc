@@ -28,7 +28,7 @@ You can prevent unwanted images from being built by appending the relevant image
 
 ** `cudaVERSION` where `VERSION` is the CUDA version if xref:advanced-build-options.adoc#cuda[CUDA support is enabled] (e.g. `cuda9.2`, `cuda10.0`, etc.)
 
-**Dockerfiles:** https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-build-prerequisites/windows/Dockerfile[icon:windows[] Windows] | https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-build-prerequisites/linux/Dockerfile[icon:linux[] Linux]
+**Dockerfiles:** https://github.com/adamrehn/ue4-docker/tree/master/src/ue4docker/dockerfiles/ue4-build-prerequisites/windows/Dockerfile[icon:windows[] Windows] | https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-build-prerequisites/linux/Dockerfile[icon:linux[] Linux]
 
 **Contents:** Contains the build prerequisites common to all Engine versions.
 
@@ -45,7 +45,7 @@ You can prevent unwanted images from being built by appending the relevant image
 
 * `adamrehn/ue4-source:RELEASE-PREREQS` where `RELEASE` is as above and `PREREQS` is the <<ue4-build-prerequisites>> image tag
 
-**Dockerfiles:** https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-source/windows/Dockerfile[icon:windows[] Windows] | https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-source/linux/Dockerfile[icon:linux[] Linux]
+**Dockerfiles:** https://github.com/adamrehn/ue4-docker/tree/master/src/ue4docker/dockerfiles/ue4-source/windows/Dockerfile[icon:windows[] Windows] | https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-source/linux/Dockerfile[icon:linux[] Linux]
 
 **Contents:** Contains the cloned source code for Unreal Engine, along with its downloaded dependency data.
 The ue4-minimal image uses this source code as the starting point for its build.
@@ -64,7 +64,7 @@ Afterwards, this image can be removed using `ue4-docker clean --source` to save 
 
 * `adamrehn/ue4-minimal:RELEASE-PREREQS` where `RELEASE` is as above and `PREREQS` is the <<ue4-build-prerequisites>> image tag
 
-**Dockerfiles:** https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-minimal/windows/Dockerfile[icon:windows[] Windows] | https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-minimal/linux/Dockerfile[icon:linux[] Linux]
+**Dockerfiles:** https://github.com/adamrehn/ue4-docker/tree/master/src/ue4docker/dockerfiles/ue4-minimal/windows/Dockerfile[icon:windows[] Windows] | https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-minimal/linux/Dockerfile[icon:linux[] Linux]
 
 **Contents:** Contains the absolute minimum set of components required for use in a Continuous Integration (CI) pipeline, consisting of only the build prerequisites and an Installed Build of the Engine.
 
@@ -81,7 +81,7 @@ Afterwards, this image can be removed using `ue4-docker clean --source` to save 
 
 * `adamrehn/ue4-full:RELEASE-PREREQS` where `RELEASE` is as above and `PREREQS` is the <<ue4-build-prerequisites>> image tag
 
-**Dockerfiles:** https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-full/windows/Dockerfile[icon:windows[] Windows] | https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-full/linux/Dockerfile[icon:linux[] Linux]
+**Dockerfiles:** https://github.com/adamrehn/ue4-docker/tree/src/master/ue4docker/dockerfiles/ue4-full/windows/Dockerfile[icon:windows[] Windows] | https://github.com/adamrehn/ue4-docker/tree/master/ue4docker/dockerfiles/ue4-full/linux/Dockerfile[icon:linux[] Linux]
 
 **Contents:** Contains everything from the `ue4-minimal` image, and adds the following:
 
