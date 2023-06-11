@@ -37,7 +37,7 @@ ARG CONAN_VERSION
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends cmake
 RUN pip3 install --upgrade pip setuptools wheel
-RUN pip3 install "$UE4CLI_VERSION" "$CONAN_UE4CLI_VERSION" ue4-ci-helpers
+RUN pip3 install "$CONAN_VERSION" "$UE4CLI_VERSION" "$CONAN_UE4CLI_VERSION" ue4-ci-helpers
 USER ue4
 
 # Explicitly set the configuration directory for ue4cli
