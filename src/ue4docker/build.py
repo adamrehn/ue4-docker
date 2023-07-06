@@ -100,6 +100,14 @@ def build():
     with tempfile.TemporaryDirectory() as tempDir:
         contextOrig = join(os.path.dirname(os.path.abspath(__file__)), "dockerfiles")
 
+        template_context = {
+            'namespace': GlobalConfiguration.getTagNamespace(),
+            'tag': config.release + config.suffix,
+            'prereqs_tag': config.prereqsTag
+        }
+
+        template_context.update(config.opts)
+
         # Create the builder instance to build the Docker images
         builder = ImageBuilder(
             join(tempDir, "dockerfiles"),
@@ -108,7 +116,7 @@ def build():
             config.rebuild,
             config.dryRun,
             config.layoutDir,
-            config.opts,
+            template_context,
             config.combine,
         )
 
