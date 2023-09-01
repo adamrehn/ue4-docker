@@ -1,0 +1,17 @@
+# escape=`
+{% if combine %}
+FROM source as engine
+{% else %}
+ARG NAMESPACE
+ARG TAG
+ARG PREREQS_TAG
+FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG}
+{% endif %}
+
+# Build UBT and build the Engine
+RUN GenerateProjectFiles.bat
+# TODO: Fix UE4 compatibility
+# RUN .\Engine\Build\BatchFiles\Build.bat UE4Editor Win64 Development -WaitMutex
+RUN .\Engine\Build\BatchFiles\Build.bat UnrealEditor Win64 Development -WaitMutex
+RUN .\Engine\Build\BatchFiles\Build.bat ShaderCompileWorker Win64 Development -WaitMutex
+RUN .\Engine\Build\BatchFiles\Build.bat UnrealPak Win64 Development -WaitMutex
