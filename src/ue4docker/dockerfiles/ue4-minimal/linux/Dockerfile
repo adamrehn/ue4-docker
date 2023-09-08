@@ -97,7 +97,9 @@ LABEL com.adamrehn.ue4-docker.excluded.templates={% if excluded_components.templ
 # Perform first-run setup for Mono, UnrealBuildTool and AutomationTool, which makes it possible to build Unreal projects and plugins as users other than `ue4`
 # (Note that this will only work with 4.26.0 and newer, older Engine versions will always require write access to `/home/ue4/UnrealEngine`)
 # See the comments on this issue for details, including the need to ensure $HOME is set correctly: <https://github.com/adamrehn/ue4-docker/issues/141>
-RUN ./Engine/Build/BatchFiles/Linux/Build.sh ShaderCompileWorker Linux Development -SkipBuild && \
+COPY print-editor-target.py /tmp/print-editor-target.py
+RUN EDITOR_TARGET=$(python3 /tmp/print-editor-target.py /home/ue4/UnrealEngine) && \
+	./Engine/Build/BatchFiles/Linux/Build.sh "$EDITOR_TARGET" Linux Development -SkipBuild && \
 	mkdir -p ./Engine/Programs/AutomationTool/Saved && \
 	chmod a+rw ./Engine/Programs/AutomationTool/Saved
 
