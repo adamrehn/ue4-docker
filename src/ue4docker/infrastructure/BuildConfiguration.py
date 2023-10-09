@@ -18,10 +18,10 @@ LINUX_BASE_IMAGES = {
 }
 
 # The default ubuntu base to use
-DEFAULT_LINUX_VERSION = "ubuntu18.04"
+DEFAULT_LINUX_VERSION = "ubuntu22.04"
 
 # The default CUDA version to use when `--cuda` is specified without a value
-DEFAULT_CUDA_VERSION = "11.4"
+DEFAULT_CUDA_VERSION = "12.2.0"
 
 # The default memory limit (in GB) under Windows
 DEFAULT_MEMORY_LIMIT = 10.0
@@ -206,7 +206,7 @@ class BuildConfiguration(object):
         parser.add_argument(
             "-basetag",
             default=None if platform.system() == "Windows" else DEFAULT_LINUX_VERSION,
-            help="Operating system base image tag to use. For Linux this is the version of Ubuntu (default is ubuntu18.04). "
+            help="Operating system base image tag to use. For Linux this is the version of Ubuntu (default is ubuntu22.04). "
             "For Windows this is the Windows Server Core base image tag (default is the host OS version)",
         )
         parser.add_argument(

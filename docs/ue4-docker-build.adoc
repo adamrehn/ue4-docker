@@ -34,7 +34,7 @@ See the xref:available-container-images.adoc[List of available container images]
 
 *-basetag* _basetag_::
 Operating system base image tag to use.
-For Linux this is the version of Ubuntu (default is ubuntu18.04).
+For Linux this is the version of Ubuntu (default is ubuntu22.04).
 For Windows this is the Windows Server Core base image tag (default is the host OS version)
 
 *-branch* _branch_::

@@ -248,9 +248,9 @@ ue4-docker build RELEASE --cuda
 
 [source,shell]
 ----
-# Uses the CUDA 10.0 base image
-ue4-docker build RELEASE --cuda=10.0
+# Uses the CUDA 12.2.0 base image
+ue4-docker build RELEASE --cuda=12.2.0
 {% endhighlight %}
 ----
 
-For a list of supported CUDA versions, see the list of Ubuntu 18.04 image tags for the https://hub.docker.com/r/nvidia/cuda/[nvidia/cuda] base image.
+For a list of supported CUDA versions, see the list of Ubuntu 22.04 image tags for the https://hub.docker.com/r/nvidia/cuda/[nvidia/cuda] base image.
