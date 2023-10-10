@@ -15,19 +15,19 @@ Process isolation mode is the default isolation mode under Windows Server.
 - Minimum 8GB of RAM
 - Minimum 800GB available disk space for building container images
 
-== Step 1: Install Docker EE
+== Step 1: Install Docker CE
 
-As per the instructions provided by the https://docs.docker.com/install/windows/docker-ee/[Install Docker Engine - Enterprise on Windows Servers] page of the Docker Documentation, run the following commands from an elevated PowerShell prompt:
+As per the instructions provided by https://learn.microsoft.com/en-us/virtualization/windowscontainers/quick-start/set-up-environment?tabs=dockerce#windows-server-1[Install Container Runtime on Windows Servers], run the following commands from an elevated PowerShell prompt:
 
 [source,powershell]
 ----
-# Add the Docker provider to the PowerShell package manager
-Install-Module DockerMsftProvider -Force
+# Add the Docker install script
+Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/microsoft/Windows-Containers/Main/helpful_tools/Install-DockerCE/install-docker-ce.ps1" -o install-docker-ce.ps1
 
-# Install Docker EE
-Install-Package Docker -ProviderName DockerMsftProvider -Force
+# Run the script
+.\install-docker-ce.ps1
 
-# Restart the computer to enable the containers feature
+# Your computer should restart automatically, but in case it doesn't, run the following command to enable the containers feature
 Restart-Computer
 ----
 
