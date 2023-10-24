@@ -49,6 +49,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 			libcairo2 \
 			libfontconfig1 \
 			libfreetype6 \
+			libgbm1 \
 			libglu1 \
 			libnss3 \
 			libnspr4 \
