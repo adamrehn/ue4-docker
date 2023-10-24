@@ -73,6 +73,10 @@ This issue can occur both inside containers and when running directly on a host 
 . Clear the Docker filesystem layer cache by running https://docs.docker.com/engine/reference/commandline/system_prune/[docker system prune].
 . Re-run the xref:ue4-docker-build.adoc[ue4-docker build] command.
 
+=== Building Unreal Engine 5.0 in a Linux container fails with the error message `No usable version of libssl was found`
+
+This is a known compatibility issue that affects Unreal Engine 5.0.0 through to Unreal Engine 5.0.3 when running under Ubuntu 22.04 or newer. In order to build Unreal Engine 5.0 in a Linux container, you will need to use an Ubuntu 20.04 base image by specifying the flags `-basetag ubuntu20.04`.
+
 == Windows-specific issues
 
 === Building the `ue4-build-prerequisites` image fails with an unknown error
