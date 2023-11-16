@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import json, os, subprocess, sys
+import json
+import sys
 from os.path import join
 
 
@@ -47,7 +48,7 @@ if (
 
         writeFile(gitdepsFile, gitdepsXml)
 
-        if verboseOutput == True:
+        if verboseOutput:
             print("PATCHED {}:\n\n{}".format(gitdepsFile, gitdepsXml), file=sys.stderr)
         else:
             print("PATCHED {}".format(gitdepsFile), file=sys.stderr)

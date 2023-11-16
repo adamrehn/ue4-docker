@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import json, os, subprocess, sys
+import json
+import sys
 from os.path import join
 
 
@@ -47,7 +48,7 @@ if (
 
         writeFile(gitdepsFile, gitdepsXml)
 
-        if verboseOutput == True:
+        if verboseOutput:
             print("PATCHED {}:\n\n{}".format(gitdepsFile, gitdepsXml), file=sys.stderr)
         else:
             print("PATCHED {}".format(gitdepsFile), file=sys.stderr)
@@ -67,12 +68,12 @@ if (
         buildXml = buildXml.replace(
             '<Property Name="CopyWin64CsToolsExceptions">',
             '<Property Name="CopyWin64CsToolsExceptions">\n'
-            + "            Engine\Saved\CsTools\Engine\Intermediate\ScriptModules\HoloLens.Automation.json\n",
+            + "            Engine\\Saved\\CsTools\\Engine\\Intermediate\\ScriptModules\\HoloLens.Automation.json\n",
         )
 
         writeFile(buildFile, buildXml)
 
-        if verboseOutput == True:
+        if verboseOutput:
             print("PATCHED {}:\n\n{}".format(buildFile, buildFile), file=sys.stderr)
         else:
             print("PATCHED {}".format(buildFile), file=sys.stderr)
