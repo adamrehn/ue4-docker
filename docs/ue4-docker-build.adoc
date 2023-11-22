@@ -46,6 +46,10 @@ Combine generated Dockerfiles into a single multi-stage build Dockerfile
 *-conan-ue4cli* _conan_ue4cli_::
 Override the default version of conan-ue4cli installed in the ue4-full image
 
+*--docker-build-args*::
+Allows passing custom args to `docker build` command.
+For example, this can be useful for pushing images.
+
 *--dry-run*::
 Use this if you would like to see what Docker commands would be run by `ue4-docker build` without actually building anything.
 Execution will proceed as normal, but no Git credentials will be requested and all Docker commands will be printed to standard output instead of being executed as child processes.

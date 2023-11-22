@@ -150,6 +150,12 @@ class BuildConfiguration(object):
             help="Use a random memory limit for Windows containers",
         )
         parser.add_argument(
+            "--docker-build-args",
+            action="append",
+            default=[],
+            help="Specify additional options for 'docker build' commands"
+        )
+        parser.add_argument(
             "--exclude",
             action="append",
             default=[],

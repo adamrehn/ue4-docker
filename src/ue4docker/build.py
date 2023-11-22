@@ -359,7 +359,7 @@ def build():
             commonArgs = [
                 "--build-arg",
                 "NAMESPACE={}".format(GlobalConfiguration.getTagNamespace()),
-            ]
+            ] + config.args.docker_build_args
 
             # Build the UE4 build prerequisites image
             if config.buildTargets["build-prerequisites"]:
