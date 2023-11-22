@@ -46,7 +46,7 @@ Combine generated Dockerfiles into a single multi-stage build Dockerfile
 *-conan-ue4cli* _conan_ue4cli_::
 Override the default version of conan-ue4cli installed in the ue4-full image
 
-*--docker-build-args*::
+*--docker-build-args* _args_::
 Allows passing custom args to `docker build` command.
 For example, this can be useful for pushing images.
 
