@@ -153,7 +153,7 @@ class BuildConfiguration(object):
             "--docker-build-args",
             action="append",
             default=[],
-            help="Specify additional options for 'docker build' commands"
+            help="Specify additional options for 'docker build' commands",
         )
         parser.add_argument(
             "--exclude",
