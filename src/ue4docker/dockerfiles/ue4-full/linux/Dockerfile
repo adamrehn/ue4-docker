@@ -19,8 +19,13 @@ RUN pip3 install --upgrade pip setuptools wheel
 RUN pip3 install "$CONAN_VERSION" "$UE4CLI_VERSION" "$CONAN_UE4CLI_VERSION"
 USER ue4
 
-# TODO this is a hack to get around UnrealBuildTool not being in source
-COPY --from={{ namespace }}/ue4-minimal:{{ tag }}-{{ prereqs_tag }} --chown=ue4:ue4 /home/ue4/UnrealEngine/Engine/Binaries/DotNET/UnrealBuildTool /home/ue4/UnrealEngine/Engine/Binaries/DotNET/UnrealBuildTool
+# Copy in UBT from minimal image, if present (required for `ue4 conan generate` to work on UE5)
+ARG UBT_DIR="/home/ue4/UnrealEngine/Engine/Binaries/DotNET"
+{% if combine %}
+COPY --from=minimal --chown=ue4:ue4 $UBT_DIR/UnrealBuildToo[l] $UBT_DIR/UnrealBuildTool
+{% else %}
+COPY --from=${NAMESPACE}/ue4-minimal:${TAG}-${PREREQS_TAG} --chown=ue4:ue4 $UBT_DIR/UnrealBuildToo[l] $UBT_DIR/UnrealBuildTool
+{% endif %}
 
 # Extract the third-party library details from UBT
 RUN ue4 setroot /home/ue4/UnrealEngine
