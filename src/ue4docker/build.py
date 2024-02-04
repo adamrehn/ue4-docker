@@ -111,9 +111,11 @@ def build():
 
         # Print the command-line invocation that triggered this build, masking any supplied passwords
         args = [
-            "*******"
-            if config.args.password is not None and arg == config.args.password
-            else arg
+            (
+                "*******"
+                if config.args.password is not None and arg == config.args.password
+                else arg
+            )
             for arg in sys.argv
         ]
         logger.info("COMMAND-LINE INVOCATION:", False)
