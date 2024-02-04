@@ -61,9 +61,11 @@ def info():
             "ue4-docker version",
             "{}{}".format(
                 __version__,
-                ""
-                if latestVersion is None
-                else " (latest available version is {})".format(latestVersion),
+                (
+                    ""
+                    if latestVersion is None
+                    else " (latest available version is {})".format(latestVersion)
+                ),
             ),
         ),
         ("Operating system", _osName(dockerInfo)),
