@@ -37,6 +37,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		tzdata \
 		unzip \
 		xdg-user-dirs \
+		xdg-utils \
 		zip && \
 	rm -rf /var/lib/apt/lists/*
 

@@ -38,16 +38,22 @@ RUN ./Engine/Build/BatchFiles/Linux/Build.sh ShaderCompileWorker Linux Developme
 # Create an Installed Build of the Engine
 WORKDIR /home/ue4/UnrealEngine
 RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph \
-    -target="Make Installed Build Linux" \
-    -script=Engine/Build/InstalledEngineBuild.xml \
-    -set:HostPlatformOnly=true \
-    -set:WithDDC={% if excluded_components.ddc == true %}false{% else %}true{% endif %} \
-    {{ buildgraph_args }} && \
+	-target="Make Installed Build Linux" \
+	-script=Engine/Build/InstalledEngineBuild.xml \
+	-set:HostPlatformOnly=true \
+	-set:WithDDC={% if excluded_components.ddc == true %}false{% else %}true{% endif %} \
+	{{ buildgraph_args }} && \
 	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC
 
 # Split out components (DDC, debug symbols, template projects) so they can be copied into the final container image as separate filesystem layers
 COPY split-components.py /tmp/split-components.py
 RUN python3 /tmp/split-components.py /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux /home/ue4/UnrealEngine/Components
+
+# Copy InstalledBuild.txt from the Installed Build and run UnrealVersionSelector to populate Install.ini with any custom Build ID specified in the BuildGraph flags
+# (Note that the `-unattended` flag used below requires Unreal Engine 4.22 or newer, so this will break under older versions)
+# (Note also that custom Build IDs are supported by Unreal Engine 5.3.1 and newer, and older versions will just use a GUID as the Build ID)
+RUN cp /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux/Engine/Build/InstalledBuild.txt /home/ue4/UnrealEngine/Engine/Build/InstalledBuild.txt && \
+	./Engine/Binaries/Linux/UnrealVersionSelector-Linux-Shipping -register -unattended
 
 {% if (not disable_all_patches) and (not disable_target_patches) %}
 # Ensure Client and Server targets have their `PlatformType` field set correctly in BaseEngine.ini
@@ -85,6 +91,9 @@ COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/DebugSymbo
 {% if excluded_components.templates == false %}
 COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/TemplatesAndSamples /home/ue4/UnrealEngine
 {% endif %}
+
+# Copy Install.ini from the builder image, so it can be used by tools that read the list of engine installations (e.g. ushell)
+COPY --from=builder --chown=ue4:ue4 /home/ue4/.config/Epic/UnrealEngine/Install.ini /home/ue4/.config/Epic/UnrealEngine/Install.ini
 WORKDIR /home/ue4/UnrealEngine
 
 {% if not disable_labels %}

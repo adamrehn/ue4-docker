@@ -9,7 +9,7 @@ The ue4-docker Python package contains a set of Dockerfiles and accompanying bui
 
 Key features include:
 
-- Unreal Engine 4.20.0 and newer is supported.
+- Unreal Engine 4.22.0 and newer is supported.
 - Both Windows containers and Linux containers are supported.
 - Building and packaging Unreal Engine projects is supported.
 - Running automation tests is supported.
