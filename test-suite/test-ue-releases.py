@@ -29,10 +29,6 @@ COMMITDEPS_REPO = "https://github.com/adamrehn/UnrealEngine.git"
 
 # The list of Unreal Engine releases that are currently supported by ue4-docker
 SUPPORTED_RELEASES = [
-    UERelease("4.22", "4.22.3-fixed", COMMITDEPS_REPO, 2017, None),
-    UERelease("4.23", "4.23.1-fixed", COMMITDEPS_REPO, 2017, None),
-    UERelease("4.24", "4.24.3-fixed", COMMITDEPS_REPO, 2017, None),
-    UERelease("4.25", "4.25.4-fixed", COMMITDEPS_REPO, 2017, None),
     UERelease("4.26", "4.26.2-fixed", COMMITDEPS_REPO, 2017, None),
     UERelease("4.27", "4.27.2-fixed", COMMITDEPS_REPO, 2017, None),
     UERelease("5.0", "5.0.3-fixed", COMMITDEPS_REPO, 2019, "20.04"),
