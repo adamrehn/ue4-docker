@@ -1,6 +1,6 @@
 from .DockerUtils import DockerUtils
 from packaging.version import Version
-import platform, sys
+import os, platform, sys
 from typing import Optional
 
 if platform.system() == "Windows":
@@ -107,6 +107,13 @@ class WindowsUtils(object):
         """
         # TODO: Replace this with something more reliable
         return "Windows Server" in WindowsUtils._getVersionRegKey("ProductName")
+
+    @staticmethod
+    def isWSL() -> bool:
+        """
+        Determines if the host system is Linux running under WSL
+        """
+        return "WSL_DISTRO_NAME" in os.environ or "WSL_INTEROP" in os.environ
 
     @staticmethod
     def getDllSrcImage(basetag: str) -> str:

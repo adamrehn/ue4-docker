@@ -1,4 +1,4 @@
-import argparse, getpass, humanfriendly, json, os, shutil, sys, tempfile, time
+import argparse, getpass, humanfriendly, json, os, platform, shutil, sys, tempfile, time
 from .infrastructure import *
 from .version import __version__
 from os.path import join
@@ -299,12 +299,35 @@ def build():
         else:
             logger.info("Not excluding any Engine components.", False)
 
+        # Print a warning if the user is attempting to build Linux images under Windows
+        if config.containerPlatform == "linux" and (
+            platform.system() == "Windows" or WindowsUtils.isWSL()
+        ):
+            logger.warning(
+                "Warning: attempting to build Linux container images under Windows (e.g. via WSL)."
+            )
+            logger.warning(
+                "The ue4-docker maintainers do not provide support for building and running Linux",
+                False,
+            )
+            logger.warning(
+                "containers under Windows, and this configuration is not tested to verify that it",
+                False,
+            )
+            logger.warning(
+                "functions correctly. Users are solely responsible for troubleshooting any issues",
+                False,
+            )
+            logger.warning(
+                "they encounter when attempting to build Linux container images under Windows.",
+                False,
+            )
+
         # Determine if we need to prompt for credentials
         if config.dryRun == True:
             # Don't bother prompting the user for any credentials during a dry run
             logger.info(
-                "Performing a dry run, `docker build` commands will be printed and not executed.",
-                False,
+                "Performing a dry run, `docker build` commands will be printed and not executed."
             )
             username = ""
             password = ""

@@ -9,8 +9,10 @@ def _osName(dockerInfo):
     elif platform.system() == "Darwin":
         return DarwinUtils.systemString()
     else:
-        return "Linux ({}, {})".format(
-            dockerInfo["OperatingSystem"], dockerInfo["KernelVersion"]
+        return "Linux ({}, {}{})".format(
+            dockerInfo["OperatingSystem"],
+            dockerInfo["KernelVersion"],
+            ", running under WSL" if WindowsUtils.isWSL() else "",
         )
 
 
