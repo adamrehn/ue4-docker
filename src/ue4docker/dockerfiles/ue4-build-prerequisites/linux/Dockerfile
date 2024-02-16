@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		curl \
 		git \
 		git-lfs \
+		gpg-agent \
 		python3 \
 		python3-dev \
 		python3-pip \
@@ -92,6 +93,19 @@ RUN useradd --create-home --home /home/ue4 --shell /bin/bash --uid 1000 ue4 && \
 	passwd -d ue4 && \
 	usermod -a -G audio,video,sudo ue4
 USER ue4
+
+{% if enable_ushell %}
+# Install Python 3.12, which is required by ushell
+USER root
+RUN add-apt-repository -y ppa:deadsnakes/ppa && \
+	apt-get update && \
+	apt-get install -y --no-install-recommends python3.12 python3.12-venv && \
+	rm -rf /var/lib/apt/lists/*
+USER ue4
+
+# Install a copy of pip for Python 3.12
+RUN curl -fsSL 'https://bootstrap.pypa.io/get-pip.py' | python3.12
+{% endif %}
 
 # Enable Git Large File Storage (LFS) support
 RUN git lfs install

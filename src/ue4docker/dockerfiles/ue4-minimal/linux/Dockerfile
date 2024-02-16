@@ -49,6 +49,9 @@ RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph \
 COPY split-components.py /tmp/split-components.py
 RUN python3 /tmp/split-components.py /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux /home/ue4/UnrealEngine/Components
 
+# Ensure UnrealVersionSelector is built, since the prebuilt binaries may not be up-to-date
+RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealVersionSelector Linux Shipping
+
 # Copy InstalledBuild.txt from the Installed Build and run UnrealVersionSelector to populate Install.ini with any custom Build ID specified in the BuildGraph flags
 # (Note that the `-unattended` flag used below requires Unreal Engine 4.22 or newer, so this will break under older versions)
 # (Note also that custom Build IDs are supported by Unreal Engine 5.3.1 and newer, and older versions will just use a GUID as the Build ID)
@@ -70,6 +73,13 @@ RUN cp ./Engine/Binaries/Linux/UnrealPak ./LocalBuilds/Engine/Linux/Engine/Binar
 # Ensure the bundled toolchain included in 4.20.0 and newer is copied to the Installed Build
 COPY --chown=ue4:ue4 copy-toolchain.py /tmp/copy-toolchain.py
 RUN python3 /tmp/copy-toolchain.py /home/ue4/UnrealEngine
+{% endif %}
+
+{% if enable_ushell %}
+# Ensure ushell is copied to the Installed Build
+RUN rm -rf ./LocalBuilds/Engine/Linux/Engine/Extras/ushell && \
+	cp -r ./Engine/Extras/ushell ./LocalBuilds/Engine/Linux/Engine/Extras/ushell && \
+	bash -c 'set -e; shopt -s globstar; cd /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux/Engine/Extras/ushell && chmod +x ./**/*.sh'
 {% endif %}
 
 # Copy the Installed Build into a clean image, discarding the source build
@@ -101,6 +111,15 @@ WORKDIR /home/ue4/UnrealEngine
 LABEL com.adamrehn.ue4-docker.excluded.ddc={% if excluded_components.ddc == true %}1{% else %}0{% endif %} 
 LABEL com.adamrehn.ue4-docker.excluded.debug={% if excluded_components.debug == true %}1{% else %}0{% endif %} 
 LABEL com.adamrehn.ue4-docker.excluded.templates={% if excluded_components.templates == true %}1{% else %}0{% endif %} 
+{% endif %}
+
+{% if enable_ushell %}
+# Add ushell to the system PATH and alias `ushell` to `ushell.sh`
+ENV PATH="$PATH:/home/ue4/UnrealEngine/Engine/Extras/ushell"
+RUN echo 'alias ushell="ushell.sh"' >> /home/ue4/.bashrc
+
+# Perform first-run setup for ushell
+RUN bash -c 'set -e; source /home/ue4/UnrealEngine/Engine/Extras/ushell/ushell.sh && exit 0'
 {% endif %}
 
 # Perform first-run setup for Mono, UnrealBuildTool and AutomationTool, which makes it possible to build Unreal projects and plugins as users other than `ue4`
