@@ -22,6 +22,7 @@ COPY --from=dlls `
     C:\Windows\System32\dsound.dll `
     C:\Windows\System32\dxva2.dll `
     C:\Windows\System32\glu32.dll `
+    C:\Windows\System32\InputHost.dll `
     C:\Windows\System32\ksuser.dll `
     C:\Windows\System32\mf.dll `
     C:\Windows\System32\mfcore.dll `
@@ -34,6 +35,7 @@ COPY --from=dlls `
     C:\Windows\System32\opengl32.dll `
     C:\Windows\System32\ResampleDMO.dll `
     C:\Windows\System32\ResourcePolicyClient.dll `
+    C:\Windows\System32\XInput1_4.dll `
     C:\GatheredDLLs\
 
 # Remove any DLL files that already exist in the target base image, to avoid permission errors when attempting to overwrite existing files with a COPY directive
