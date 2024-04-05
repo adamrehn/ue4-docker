@@ -21,7 +21,7 @@ $env:ChocolateyInstall = Convert-Path "$( (Get-Command choco).Path )\..\.."
 Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 
 # Install the chocolatey packages we need
-RunProcessChecked "choco" @("install", "--no-progress", "-y", "git", "--params", @'
+RunProcessChecked "choco" @("install", "--no-progress", "-y", "git", "choco install git.install --version=2.43.0", "--params", @'
 "'/GitOnlyOnPath /NoAutoCrlf /WindowsTerminal /NoShellIntegration /NoCredentialManager'`"
 '@)
 
