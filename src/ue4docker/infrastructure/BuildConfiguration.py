@@ -67,8 +67,10 @@ class VisualStudio(object):
         VS2022: Version("5.0.0"),
     }
 
-    UnsupportedSince = {VS2017: Version("5.0")}
-    UnsupportedSince = {VS2019: Version("5.4")}
+    UnsupportedSince = {
+        VS2017: Version("5.0"),
+        VS2019: Version("5.4"),
+    }
 
 
 class ExcludedComponent(object):
