@@ -40,6 +40,7 @@ UNREAL_ENGINE_RELEASE_CHANGELISTS = {
     "5.1.0": 23058290,
     "5.2.0": 25360045,
     "5.3.0": 27405482,
+    "5.4.0": 33043543,
 }
 
 
@@ -67,6 +68,7 @@ class VisualStudio(object):
     }
 
     UnsupportedSince = {VS2017: Version("5.0")}
+    UnsupportedSince = {VS2019: Version("5.4")}
 
 
 class ExcludedComponent(object):
