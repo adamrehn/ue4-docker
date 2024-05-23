@@ -1,6 +1,7 @@
 import json
 import platform
 import random
+from typing import Optional
 
 import humanfriendly
 from packaging.version import Version, InvalidVersion
@@ -50,7 +51,7 @@ class VisualStudio(object):
         name: str,
         build_number: str,
         supported_since: Version,
-        unsupported_since: Version | None,
+        unsupported_since: Optional[Version],
         pass_version_to_buildgraph: bool,
     ):
         self.name = name
