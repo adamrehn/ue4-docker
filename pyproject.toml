@@ -29,6 +29,8 @@ dependencies = [
     "Jinja2>=2.11.3",
     "packaging>=19.1",
     "psutil",
+    # Workaround for https://github.com/docker/docker-py/issues/3256
+    "requests<2.32",
     "termcolor",
 ]
 
