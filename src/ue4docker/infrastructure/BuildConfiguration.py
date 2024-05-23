@@ -45,32 +45,52 @@ UNREAL_ENGINE_RELEASE_CHANGELISTS = {
 
 
 class VisualStudio(object):
-    VS2017 = "2017"
-    VS2019 = "2019"
-    VS2022 = "2022"
+    def __init__(
+        self,
+        name: str,
+        build_number: str,
+        supported_since: Version,
+        unsupported_since: Version | None,
+        pass_version_to_buildgraph: bool,
+    ):
+        self.name = name
+        self.build_number = build_number
+        self.supported_since = supported_since
+        self.unsupported_since = unsupported_since
+        self.pass_version_to_buildgraph = pass_version_to_buildgraph
 
-    BuildNumbers = {
-        VS2017: "15",
-        VS2019: "16",
-        VS2022: "17",
-    }
 
-    SupportedSince = {
+DefaultVisualStudio = "2017"
+
+VisualStudios = {
+    "2017": VisualStudio(
+        name="2017",
+        build_number="15",
         # We do not support versions older than 4.20
-        VS2017: Version("4.20"),
+        supported_since=Version("4.20"),
+        unsupported_since=Version("5.0"),
+        pass_version_to_buildgraph=False,
+    ),
+    "2019": VisualStudio(
+        name="2019",
+        build_number="16",
         # Unreal Engine 4.23.1 is the first that successfully builds with Visual Studio v16.3
         # See https://github.com/EpicGames/UnrealEngine/commit/2510d4fd07a35ba5bff6ac2c7becaa6e8b7f11fa
         #
         # Unreal Engine 4.25 is the first that works with .NET SDK 4.7+
         # See https://github.com/EpicGames/UnrealEngine/commit/5256eedbdef30212ab69fdf4c09e898098959683
-        VS2019: Version("4.25"),
-        VS2022: Version("5.0.0"),
-    }
-
-    UnsupportedSince = {
-        VS2017: Version("5.0"),
-        VS2019: Version("5.4"),
-    }
+        supported_since=Version("4.25"),
+        unsupported_since=Version("5.4"),
+        pass_version_to_buildgraph=True,
+    ),
+    "2022": VisualStudio(
+        name="2022",
+        build_number="17",
+        supported_since=Version("5.0"),
+        unsupported_since=None,
+        pass_version_to_buildgraph=True,
+    ),
+}
 
 
 class ExcludedComponent(object):
@@ -184,8 +204,8 @@ class BuildConfiguration(object):
         )
         parser.add_argument(
             "--visual-studio",
-            default=VisualStudio.VS2017,
-            choices=VisualStudio.BuildNumbers.keys(),
+            default=DefaultVisualStudio,
+            choices=VisualStudios.keys(),
             help="Specify Visual Studio Build Tools version to use for Windows containers",
         )
         parser.add_argument(
@@ -591,24 +611,25 @@ class BuildConfiguration(object):
         )
 
     def _generateWindowsConfig(self):
-        self.visualStudio = self.args.visual_studio
+        self.visualStudio = VisualStudios.get(self.args.visual_studio)
+        if self.visualStudio is None:
+            raise RuntimeError(
+                f"unknown Visual Studio version: {self.args.visual_studio}"
+            )
 
         if self.release is not None and not self.custom:
             # Check whether specified Unreal Engine release is compatible with specified Visual Studio
-            supportedSince = VisualStudio.SupportedSince.get(self.visualStudio, None)
-            if supportedSince is not None and Version(self.release) < supportedSince:
+            if (
+                self.visualStudio.supported_since is not None
+                and Version(self.release) < self.visualStudio.supported_since
+            ):
                 raise RuntimeError(
-                    "specified version of Unreal Engine is too old for Visual Studio {}".format(
-                        self.visualStudio
-                    )
+                    f"specified version of Unreal Engine is too old for Visual Studio {self.visualStudio.name}"
                 )
 
-            unsupportedSince = VisualStudio.UnsupportedSince.get(
-                self.visualStudio, None
-            )
             if (
-                unsupportedSince is not None
-                and Version(self.release) >= unsupportedSince
+                self.visualStudio.unsupported_since is not None
+                and Version(self.release) >= self.visualStudio.unsupported_since
             ):
                 raise RuntimeError(
                     "Visual Studio {} is too old for specified version of Unreal Engine".format(
@@ -616,14 +637,13 @@ class BuildConfiguration(object):
                     )
                 )
 
-        self.visualStudioBuildNumber = VisualStudio.BuildNumbers[self.visualStudio]
         # See https://github.com/EpicGames/UnrealEngine/commit/72585138472785e2ee58aab9950a7260275ee2ac
         # Note: We must not pass VS2019 arg for older UE4 versions that didn't have VS2019 variable in their build graph xml.
         # Otherwise, UAT errors out with "Unknown argument: VS2019".
-        if self.visualStudio != VisualStudio.VS2017:
+        if self.visualStudio.pass_version_to_buildgraph:
             self.opts["buildgraph_args"] = (
                 self.opts.get("buildgraph_args", "")
-                + f" -set:VS{self.visualStudio}=true"
+                + f" -set:VS{self.visualStudio.name}=true"
             )
 
         # Determine base tag for the Windows release of the host system
@@ -641,7 +661,7 @@ class BuildConfiguration(object):
 
         self.baseImage = "mcr.microsoft.com/windows/servercore:" + self.basetag
         self.dllSrcImage = WindowsUtils.getDllSrcImage(self.basetag)
-        self.prereqsTag = self.basetag + "-vs" + self.visualStudio
+        self.prereqsTag = self.basetag + "-vs" + self.visualStudio.name
 
         # If the user has explicitly specified an isolation mode then use it, otherwise auto-detect
         if self.args.isolation is not None:

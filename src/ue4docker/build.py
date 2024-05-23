@@ -396,7 +396,8 @@ def build():
                         "--build-arg",
                         "DLLSRCIMAGE=" + config.dllSrcImage,
                         "--build-arg",
-                        "VISUAL_STUDIO_BUILD_NUMBER=" + config.visualStudioBuildNumber,
+                        "VISUAL_STUDIO_BUILD_NUMBER="
+                        + config.visualStudio.build_number,
                     ]
 
                 custom_prerequisites_dockerfile = config.args.prerequisites_dockerfile
