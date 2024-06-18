@@ -1,5 +1,6 @@
 import docker, fnmatch, humanfriendly, itertools, json, logging, os, platform, re
 from docker.models.containers import Container
+from packaging.version import Version
 
 from .FilesystemUtils import FilesystemUtils
 
@@ -31,6 +32,15 @@ class DockerUtils(object):
         """
         client = docker.from_env()
         return client.info()
+
+    @staticmethod
+    def isVersionWithoutIPV6Loopback():
+        """
+        Determines if the version of the Docker daemon lacks support for using the
+        IPv6 loopback address [::1] when using its default network configuration
+        """
+        dockerVersion = Version(DockerUtils.version()["Version"])
+        return dockerVersion < Version("26.0.0")
 
     @staticmethod
     def exists(name):
