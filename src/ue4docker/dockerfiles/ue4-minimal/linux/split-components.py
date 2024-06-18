@@ -58,3 +58,13 @@ subdirs = [join(rootDir, subdir) for subdir in ["FeaturePacks", "Samples", "Temp
 extractComponent(
     rootDir, outputDir, "TemplatesAndSamples", "template projects and samples", subdirs
 )
+
+# Extract the larger non-optional subdirectories of the Engine directory
+for subdir in ["Binaries", "Content", "Extras", "Intermediate", "Plugins", "Source"]:
+    extractComponent(
+        rootDir,
+        outputDir,
+        subdir,
+        f"{subdir} subdirectory",
+        [join(rootDir, "Engine", subdir)],
+    )

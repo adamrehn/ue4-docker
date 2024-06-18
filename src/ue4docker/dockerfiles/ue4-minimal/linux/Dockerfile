@@ -45,10 +45,6 @@ RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph \
 	{{ buildgraph_args }} && \
 	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC
 
-# Split out components (DDC, debug symbols, template projects) so they can be copied into the final container image as separate filesystem layers
-COPY split-components.py /tmp/split-components.py
-RUN python3 /tmp/split-components.py /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux /home/ue4/UnrealEngine/Components
-
 # Ensure UnrealVersionSelector is built, since the prebuilt binaries may not be up-to-date
 RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealVersionSelector Linux Shipping
 
@@ -82,6 +78,11 @@ RUN rm -rf ./LocalBuilds/Engine/Linux/Engine/Extras/ushell && \
 	bash -c 'set -e; shopt -s globstar; cd /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux/Engine/Extras/ushell && chmod +x ./**/*.sh'
 {% endif %}
 
+# Split out both optional components (DDC, debug symbols, template projects) and large subdirectories so they can be copied
+# into the final container image as separate filesystem layers, avoiding creating a single monolithic layer with everything
+COPY split-components.py /tmp/split-components.py
+RUN python3 /tmp/split-components.py /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux /home/ue4/UnrealEngine/Components
+
 # Copy the Installed Build into a clean image, discarding the source build
 {% if combine %}
 FROM prerequisites as minimal
@@ -92,6 +93,12 @@ FROM ${NAMESPACE}/ue4-build-prerequisites:${PREREQS_TAG}
 
 # Copy the Installed Build files from the builder image
 COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux /home/ue4/UnrealEngine
+COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/Binaries /home/ue4/UnrealEngine
+COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/Content /home/ue4/UnrealEngine
+COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/Extras /home/ue4/UnrealEngine
+COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/Intermediate /home/ue4/UnrealEngine
+COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/Plugins /home/ue4/UnrealEngine
+COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/Source /home/ue4/UnrealEngine
 {% if excluded_components.ddc == false %}
 COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/DDC /home/ue4/UnrealEngine
 {% endif %}
