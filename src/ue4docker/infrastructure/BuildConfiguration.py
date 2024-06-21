@@ -60,6 +60,9 @@ class VisualStudio(object):
         self.unsupported_since = unsupported_since
         self.pass_version_to_buildgraph = pass_version_to_buildgraph
 
+    def __str__(self) -> str:
+        return self.name
+
 
 DefaultVisualStudio = "2017"
 
