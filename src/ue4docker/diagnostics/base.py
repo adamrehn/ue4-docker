@@ -37,7 +37,7 @@ class DiagnosticBase(object):
         logger.info(prefix + "Run: {}".format(command), False)
         subprocess.run(command, check=check)
 
-    def _checkPlatformMistmatch(self, logger, containerPlatform):
+    def _checkPlatformMistmatch(self, logger, containerPlatform, linuxFlagSupported):
         """
         Verifies that the user isn't trying to test Windows containers under Windows 10 when in Linux container mode (or vice versa)
         """
@@ -51,12 +51,13 @@ class DiagnosticBase(object):
                 ),
                 False,
             )
-            logger.error(
-                "[{}] Use the --linux flag if you want to test Linux containers instead.".format(
-                    prefix
-                ),
-                False,
-            )
+            if linuxFlagSupported:
+                logger.error(
+                    "[{}] Use the --linux flag if you want to test Linux containers instead.".format(
+                        prefix
+                    ),
+                    False,
+                )
             raise RuntimeError
         elif containerPlatform == "linux" and dockerPlatform == "windows":
             logger.error(
@@ -65,12 +66,13 @@ class DiagnosticBase(object):
                 ),
                 False,
             )
-            logger.error(
-                "[{}] Remove the --linux flag if you want to test Windows containers instead.".format(
-                    prefix
-                ),
-                False,
-            )
+            if linuxFlagSupported:
+                logger.error(
+                    "[{}] Remove the --linux flag if you want to test Windows containers instead.".format(
+                        prefix
+                    ),
+                    False,
+                )
             raise RuntimeError
 
     def _generateWindowsBuildArgs(
