@@ -86,21 +86,13 @@ def build():
             )
             sys.exit(1)
 
-    # Warn the user if they're using an older version of Docker that can't build or run UE 5.4 images without config changes
+    # Warn the user if they're using an older version of Docker that can't build or run UE 5.4 Linux images without config changes
     if (
         config.containerPlatform == "linux"
         and DockerUtils.isVersionWithoutIPV6Loopback()
     ):
         logger.warning(
-            "\n".join(
-                [
-                    "Warning: detected a Docker version older than 26.0.0.",
-                    "Older versions of Docker cannot build or run images for Unreal Engine 5.4 or",
-                    "newer unless the Docker daemon is explicitly configured to enable IPv6 support.",
-                    "For details, see: https://github.com/adamrehn/ue4-docker/issues/357",
-                    "",
-                ]
-            ),
+            DockerUtils.getIPV6WarningMessage() + "\n",
             False,
         )
 

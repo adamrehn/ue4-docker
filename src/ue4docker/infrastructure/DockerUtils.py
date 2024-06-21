@@ -1,4 +1,4 @@
-import docker, fnmatch, humanfriendly, itertools, json, logging, os, platform, re
+import docker, fnmatch, humanfriendly, itertools, json, logging, os, platform, re, sys
 from docker.models.containers import Container
 from packaging.version import Version
 
@@ -34,13 +34,37 @@ class DockerUtils(object):
         return client.info()
 
     @staticmethod
+    def minimumVersionForIPV6():
+        """
+        Returns the minimum version of the Docker daemon that supports IPv6 by default
+        without requiring manual configuration by the user
+        """
+        return Version("26.0.0")
+
+    @staticmethod
     def isVersionWithoutIPV6Loopback():
         """
         Determines if the version of the Docker daemon lacks support for using the
         IPv6 loopback address [::1] when using its default network configuration
         """
         dockerVersion = Version(DockerUtils.version()["Version"])
-        return dockerVersion < Version("26.0.0")
+        return dockerVersion < DockerUtils.minimumVersionForIPV6()
+
+    @staticmethod
+    def getIPV6WarningMessage():
+        """ """
+        return "\n".join(
+            [
+                f"Warning: detected a Docker version older than {DockerUtils.minimumVersionForIPV6()}.",
+                "Older versions of Docker cannot build or run Linux images for Unreal Engine 5.4 or",
+                "newer unless the Docker daemon is explicitly configured to enable IPv6 support.",
+                "",
+                "To test whether IPv6 support is working, run the following diagnostic test:",
+                f"{sys.argv[0]} diagnostics ipv6",
+                "",
+                "For more details, see: https://github.com/adamrehn/ue4-docker/issues/357",
+            ]
+        )
 
     @staticmethod
     def exists(name):

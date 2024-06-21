@@ -101,3 +101,8 @@ def info():
                 item[0], " " * ((longestName + minSpaces) - len(item[0])), item[1]
             )
         )
+
+    # Warn the user if they're using an older version of Docker that can't build or run UE 5.4 Linux images without config changes
+    if DockerUtils.isVersionWithoutIPV6Loopback():
+        logger = Logger(prefix="")
+        logger.warning(DockerUtils.getIPV6WarningMessage())
