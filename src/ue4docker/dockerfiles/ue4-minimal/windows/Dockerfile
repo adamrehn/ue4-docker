@@ -37,15 +37,15 @@ RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph `
 	(if exist C:\UnrealEngine\LocalBuilds\InstalledDDC rmdir /s /q C:\UnrealEngine\LocalBuilds\InstalledDDC) && `
 	rmdir /s /q C:\UnrealEngine\Engine
 
-# Split out components (DDC, debug symbols, template projects) so they can be copied into the final container image as separate filesystem layers
-COPY split-components.py C:\split-components.py
-RUN python C:\split-components.py C:\UnrealEngine\LocalBuilds\Engine\Windows C:\UnrealEngine\Components
-
 {% if (not disable_all_patches) and (not disable_target_patches) %}
 # Ensure Client and Server targets have their `PlatformType` field set correctly in BaseEngine.ini
 COPY fix-targets.py C:\fix-targets.py
 RUN python C:\fix-targets.py C:\UnrealEngine\LocalBuilds\Engine\Windows\Engine\Config\BaseEngine.ini
 {% endif %}
+
+# Split out components (DDC, debug symbols, template projects) so they can be copied into the final container image as separate filesystem layers
+COPY split-components.py C:\split-components.py
+RUN python C:\split-components.py C:\UnrealEngine\LocalBuilds\Engine\Windows C:\UnrealEngine\Components
 
 # Copy the Installed Build into a clean image, discarding the source tree
 {% if combine %}
@@ -57,6 +57,12 @@ FROM ${NAMESPACE}/ue4-build-prerequisites:${PREREQS_TAG}
 
 # Copy the Installed Build files from the builder image
 COPY --from=builder C:\UnrealEngine\LocalBuilds\Engine\Windows C:\UnrealEngine
+COPY --from=builder C:\UnrealEngine\Components\Binaries C:\UnrealEngine
+COPY --from=builder C:\UnrealEngine\Components\Content C:\UnrealEngine
+COPY --from=builder C:\UnrealEngine\Components\Extras C:\UnrealEngine
+COPY --from=builder C:\UnrealEngine\Components\Intermediate C:\UnrealEngine
+COPY --from=builder C:\UnrealEngine\Components\Plugins C:\UnrealEngine
+COPY --from=builder C:\UnrealEngine\Components\Source C:\UnrealEngine
 {% if excluded_components.ddc == false %}
 COPY --from=builder C:\UnrealEngine\Components\DDC C:\UnrealEngine
 {% endif %}
