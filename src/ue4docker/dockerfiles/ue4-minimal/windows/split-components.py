@@ -48,7 +48,7 @@ ddc = [join(rootDir, "Engine", "DerivedDataCache", "Compressed.ddp")]
 extractComponent(rootDir, outputDir, "DDC", "Derived Data Cache (DDC)", ddc)
 
 # Extract debug symbols
-symbolFiles = glob.glob(join(rootDir, "**", "*UnrealEditor*.pdb"), recursive=True)
+symbolFiles = glob.glob(join(rootDir, "**", "*U*Editor*.pdb"), recursive=True)
 extractComponent(rootDir, outputDir, "DebugSymbols", "debug symbols", symbolFiles)
 
 # Extract template projects and samples
