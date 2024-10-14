@@ -33,10 +33,11 @@ dependencies = [
 ]
 
 # See https://packaging.python.org/en/latest/specifications/declaring-project-metadata/#urls
+# See https://peps.python.org/pep-0753/#well-known-labels
 [project.urls]
-Homepage = "https://github.com/adamrehn/ue4-docker"
-Documentation = "https://adamrehn.github.io/ue4-docker"
-Repository = "https://github.com/adamrehn/ue4-docker.git"
+homepage = "https://github.com/adamrehn/ue4-docker"
+documentation = "https://adamrehn.github.io/ue4-docker"
+repository = "https://github.com/adamrehn/ue4-docker.git"
 
 [project.scripts]
 ue4-docker = "ue4docker:main"
