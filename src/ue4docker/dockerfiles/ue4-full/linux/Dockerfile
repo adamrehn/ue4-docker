@@ -42,7 +42,7 @@ USER ue4
 
 # Explicitly set the configuration directory for ue4cli
 # (This prevents things from breaking when using CI/CD systems that override the $HOME environment variable)
-ENV UE4CLI_CONFIG_DIR /home/ue4/.config/ue4cli
+ENV UE4CLI_CONFIG_DIR=/home/ue4/.config/ue4cli
 
 # Copy the Conan configuration settings and package cache from the previous build stage
 COPY --from=conan --chown=ue4:ue4 /home/ue4/.conan /home/ue4/.conan

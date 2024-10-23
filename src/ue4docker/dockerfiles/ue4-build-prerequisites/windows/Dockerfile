@@ -2,9 +2,9 @@
 ARG BASEIMAGE
 ARG DLLSRCIMAGE
 
-FROM ${DLLSRCIMAGE} as dlls
+FROM ${DLLSRCIMAGE} AS dlls
 
-FROM ${BASEIMAGE} as deduplication
+FROM ${BASEIMAGE} AS deduplication
 SHELL ["cmd", "/S", "/C"]
 
 {% if not disable_labels %}
@@ -43,7 +43,7 @@ COPY remove-duplicate-dlls.ps1 C:\remove-duplicate-dlls.ps1
 RUN powershell -ExecutionPolicy Bypass -File C:\remove-duplicate-dlls.ps1
 
 # Copy the DLL files into a clean image
-FROM ${BASEIMAGE} as prerequisites
+FROM ${BASEIMAGE} AS prerequisites
 SHELL ["cmd", "/S", "/C"]
 COPY --from=deduplication C:\GatheredDlls\ C:\Windows\System32\
 
