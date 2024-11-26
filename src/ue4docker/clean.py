@@ -30,6 +30,7 @@ def clean():
         "-tag", default=None, help="Only clean images with the specified tag"
     )
     parser.add_argument("--source", action="store_true", help="Clean ue4-source images")
+    parser.add_argument("--engine", action="store_true", help="Clean ue4-engine images")
     parser.add_argument(
         "--all", action="store_true", help="Clean all ue4-docker images"
     )
@@ -54,7 +55,7 @@ def clean():
     cleaner.cleanMultiple(dangling, args.dry_run)
 
     # If requested, remove ue4-source images
-    if args.source == True:
+    if args.source:
         _cleanMatching(
             cleaner,
             GlobalConfiguration.resolveTag("ue4-source"),
@@ -62,17 +63,26 @@ def clean():
             args.dry_run,
         )
 
+    # If requested, remove ue4-engine images
+    if args.engine:
+        _cleanMatching(
+            cleaner,
+            GlobalConfiguration.resolveTag("ue4-engine"),
+            args.tag,
+            args.dry_run,
+        )
+
     # If requested, remove everything
-    if args.all == True:
+    if args.all:
         _cleanMatching(
             cleaner, GlobalConfiguration.resolveTag("ue4-*"), args.tag, args.dry_run
         )
 
     # If requested, run `docker system prune`
-    if args.prune == True:
+    if args.prune:
         logger.action("Running `docker system prune`...")
         pruneCommand = ["docker", "system", "prune", "-f"]
-        if args.dry_run == True:
+        if args.dry_run:
             print(pruneCommand)
         else:
             subprocess.call(pruneCommand)
