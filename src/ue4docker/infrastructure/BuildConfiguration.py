@@ -29,13 +29,6 @@ DEFAULT_MEMORY_LIMIT = 10.0
 
 # The Perforce changelist numbers for each supported .0 release of the Unreal Engine
 UNREAL_ENGINE_RELEASE_CHANGELISTS = {
-    "4.20.0": 4212847,
-    "4.21.0": 4541578,
-    "4.22.0": 5660361,
-    "4.23.0": 8386587,
-    "4.24.0": 10570792,
-    "4.25.0": 13144385,
-    "4.26.0": 14830424,
     "4.27.0": 17155196,
     "5.0.0": 19505902,
     "5.1.0": 23058290,
@@ -71,8 +64,8 @@ VisualStudios = {
     "2017": VisualStudio(
         name="2017",
         build_number="15",
-        # We do not support versions older than 4.20
-        supported_since=Version("4.20"),
+        # We do not support versions older than 4.27
+        supported_since=Version("4.27"),
         unsupported_since=Version("5.0"),
         pass_version_to_buildgraph=False,
     ),
@@ -133,12 +126,12 @@ class BuildConfiguration(object):
         parser.add_argument(
             "release",
             nargs="?",  # aka "required = False", but that doesn't work in positionals
-            help='UE4 release to build, in semver format (e.g. 4.20.0) or "custom" for a custom repo and branch (deprecated, use --ue-version instead)',
+            help='UE4 release to build, in semver format (e.g. 4.27.0) or "custom" for a custom repo and branch (deprecated, use --ue-version instead)',
         )
         parser.add_argument(
             "--ue-version",
             default=None,
-            help='UE4 release to build, in semver format (e.g. 4.20.0) or "custom" for a custom repo and branch',
+            help='UE4 release to build, in semver format (e.g. 4.27.0) or "custom" for a custom repo and branch',
         )
         parser.add_argument(
             "--linux",
@@ -450,7 +443,7 @@ class BuildConfiguration(object):
                     )
                 except InvalidVersion:
                     raise RuntimeError(
-                        'invalid Unreal Engine release number "{}", full semver format required (e.g. "4.20.0")'.format(
+                        'invalid Unreal Engine release number "{}", full semver format required (e.g. "4.27.0")'.format(
                             self.args.release
                         )
                     )
