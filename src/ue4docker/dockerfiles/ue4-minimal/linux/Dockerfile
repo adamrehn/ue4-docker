@@ -7,28 +7,8 @@ ARG PREREQS_TAG
 FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 {% endif %}
 
-# Set the changelist number in Build.version to ensure our Build ID is generated correctly
-ARG CHANGELIST
-COPY set-changelist.py /tmp/set-changelist.py
-RUN python3 /tmp/set-changelist.py /home/ue4/UnrealEngine/Engine/Build/Build.version $CHANGELIST
-
 # Remove the .git directory to disable UBT `git status` calls and speed up the build process
 RUN rm -rf /home/ue4/UnrealEngine/.git
-
-{% if (not disable_all_patches) and (not disable_opengl_patch) %}
-# Enable the OpenGL RHI for Engine versions where it is present but deprecated
-COPY enable-opengl.py /tmp/enable-opengl.py
-RUN python3 /tmp/enable-opengl.py /home/ue4/UnrealEngine/Engine/Config/BaseEngine.ini
-{% endif %}
-
-{% if (not disable_all_patches) and (not disable_buildgraph_patches) %}
-COPY patch-filters-xml.py /tmp/patch-filters-xml.py
-RUN python3 /tmp/patch-filters-xml.py /home/ue4/UnrealEngine/Engine/Build/InstalledEngineFilters.xml
-
-# Patch the default settings in InstalledEngineBuild.xml and increase the output verbosity of the DDC generation step
-COPY patch-build-graph.py /tmp/patch-build-graph.py
-RUN python3 /tmp/patch-build-graph.py /home/ue4/UnrealEngine/Engine/Build/InstalledEngineBuild.xml /home/ue4/UnrealEngine/Engine/Build/Build.version
-{% endif %}
 
 # Ensure UBT is built before we create the Installed Build, since Build.sh explicitly sets the
 # target .NET Framework version, whereas InstalledEngineBuild.xml just uses the system default,
@@ -41,7 +21,9 @@ RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph \
 	-target="Make Installed Build Linux" \
 	-script=Engine/Build/InstalledEngineBuild.xml \
 	-set:HostPlatformOnly=true \
+	-set:WithClient=true \
 	-set:WithDDC={% if excluded_components.ddc == true %}false{% else %}true{% endif %} \
+	-set:WithServer=true \
 	{{ buildgraph_args }} && \
 	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC
 
@@ -53,23 +35,6 @@ RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealVersionSelector Linux Shippin
 # (Note also that custom Build IDs are supported by Unreal Engine 5.3.1 and newer, and older versions will just use a GUID as the Build ID)
 RUN cp /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux/Engine/Build/InstalledBuild.txt /home/ue4/UnrealEngine/Engine/Build/InstalledBuild.txt && \
 	./Engine/Binaries/Linux/UnrealVersionSelector-Linux-Shipping -register -unattended
-
-{% if (not disable_all_patches) and (not disable_target_patches) %}
-# Ensure Client and Server targets have their `PlatformType` field set correctly in BaseEngine.ini
-COPY fix-targets.py /tmp/fix-targets.py
-RUN python3 /tmp/fix-targets.py /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux/Engine/Config/BaseEngine.ini
-{% endif %}
-
-{% if (not disable_all_patches) and (not disable_unrealpak_copy) %}
-# Some versions of the Engine fail to include UnrealPak in the Installed Build, so copy it manually
-RUN cp ./Engine/Binaries/Linux/UnrealPak ./LocalBuilds/Engine/Linux/Engine/Binaries/Linux/UnrealPak
-{% endif %}
-
-{% if (not disable_all_patches) and (not disable_toolchain_copy) %}
-# Ensure the bundled toolchain included in 4.20.0 and newer is copied to the Installed Build
-COPY --chown=ue4:ue4 copy-toolchain.py /tmp/copy-toolchain.py
-RUN python3 /tmp/copy-toolchain.py /home/ue4/UnrealEngine
-{% endif %}
 
 {% if enable_ushell %}
 # Ensure ushell is copied to the Installed Build
