@@ -31,21 +31,27 @@ jobs:
     strategy:
       matrix:
         include:
-        - { os: ubuntu-20.04,   python: "3.7"  }
-        - { os: ubuntu-20.04,   python: "3.10" }
-        - { os: ubuntu-22.04,   python: "3.10" }
-        - { os: windows-2019,   python: "3.7",  visual-studio: 2017 }
-        - { os: windows-2019,   python: "3.10", visual-studio: 2017 }
-        - { os: windows-2019,   python: "3.7",  visual-studio: 2019 }
-        - { os: windows-2019,   python: "3.10", visual-studio: 2019 }
-        - { os: windows-2019,   python: "3.7",  visual-studio: 2022 }
-        - { os: windows-2019,   python: "3.10", visual-studio: 2022 }
-        - { os: windows-latest, python: "3.7",  visual-studio: 2017 }
-        - { os: windows-latest, python: "3.10", visual-studio: 2017 }
-        - { os: windows-latest, python: "3.7",  visual-studio: 2019 }
-        - { os: windows-latest, python: "3.10", visual-studio: 2019 }
-        - { os: windows-latest, python: "3.7",  visual-studio: 2022 }
-        - { os: windows-latest, python: "3.10", visual-studio: 2022 }
+        # All supported Ubuntu LTS with system python
+        # Be careful when removing EOL versions so that we still test our oldest supported python at least somewhere
+        - { os: ubuntu-20.04, python: "3.8"  }
+        - { os: ubuntu-22.04, python: "3.10" }
+        - { os: ubuntu-24.04, python: "3.12" }
+
+          # All supported Visual Studio on Windows Server 2019
+        - { os: windows-2019, python: "3.12", visual-studio: 2017 }
+        - { os: windows-2019, python: "3.12", visual-studio: 2019 }
+        - { os: windows-2019, python: "3.12", visual-studio: 2022 }
+
+          # All supported Visual Studio on Windows Server 2022
+        - { os: windows-2022, python: "3.12", visual-studio: 2017 }
+        - { os: windows-2022, python: "3.12", visual-studio: 2019 }
+        - { os: windows-2022, python: "3.12", visual-studio: 2022 }
+
+        # All supported Visual Studio on Windows Server 2025
+        # TODO: Waiting for https://github.com/actions/runner-images/issues/10806
+        # - { os: windows-2022, python: "3.12", visual-studio: 2017 }
+        # - { os: windows-2022, python: "3.12", visual-studio: 2019 }
+        # - { os: windows-2022, python: "3.12", visual-studio: 2022 }
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
