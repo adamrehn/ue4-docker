@@ -64,7 +64,7 @@ RUN python C:\patch-setup-win.py C:\UnrealEngine\Setup.bat %VERBOSE_OUTPUT%
 {% endif %}
 
 {% if (not disable_all_patches) and (not disable_release_patches) %}
-# Apply our bugfix patches to broken Engine releases such as 4.25.4
+# Apply our bugfix patches to broken Engine releases
 # (Make sure we do this before the post-clone setup steps are run)
 COPY patch-broken-releases.py C:\patch-broken-releases.py
 RUN python C:\patch-broken-releases.py C:\UnrealEngine %VERBOSE_OUTPUT%
@@ -74,15 +74,3 @@ RUN python C:\patch-broken-releases.py C:\UnrealEngine %VERBOSE_OUTPUT%
 # (Note that the `-no-cache` flag disables caching of dependency data in `.git/ue4-gitdeps`, saving disk space)
 WORKDIR C:\UnrealEngine
 RUN Setup.bat -no-cache {{ gitdependencies_args }}
-
-{% if (not disable_all_patches) and (not disable_example_platform_cleanup) %}
-# Remove the sample `XXX` example platform code, since this breaks builds from 4.24.0 onwards
-# (For details of what this is, see: <https://forums.unrealengine.com/unreal-engine/announcements-and-releases/1617783-attention-platform-changes-ahead>)
-RUN rmdir /s /q C:\UnrealEngine\Engine\Platforms\XXX 2>NUL || exit 0
-{% endif %}
-
-{% if (not disable_all_patches) and (not disable_ubt_patches) %}
-# Apply our bugfix patches to UnrealBuildTool (UBT)
-COPY patch-ubt.py C:\patch-ubt.py
-RUN python C:\patch-ubt.py C:\UnrealEngine\Engine\Source\Programs\UnrealBuildTool
-{% endif %}
