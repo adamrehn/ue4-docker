@@ -23,9 +23,9 @@ Follow the official installation instructions from the Docker Documentation for 
 Once Docker is installed, follow the instructions from the https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user[Post-installation steps for Linux] page of the Docker Documentation to allow Docker commands to be run by a non-root user.
 This step is required in order to enable audio support when performing cloud rendering using the NVIDIA Container Toolkit.
 
-== Step 2: Install Python 3.6 or newer
+== Step 2: Install Python 3.8 or newer
 
-WARNING: Note that older versions of these Linux distributions may not have Python 3.6 available in their system repositories by default.
+WARNING: Note that older versions of these Linux distributions may not have Python 3.8 available in their system repositories by default.
 When working with an older distribution it may be necessary to configure community repositories that provide newer versions of Python.
 
 Under CentOS, run:
