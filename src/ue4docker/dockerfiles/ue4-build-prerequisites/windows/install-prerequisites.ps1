@@ -108,7 +108,8 @@ $vs_args = @(
     "--add", "Microsoft.Net.Component.4.6.2.TargetingPack",
     "--add", "Microsoft.Net.ComponentGroup.DevelopmentPrerequisites",
     "--add", "Microsoft.NetCore.Component.SDK",
-    "--add", "Microsoft.NetCore.Component.Runtime.3.1"
+    "--add", "Microsoft.NetCore.Component.Runtime.3.1",
+    "--add", "Microsoft.NetCore.Component.Runtime.6.0"
 )
 
 # Install the Visual Studio Build Tools workloads and components we need
