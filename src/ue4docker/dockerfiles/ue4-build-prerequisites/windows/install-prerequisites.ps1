@@ -50,7 +50,7 @@ Copy-Item -Path "$env:TEMP\bin\x64\dxcompiler.dll" C:\Windows\System32\
 Copy-Item -Path "$env:TEMP\bin\x64\dxil.dll" C:\Windows\System32\
 
 # Gather the Vulkan runtime library
-Invoke-WebRequest -Uri "https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-runtime-components.zip?u=" -OutFile "$env:TEMP\vulkan-runtime-components.zip"
+Invoke-WebRequest -Uri "https://sdk.lunarg.com/sdk/download/1.4.304.0/windows/VulkanRT-1.4.304.0-Components.zip?u=" -OutFile "$env:TEMP\vulkan-runtime-components.zip"
 Expand-Archive -Path "$env:TEMP\vulkan-runtime-components.zip" -DestinationPath "$env:TEMP"
 Copy-Item -Path "*\x64\vulkan-1.dll" -Destination C:\Windows\System32\
 
