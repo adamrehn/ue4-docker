@@ -156,22 +156,13 @@ class BuildConfiguration(object):
             help="Print `docker build` commands instead of running them",
         )
         parser.add_argument(
-            "--no-minimal",
-            action="store_true",
-            help="Don't build the ue4-minimal image (deprecated, use --target instead)",
-        )
-        parser.add_argument(
-            "--no-full",
-            action="store_true",
-            help="Don't build the ue4-full image (deprecated, use --target instead)",
-        )
-        parser.add_argument(
             "--no-cache", action="store_true", help="Disable Docker build cache"
         )
         parser.add_argument(
             "--target",
             action="append",
-            help="Add a target to the build list. Valid targets are `build-prerequisites`, `source`, `engine`, `minimal`, `full`, and `all`. May be specified multiple times or comma-separated. Defaults to `all`.",
+            default=[],
+            help="Add a target to the build list. Valid targets are `build-prerequisites`, `source`, `engine`, `minimal`, `full`, and `all`. May be specified multiple times or comma-separated. Defaults to `minimal`.",
         )
         parser.add_argument(
             "--random-memory",
@@ -318,47 +309,12 @@ class BuildConfiguration(object):
         self.args = parser.parse_args(argv)
         self.changelist = self.args.changelist
 
-        # Figure out what targets we have; this is needed to find out if we need --ue-version.
-        using_target_specifier_old = self.args.no_minimal or self.args.no_full
-        using_target_specifier_new = self.args.target is not None
-
-        # If we specified nothing, it's the same as specifying `minimal`
-        if not using_target_specifier_old and not using_target_specifier_new:
+        if len(self.args.target) <= 0:
             self.args.target = ["minimal"]
-        elif using_target_specifier_old and not using_target_specifier_new:
-            # Convert these to the new style
-            logger.warning(
-                "Using deprecated `--no-*` target specifiers; recommend changing to `--target`",
-                False,
-            )
 
-            # no-minimal implies no-full
-            if self.args.no_minimal:
-                self.args.no_full = True
-
-            # Change into target descriptors
-            self.args.target = []
-
-            if not self.args.no_full:
-                self.args.target += ["full"]
-
-            if not self.args.no_minimal:
-                self.args.target += ["minimal"]
-
-            # disabling these was never supported
-            self.args.target += ["source"]
-            self.args.target += ["build-prerequisites"]
-
-        elif using_target_specifier_new and not using_target_specifier_old:
-            # these can be token-delimited, so let's just split them apart and then remerge them into one list
-            split = [item.split(",") for item in self.args.target]
-            self.args.target = [item for sublist in split for item in sublist]
-
-        elif using_target_specifier_old and using_target_specifier_new:
-            # uhoh
-            raise RuntimeError(
-                "specified both `--target` and the old `--no-*` options; please use only `--target`!"
-            )
+        # these can be token-delimited, so let's just split them apart and then remerge them into one list
+        split_target = [item.split(",") for item in self.args.target]
+        self.args.target = [item for sublist in split_target for item in sublist]
 
         # Now that we have our options in `self.args.target`, evaluate our dependencies
         # In a theoretical ideal world this should be code-driven; if you find yourself adding a lot more code to this, consider a redesign!
@@ -372,6 +328,7 @@ class BuildConfiguration(object):
         self.buildTargets = {
             "build-prerequisites": False,
             "source": False,
+            "engine": False,
             "minimal": False,
             "full": False,
         }
@@ -389,6 +346,10 @@ class BuildConfiguration(object):
 
         if "minimal" in active_targets or "all" in active_targets:
             self.buildTargets["minimal"] = True
+            active_targets.add("source")
+
+        if "engine" in active_targets or "all" in active_targets:
+            self.buildTargets["engine"] = True
             active_targets.add("source")
 
         if "source" in active_targets or "all" in active_targets:

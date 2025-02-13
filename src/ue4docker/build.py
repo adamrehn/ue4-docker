@@ -475,11 +475,20 @@ def build():
             else:
                 logger.info("Skipping ue4-source image build.")
 
-            if config.buildTargets["minimal"]:
+            if config.buildTargets["minimal"] or config.buildTargets["engine"]:
                 ue4BuildArgs = prereqConsumerArgs + [
                     "--build-arg",
                     "TAG={}".format(mainTags[1]),
                 ]
+
+            # Build the UE4 Engine source build image, unless requested otherwise by the user
+            if config.buildTargets["engine"]:
+                builder.build_builtin_image(
+                    "ue4-engine",
+                    mainTags,
+                    commonArgs + config.platformArgs + ue4BuildArgs,
+                )
+                builtImages.append("ue4-engine")
 
             # Build the minimal UE4 CI image, unless requested otherwise by the user
             if config.buildTargets["minimal"]:
