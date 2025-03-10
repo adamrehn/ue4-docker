@@ -45,7 +45,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install the X11 runtime libraries required by CEF so we can cook Unreal Engine projects that use the WebBrowserWidget plugin
 # (Starting in Unreal Engine 5.0, we need these installed before creating an Installed Build to prevent cooking failures related to loading the Quixel Bridge plugin)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-			libasound2 \
+			liboss4-salsa-asound2 \
 			libatk1.0-0 \
 			libatk-bridge2.0-0 \
 			libcairo2 \
