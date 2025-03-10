@@ -89,9 +89,11 @@ ENV GLIBC_TUNABLES=glibc.rtld.dynamic_sort=2
 RUN echo 'Defaults lecture="never"' >> /etc/sudoers
 
 # Unreal refuses to run as the root user, so create a non-root user with no password and allow them to run commands using sudo
-RUN useradd --create-home --home /home/ue4 --shell /bin/bash --uid 1000 ue4 && \
+RUN usermod --move-home --home /home/ue4 --login ue4 ubuntu && \
+	usermod -a -G audio,video,sudo,plugdev,dialout ue4 && \
 	passwd -d ue4 && \
-	usermod -a -G audio,video,sudo ue4
+	groupmod --new-name ue4 ubuntu
+
 USER ue4
 
 {% if enable_ushell %}
