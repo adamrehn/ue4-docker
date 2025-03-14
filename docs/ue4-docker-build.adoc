@@ -91,12 +91,6 @@ Monitor resource usage during builds (useful for debugging)
 *--no-cache*::
 Disable Docker build cache
 
-*--no-full*::
-Don't build the ue4-full image (deprecated, use *--target* _target_ instead)
-
-*--no-minimal*::
-Don't build the ue4-minimal image (deprecated, use *--target* _target_ instead)
-
 *--opt* _opt_::
 Set an advanced configuration option (can be specified multiple times to specify multiple options)
 
@@ -115,9 +109,11 @@ Add a suffix to the tags of the built images
 *--target* _target_::
 Tells ue4-docker to build specific image (including its dependencies).
 +
-Supported values: `all`, `build-prerequisites`, `full`, `minimal`, `source`.
+Supported values: `all`, `build-prerequisites`, `full`, `minimal`, `source`, `engine`.
 +
 You can specify the `--target` option multiple times.
++
+Defaults to `minimal`.
 
 *-ue4cli* _ue4cli_::
 Override the default version of ue4cli installed in the ue4-full image
