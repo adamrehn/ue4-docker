@@ -4,7 +4,7 @@ function RunProcessChecked
 {
     param ([string] $Cmd, [string[]] $Argv)
 
-    Write-Output "Executing comand: $Cmd $Argv"
+    Write-Output "Executing command: $Cmd $Argv"
 
     $process = Start-Process -NoNewWindow -PassThru -Wait -FilePath $Cmd -ArgumentList $Argv
     if ($process.ExitCode -ne 0)
