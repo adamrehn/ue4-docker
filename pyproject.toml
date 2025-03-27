@@ -25,7 +25,6 @@ dependencies = [
     "colorama",
     "docker>=6.1.0",
     "humanfriendly",
-    "importlib-metadata>=1.0;python_version<'3.8'",
     "Jinja2>=2.11.3",
     "packaging>=19.1",
     "psutil",
