@@ -465,34 +465,38 @@ def build():
                     "--build-arg",
                     "VERBOSE_OUTPUT={}".format("1" if config.verbose == True else "0"),
                 ]
-                builder.build_builtin_image(
-                    "ue4-source",
-                    mainTags,
-                    commonArgs + config.platformArgs + ue4SourceArgs + credentialArgs,
-                    secrets=secrets,
-                )
-                builtImages.append("ue4-source")
-            else:
-                logger.info("Skipping ue4-source image build.")
 
-            if config.buildTargets["minimal"]:
-                ue4BuildArgs = prereqConsumerArgs + [
-                    "--build-arg",
-                    "TAG={}".format(mainTags[1]),
-                ]
-
-            # Build the minimal UE4 CI image, unless requested otherwise by the user
-            if config.buildTargets["minimal"]:
-                minimalArgs = (
+                changelistArgs = (
                     ["--build-arg", "CHANGELIST={}".format(config.changelist)]
                     if config.changelist is not None
                     else []
                 )
 
                 builder.build_builtin_image(
+                    "ue4-source",
+                    mainTags,
+                    commonArgs
+                    + config.platformArgs
+                    + ue4SourceArgs
+                    + credentialArgs
+                    + changelistArgs,
+                    secrets=secrets,
+                )
+                builtImages.append("ue4-source")
+            else:
+                logger.info("Skipping ue4-source image build.")
+
+            # Build the minimal UE4 CI image, unless requested otherwise by the user
+            if config.buildTargets["minimal"]:
+                minimalArgs = prereqConsumerArgs + [
+                    "--build-arg",
+                    "TAG={}".format(mainTags[1]),
+                ]
+
+                builder.build_builtin_image(
                     "ue4-minimal",
                     mainTags,
-                    commonArgs + config.platformArgs + ue4BuildArgs + minimalArgs,
+                    commonArgs + config.platformArgs + minimalArgs,
                 )
                 builtImages.append("ue4-minimal")
             else:
