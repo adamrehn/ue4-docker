@@ -26,7 +26,7 @@ RunProcessChecked "choco" @("install", "--no-progress", "-y", "git.install", "--
 '@)
 
 # pdbcopy.exe from Windows SDK is needed for creating an Installed Build of the Engine
-RunProcessChecked "choco" @("install", "--no-progress", "-y", "choco-cleaner", "python", "vcredist-all", "windows-sdk-10-version-1809-windbg")
+RunProcessChecked "choco" @("install", "--no-progress", "-y", "choco-cleaner", "python", "vcredist-all", "windowsdriverkit10")
 
 # Reload our environment variables from the registry so the `git` command works
 Update-SessionEnvironment
