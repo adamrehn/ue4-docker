@@ -55,14 +55,30 @@ Expand-Archive -Path "$env:TEMP\vulkan-runtime-components.zip" -DestinationPath 
 Copy-Item -Path "*\x64\vulkan-1.dll" -Destination C:\Windows\System32\
 
 $visual_studio_build = $args[0]
+$unreal_engine_version = $args[1]
 
 if ($visual_studio_build -eq "15")
 {
     $windows_sdk_version = 18362
+    $windows_os_version = "Windows10SDK"
 }
 else
 {
     $windows_sdk_version = 20348
+    $windows_os_version = "Windows10SDK"
+
+    # NOTE: See suggested components https://github.com/EpicGames/UnrealEngine/blob/release/Engine/Config/Windows/Windows_SDK.json
+    if ($unreal_engine_version.StartsWith("5.4"))
+    {
+        $windows_sdk_version = 22621
+        $vs_tools_version = "14.38.17.8"
+    }
+    elseif ($unreal_engine_version.StartsWith("5.5"))
+    {
+        $windows_sdk_version = 22621
+        $windows_os_version = "Windows11SDK"
+        $vs_tools_version = "14.38.17.8"
+    }
 }
 
 # NOTE: We use the Visual Studio 2022 installer even for Visual Studio 2019 and 2017 here because the old (2017) installer now breaks
@@ -85,14 +101,24 @@ $vs_args = @(
     "--add", "Microsoft.VisualStudio.Workload.VCTools",
     "--add", "Microsoft.VisualStudio.Workload.MSBuildTools",
     "--add", "Microsoft.VisualStudio.Component.NuGet",
-    "--add", "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
-    "--add", "Microsoft.VisualStudio.Component.Windows10SDK.$windows_sdk_version",
+    "--add", "Microsoft.VisualStudio.Component.$windows_os_version.$windows_sdk_version",
     "--add", "Microsoft.Net.Component.4.5.TargetingPack",
     "--add", "Microsoft.Net.Component.4.6.2.TargetingPack",
     "--add", "Microsoft.Net.ComponentGroup.DevelopmentPrerequisites",
     "--add", "Microsoft.NetCore.Component.SDK",
     "--add", "Microsoft.NetCore.Component.Runtime.3.1"
 )
+
+if (-not ([string]::IsNullOrEmpty($vs_tools_version))) {
+    $vs_args = $vs_args,
+    "--add", "Microsoft.VisualStudio.Component.VC.$vs_tools_version.x86.x64",
+    "--remove", "Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
+}
+else
+{
+    $vs_args = $vs_args,
+    "--add", "Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
+}
 
 # Install the Visual Studio Build Tools workloads and components we need
 RunProcessChecked "$env:TEMP\vs_buildtools.exe" $vs_args
