@@ -57,6 +57,8 @@ Copy-Item -Path "*\x64\vulkan-1.dll" -Destination C:\Windows\System32\
 $visual_studio_build = $args[0]
 $unreal_engine_version = $args[1]
 
+Write-Output "UE version: $unreal_engine_version"
+
 if ($visual_studio_build -eq "15")
 {
     $windows_sdk_version = 18362
@@ -70,11 +72,13 @@ else
     # NOTE: See suggested components https://github.com/EpicGames/UnrealEngine/blob/release/Engine/Config/Windows/Windows_SDK.json
     if ($unreal_engine_version.StartsWith("5.4"))
     {
+        Write-Output "Usage MSVC build tools for UE 5.4"
         $windows_sdk_version = 22621
         $vs_tools_version = "14.38.17.8"
     }
     elseif ($unreal_engine_version.StartsWith("5.5") -or $unreal_engine_version.StartsWith("5.6"))
     {
+        Write-Output "Usage MSVC build tools for UE 5.5 or higher"
         $windows_sdk_version = 22621
         $windows_os_version = "Windows11SDK"
         $vs_tools_version = "14.38.17.8"
