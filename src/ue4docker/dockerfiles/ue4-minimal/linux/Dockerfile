@@ -13,7 +13,11 @@ RUN rm -rf /home/ue4/UnrealEngine/.git
 # Ensure UBT is built before we create the Installed Build, since Build.sh explicitly sets the
 # target .NET Framework version, whereas InstalledEngineBuild.xml just uses the system default,
 # which can result in errors when running the built UBT due to the wrong version being targeted
-RUN ./Engine/Build/BatchFiles/BuildUBT.sh
+RUN if [ -f ./Engine/Build/BatchFiles/BuildUBT.sh ]; then \
+		./Engine/Build/BatchFiles/BuildUBT.sh; \
+	else \
+		./Engine/Build/BatchFiles/Linux/Build.sh ShaderCompileWorker Linux Development -SkipBuild -buildubt; \
+	fi
 
 # Create an Installed Build of the Engine
 WORKDIR /home/ue4/UnrealEngine
