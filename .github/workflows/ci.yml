@@ -33,7 +33,6 @@ jobs:
         include:
         # All supported Ubuntu LTS with system python
         # Be careful when removing EOL versions so that we still test our oldest supported python at least somewhere
-        - { os: ubuntu-20.04, python: "3.8"  }
         - { os: ubuntu-22.04, python: "3.10" }
         - { os: ubuntu-24.04, python: "3.12" }
 

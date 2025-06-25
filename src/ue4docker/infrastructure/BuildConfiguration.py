@@ -31,13 +31,6 @@ DEFAULT_MEMORY_LIMIT = 10.0
 
 # The Perforce changelist numbers for each supported .0 release of the Unreal Engine
 UNREAL_ENGINE_RELEASE_CHANGELISTS = {
-    "4.20.0": 4212847,
-    "4.21.0": 4541578,
-    "4.22.0": 5660361,
-    "4.23.0": 8386587,
-    "4.24.0": 10570792,
-    "4.25.0": 13144385,
-    "4.26.0": 14830424,
     "4.27.0": 17155196,
     "5.0.0": 19505902,
     "5.1.0": 23058290,
@@ -45,6 +38,7 @@ UNREAL_ENGINE_RELEASE_CHANGELISTS = {
     "5.3.0": 27405482,
     "5.4.0": 33043543,
     "5.5.0": 37670630,
+    "5.6.0": 43139311,
 }
 
 
@@ -73,20 +67,15 @@ VisualStudios = {
     "2017": VisualStudio(
         name="2017",
         build_number="15",
-        # We do not support versions older than 4.20
-        supported_since=Version("4.20"),
+        # We do not support versions older than 4.27
+        supported_since=Version("4.27"),
         unsupported_since=Version("5.0"),
         pass_version_to_buildgraph=False,
     ),
     "2019": VisualStudio(
         name="2019",
         build_number="16",
-        # Unreal Engine 4.23.1 is the first that successfully builds with Visual Studio v16.3
-        # See https://github.com/EpicGames/UnrealEngine/commit/2510d4fd07a35ba5bff6ac2c7becaa6e8b7f11fa
-        #
-        # Unreal Engine 4.25 is the first that works with .NET SDK 4.7+
-        # See https://github.com/EpicGames/UnrealEngine/commit/5256eedbdef30212ab69fdf4c09e898098959683
-        supported_since=Version("4.25"),
+        supported_since=Version("4.27"),
         unsupported_since=Version("5.4"),
         pass_version_to_buildgraph=True,
     ),
@@ -135,12 +124,12 @@ class BuildConfiguration(object):
         parser.add_argument(
             "release",
             nargs="?",  # aka "required = False", but that doesn't work in positionals
-            help='Unreal Engine release to build, in semver format (e.g. 4.20.0) or "custom" for a custom repo and branch (deprecated, use --ue-version instead)',
+            help='UE4 release to build, in semver format (e.g. 4.27.0) or "custom" for a custom repo and branch (deprecated, use --ue-version instead)',
         )
         parser.add_argument(
             "--ue-version",
             default=None,
-            help='Unreal Engine release to build, in semver format (e.g. 4.20.0) or "custom" for a custom repo and branch',
+            help='UE4 release to build, in semver format (e.g. 4.27.0) or "custom" for a custom repo and branch',
         )
         parser.add_argument(
             "--linux",
@@ -464,7 +453,7 @@ class BuildConfiguration(object):
                     )
                 except InvalidVersion:
                     raise RuntimeError(
-                        'invalid Unreal Engine release number "{}", full semver format required (e.g. "4.20.0")'.format(
+                        'invalid Unreal Engine release number "{}", full semver format required (e.g. "4.27.0")'.format(
                             self.args.release
                         )
                     )

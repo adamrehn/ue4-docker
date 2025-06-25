@@ -14,7 +14,7 @@ except:
 
 class UERelease:
     def __init__(
-        self, name: str, tag: str, repo: str, vsVersion: int, ubuntuVersion: str
+        self, name: str, tag: str, repo: str, vsVersion: int, ubuntuVersion: str | None
     ) -> None:
         self.name = name
         self.tag = tag
@@ -29,12 +29,13 @@ COMMITDEPS_REPO = "https://github.com/adamrehn/UnrealEngine.git"
 
 # The list of Unreal Engine releases that are currently supported by ue4-docker
 SUPPORTED_RELEASES = [
-    UERelease("4.26", "4.26.2-fixed", COMMITDEPS_REPO, 2017, None),
     UERelease("4.27", "4.27.2-fixed", COMMITDEPS_REPO, 2017, None),
     UERelease("5.0", "5.0.3-fixed", COMMITDEPS_REPO, 2019, "20.04"),
     UERelease("5.1", "5.1.1-fixed", COMMITDEPS_REPO, 2019, None),
     UERelease("5.2", "5.2.1-release", UPSTREAM_REPO, 2022, None),
     UERelease("5.3", "5.3.2-release", UPSTREAM_REPO, 2022, None),
+    UERelease("5.4", "5.4.4-release", UPSTREAM_REPO, 2022, None),
+    UERelease("5.5", "5.5.1-release", UPSTREAM_REPO, 2022, None),
 ]
 
 

@@ -4,7 +4,7 @@ function RunProcessChecked
 {
     param ([string] $Cmd, [string[]] $Argv)
 
-    Write-Output "Executing comand: $Cmd $Argv"
+    Write-Output "Executing command: $Cmd $Argv"
 
     $process = Start-Process -NoNewWindow -PassThru -Wait -FilePath $Cmd -ArgumentList $Argv
     if ($process.ExitCode -ne 0)
@@ -26,7 +26,7 @@ RunProcessChecked "choco" @("install", "--no-progress", "-y", "git.install", "--
 '@)
 
 # pdbcopy.exe from Windows SDK is needed for creating an Installed Build of the Engine
-RunProcessChecked "choco" @("install", "--no-progress", "-y", "choco-cleaner", "python", "vcredist-all", "windows-sdk-10-version-1809-windbg")
+RunProcessChecked "choco" @("install", "--no-progress", "-y", "choco-cleaner", "python", "vcredist-all", "windowsdriverkit10")
 
 # Reload our environment variables from the registry so the `git` command works
 Update-SessionEnvironment
@@ -56,26 +56,9 @@ Copy-Item -Path "*\x64\vulkan-1.dll" -Destination C:\Windows\System32\
 
 $visual_studio_build = $args[0]
 
-# Use the latest available Windows SDK. The motivation behind this is:
-# 1. Newer SDKs allow developers to use newer APIs. Developers can guard that API usage with runtime version checks if they want to continue to support older Windows releases.
-# 2. Unreal Engine slowly moves to newer Windows SDK. 4.27.0 no longer compiles with SDKs older than 18362 and even if it will be fixed in 4.27.x,
-#    this is just a question of a time when older SDKs support will be dropped completely
-# 3. UE5 doesn't support VS2017 at all, so in the future that argument for continuing to use Windows SDK 17763 from VS2017 era will be weaker and weaker.
-#
-# We can't use newer SDK for VS2017 that is used to compile older engines because 18362 SDK support was only added in UE-4.23.
-#
-# See https://github.com/adamrehn/ue4-docker/issues/192
-# See https://forums.unrealengine.com/t/ndis_miniport_major_version-is-not-defined-error/135058
-# See https://github.com/EpicGames/UnrealEngine/blame/4.23.0-release/Engine/Source/Programs/UnrealBuildTool/Platform/Windows/UEBuildWindows.cs#L1822-L1823
-# See https://github.com/EpicGames/UnrealEngine/commit/ecc4872c3269e75a24adc40734cc8bcc9bbed1ca
-# See https://udn.unrealengine.com/s/question/0D54z000079HcjJCAS/d3d12h427-error-c4668-winapipartitiongames-is-not-defined-as-a-preprocessor-macro-replacing-with-0-for-ifelif
-#
-# Keywords for Google:
-# error C4668: 'NDIS_MINIPORT_MAJOR_VERSION' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif
-# d3d12.h(427): error C4668: 'WINAPI_PARTITION_GAMES' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'
 if ($visual_studio_build -eq "15")
 {
-    $windows_sdk_version = 17763
+    $windows_sdk_version = 18362
 }
 else
 {

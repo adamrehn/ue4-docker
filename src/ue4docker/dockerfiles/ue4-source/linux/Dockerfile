@@ -6,11 +6,6 @@ ARG PREREQS_TAG
 FROM ${NAMESPACE}/ue4-build-prerequisites:${PREREQS_TAG}
 {% endif %}
 
-{% if not disable_all_patches %}
-# Enable verbose output for steps that patch files?
-ARG VERBOSE_OUTPUT=0
-{% endif %}
-
 {% if source_mode == "copy" %}
 
 # Copy the Unreal Engine source code from the host system
@@ -83,8 +78,13 @@ RUN mkdir /home/ue4/UnrealEngine && \
 
 {% endif %}
 
+{% if not disable_all_patches %}
+# Enable verbose output for steps that patch files?
+ARG VERBOSE_OUTPUT=0
+{% endif %}
+
 {% if (not disable_all_patches) and (not disable_release_patches) %}
-# Apply our bugfix patches to broken Engine releases such as 4.25.4
+# Apply our bugfix patches to broken Engine releases
 # (Make sure we do this before the post-clone setup steps are run)
 COPY --chown=ue4:ue4 patch-broken-releases.py /tmp/patch-broken-releases.py
 RUN python3 /tmp/patch-broken-releases.py /home/ue4/UnrealEngine $VERBOSE_OUTPUT
@@ -103,21 +103,17 @@ RUN --mount=type=cache,target=/home/ue4/gitdeps,uid=1000,gid=1000 sudo apt-get u
 	./Setup.sh {{ gitdependencies_args }} && \
 	sudo rm -rf /var/lib/apt/lists/*
 
-{% if (not disable_all_patches) and (not disable_linker_fixup) %}
-# The linker bundled with UE4.20.0 onwards chokes on system libraries built with newer compilers,
-# so redirect the bundled clang to use the system linker instead
-COPY --chown=ue4:ue4 linker-fixup.py /tmp/linker-fixup.py
-RUN python3 /tmp/linker-fixup.py /home/ue4/UnrealEngine/Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64 `which ld`
+{% else %}
+
+# When running without BuildKit, we use the `-no-cache` flag to disable caching of dependency data in `.git/ue4-gitdeps`, saving disk space
+WORKDIR /home/ue4/UnrealEngine
+RUN sudo apt-get update && \
+	./Setup.sh -no-cache {{ gitdependencies_args }} && \
+	sudo rm -rf /var/lib/apt/lists/*
+
 {% endif %}
 
-{% if (not disable_all_patches) and (not disable_example_platform_cleanup) %}
-# Remove the sample `XXX` example platform code, since this breaks builds from 4.24.0 onwards
-# (For details of what this is, see: <https://forums.unrealengine.com/unreal-engine/announcements-and-releases/1617783-attention-platform-changes-ahead>)
-RUN rm -r -f /home/ue4/UnrealEngine/Engine/Platforms/XXX
-{% endif %}
-
-{% if (not disable_all_patches) and (not disable_ubt_patches) %}
-# Apply our bugfix patches to UnrealBuildTool (UBT)
-COPY --chown=ue4:ue4 patch-ubt.py /tmp/patch-ubt.py
-RUN python3 /tmp/patch-ubt.py /home/ue4/UnrealEngine/Engine/Source/Programs/UnrealBuildTool
-{% endif %}
+# Set the changelist number in Build.version to ensure our Build ID is generated correctly
+ARG CHANGELIST
+COPY set-changelist.py /tmp/set-changelist.py
+RUN python3 /tmp/set-changelist.py /home/ue4/UnrealEngine/Engine/Build/Build.version $CHANGELIST
