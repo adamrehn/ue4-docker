@@ -147,6 +147,11 @@ class BuildConfiguration(object):
             help="Print `docker build` commands instead of running them",
         )
         parser.add_argument(
+            "--debug",
+            action="store_true",
+            help="Use buildx debug features",
+        )
+        parser.add_argument(
             "--no-minimal",
             action="store_true",
             help="Don't build the ue4-minimal image (deprecated, use --target instead)",
@@ -484,6 +489,7 @@ class BuildConfiguration(object):
             if platform.system() == "Windows" and self.args.linux == False
             else "linux"
         )
+        self.debug = self.args.debug
         self.dryRun = self.args.dry_run
         self.rebuild = self.args.rebuild
         self.suffix = self.args.suffix

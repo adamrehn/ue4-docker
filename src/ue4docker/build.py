@@ -97,7 +97,7 @@ def build():
         )
 
     # Create an auto-deleting temporary directory to hold our build context
-    with tempfile.TemporaryDirectory() as tempDir:
+    with tempfile.TemporaryDirectory(prefix="ue4docker", delete=not config.debug) as tempDir:
         contextOrig = join(os.path.dirname(os.path.abspath(__file__)), "dockerfiles")
 
         template_context = {
@@ -107,6 +107,9 @@ def build():
         }
 
         template_context.update(config.opts)
+
+        if config.debug:
+            logger.info(f"Temp build context dir: {tempDir}", False)
 
         # Create the builder instance to build the Docker images
         builder = ImageBuilder(

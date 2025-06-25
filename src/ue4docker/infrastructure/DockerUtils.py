@@ -92,13 +92,14 @@ class DockerUtils(object):
         )
 
     @staticmethod
-    def buildx(tags: [str], context: str, args: [str], secrets: [str]) -> [str]:
+    def buildx(tags: [str], context: str, args: [str], secrets: [str], debug=False) -> [str]:
         """
         Returns the `docker buildx` command to build an image with the BuildKit backend
         """
         tagArgs = [["-t", tag] for tag in tags]
+        prefix = ["docker"] if not debug else ["docker", "buildx", "debug", "--on=error"]
         return (
-            ["docker", "build"]
+            prefix + ["build"]
             + list(itertools.chain.from_iterable(tagArgs))
             + [context]
             + ["--progress=plain"]
