@@ -61,4 +61,5 @@ RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "$env:chocolateyVersi
 # Install the rest of our build prerequisites and clean up afterwards to minimise image size
 COPY install-prerequisites.ps1 C:\
 ARG VISUAL_STUDIO_BUILD_NUMBER
-RUN powershell -ExecutionPolicy Bypass -File C:\install-prerequisites.ps1 %VISUAL_STUDIO_BUILD_NUMBER%
+ARG UE_VERSION
+RUN powershell -ExecutionPolicy Bypass -File C:\install-prerequisites.ps1 %VISUAL_STUDIO_BUILD_NUMBER% %UE_VERSION%
