@@ -19,6 +19,9 @@ RUN if [ -f ./Engine/Build/BatchFiles/BuildUBT.sh ]; then \
 		./Engine/Build/BatchFiles/Linux/Build.sh ShaderCompileWorker Linux Development -SkipBuild -buildubt; \
 	fi
 
+# Copy the BuildConfiguration.xml file to disable UnrealBuildAccelerator
+COPY ["BuildConfiguration.xml", "/home/ue4/.config/Unreal Engine/UnrealBuildTool/BuildConfiguration.xml"]
+
 # Create an Installed Build of the Engine
 WORKDIR /home/ue4/UnrealEngine
 RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph \
@@ -77,6 +80,9 @@ COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/DebugSymbo
 {% if excluded_components.templates == false %}
 COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/TemplatesAndSamples /home/ue4/UnrealEngine
 {% endif %}
+
+# Copy the BuildConfiguration.xml file to disable UnrealBuildAccelerator
+COPY ["BuildConfiguration.xml", "/home/ue4/.config/Unreal Engine/UnrealBuildTool/BuildConfiguration.xml"]
 
 # Copy Install.ini from the builder image, so it can be used by tools that read the list of engine installations (e.g. ushell)
 COPY --from=builder --chown=ue4:ue4 /home/ue4/.config/Epic/UnrealEngine/Install.ini /home/ue4/.config/Epic/UnrealEngine/Install.ini
