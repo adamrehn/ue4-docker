@@ -15,8 +15,8 @@ ARG CONAN_VERSION
 
 # Install ue4cli and conan-ue4cli
 USER root
-RUN pip3 install --upgrade pip setuptools wheel
-RUN pip3 install "$CONAN_VERSION" "$UE4CLI_VERSION" "$CONAN_UE4CLI_VERSION"
+RUN rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED
+RUN pip3 install --ignore-installed  "$CONAN_VERSION" "$UE4CLI_VERSION" "$CONAN_UE4CLI_VERSION"
 USER ue4
 
 # Copy in UBT from minimal image, if present (required for `ue4 conan generate` to work on UE5)
@@ -43,9 +43,10 @@ ARG CONAN_VERSION
 
 # Install CMake, ue4cli, conan-ue4cli, and ue4-ci-helpers
 USER root
+RUN rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED
+
 RUN apt-get update && apt-get install -y --no-install-recommends cmake
-RUN pip3 install --upgrade pip setuptools wheel
-RUN pip3 install "$CONAN_VERSION" "$UE4CLI_VERSION" "$CONAN_UE4CLI_VERSION" ue4-ci-helpers
+RUN pip3 install --ignore-installed "$CONAN_VERSION" "$UE4CLI_VERSION" "$CONAN_UE4CLI_VERSION" ue4-ci-helpers
 USER ue4
 
 # Explicitly set the configuration directory for ue4cli
