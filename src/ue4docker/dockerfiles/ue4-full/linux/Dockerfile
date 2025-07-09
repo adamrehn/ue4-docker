@@ -4,9 +4,9 @@ ARG CONAN_VERSION="conan>=1.59.0,<2"
 {% if combine %}
 FROM source as conan
 {% else %}
-ARG NAMESPACE
-ARG TAG
-ARG PREREQS_TAG
+ARG NAMESPACE="{{ namespace }}""
+ARG TAG="{{ tag }}"
+ARG PREREQS_TAG="{{ prereqs_tag }}"
 FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS conan
 {% endif %}
 ARG UE4CLI_VERSION
