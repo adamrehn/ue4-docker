@@ -538,7 +538,6 @@ def build():
                     mainTags,
                     commonArgs
                     + config.platformArgs
-                    + ue4BuildArgs
                     + infrastructureFlags,
                 )
                 builtImages.append("ue4-full")
