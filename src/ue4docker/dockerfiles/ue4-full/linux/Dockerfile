@@ -29,7 +29,7 @@ COPY --from={{ namespace }}/ue4-minimal:{{ tag }}-{{ prereqs_tag }} --chown=ue4:
 
 # Extract the third-party library details from UBT
 RUN ue4 setroot /home/ue4/UnrealEngine
-RUN ue4 conan generate
+# RUN ue4 conan generate
 
 # Copy the generated Conan packages into a new image with our Installed Build
 {% if combine %}
@@ -54,11 +54,11 @@ USER ue4
 ENV UE4CLI_CONFIG_DIR=/home/ue4/.config/ue4cli
 
 # Copy the Conan configuration settings and package cache from the previous build stage
-COPY --from=conan --chown=ue4:ue4 /home/ue4/.conan /home/ue4/.conan
+# COPY --from=conan --chown=ue4:ue4 /home/ue4/.conan /home/ue4/.conan
 
 # Install conan-ue4cli (just generate the profile, since we've already copied the generated packages)
 RUN ue4 setroot /home/ue4/UnrealEngine
-RUN ue4 conan generate --profile-only
+# RUN ue4 conan generate --profile-only
 
 # Enable PulseAudio support
 USER root
