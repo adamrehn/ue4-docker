@@ -81,11 +81,11 @@ COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/DebugSymbo
 COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/TemplatesAndSamples /home/ue4/UnrealEngine
 {% endif %}
 
-# Copy the BuildConfiguration.xml file to disable UnrealBuildAccelerator
-COPY ["BuildConfiguration.xml", "/home/ue4/.config/Unreal Engine/UnrealBuildTool/BuildConfiguration.xml"]
 
 # Copy Install.ini from the builder image, so it can be used by tools that read the list of engine installations (e.g. ushell)
 COPY --from=builder --chown=ue4:ue4 /home/ue4/.config/Epic/UnrealEngine/Install.ini /home/ue4/.config/Epic/UnrealEngine/Install.ini
+# Copy the BuildConfiguration.xml file to disable UnrealBuildAccelerator
+COPY --chown=ue4:ue4 ["BuildConfiguration.xml", "/home/ue4/.config/Unreal Engine/UnrealBuildTool/BuildConfiguration.xml"]
 WORKDIR /home/ue4/UnrealEngine
 
 {% if not disable_labels %}
