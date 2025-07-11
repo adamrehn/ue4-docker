@@ -30,7 +30,7 @@ RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph \
 	-set:HostPlatformOnly=true \
 	-set:WithClient=true \
 	-set:WithDDC={% if excluded_components.ddc == true %}false{% else %}true{% endif %} \
-	-set:WithServer=false \
+	-set:WithServer=true \
 	{{ buildgraph_args }} && \
 	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC
 
