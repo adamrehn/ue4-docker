@@ -46,7 +46,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install the X11 runtime libraries required by CEF so we can cook Unreal Engine projects that use the WebBrowserWidget plugin
 # (Starting in Unreal Engine 5.0, we need these installed before creating an Installed Build to prevent cooking failures related to loading the Quixel Bridge plugin)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-			liboss4-salsa-asound2 \
+			libasound2t64 \
 			libatk1.0-0 \
 			libatk-bridge2.0-0 \
 			libcairo2 \
@@ -74,17 +74,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 			xfonts-base \
 			xkb-data && \
 	rm -rf /var/lib/apt/lists/*
-
-{% if enable_dso_patch %}
-# Install the glibc DSO patch to improve Editor startup times
-RUN add-apt-repository -y ppa:slonopotamus/glibc-dso && \
-	apt-get update && \
-	apt upgrade -y libc6 && \
-	rm -rf /var/lib/apt/lists/*
-
-# Enable the glibc DSO patch
-ENV GLIBC_TUNABLES=glibc.rtld.dynamic_sort=2
-{% endif %}
 
 # Disable the default "lecture" message the first time a user runs a command using sudo
 RUN echo 'Defaults lecture="never"' >> /etc/sudoers
