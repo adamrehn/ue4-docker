@@ -15,7 +15,7 @@ ENV NVIDIA_DRIVER_CAPABILITIES=${NVIDIA_DRIVER_CAPABILITIES},compute
 
 # Add the "display" driver capability for NVIDIA GPUs
 # (This allows us to run the Editor from an interactive container by bind-mounting the host system's X11 socket)
-ENV NVIDIA_DRIVER_CAPABILITIES=${NVIDIA_DRIVER_CAPABILITIES},display
+ENV NVIDIA_DRIVER_CAPABILITIES=${NVIDIA_DRIVER_CAPABILITIES},display,graphics
 
 # Enable NVENC support for use by Unreal Engine plugins that depend on it (e.g. Pixel Streaming)
 # (Note that adding `video` seems to implicitly enable `compute` as well, but we include separate directives here to clearly indicate the purpose of both)

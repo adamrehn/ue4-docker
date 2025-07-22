@@ -20,7 +20,7 @@ RUN if [ -f ./Engine/Build/BatchFiles/BuildUBT.sh ]; then \
 	fi
 
 # Copy the BuildConfiguration.xml file to disable UnrealBuildAccelerator
-COPY ["BuildConfiguration.xml", "/home/ue4/.config/Unreal Engine/UnrealBuildTool/BuildConfiguration.xml"]
+COPY --chown=ue4:ue4 ["BuildConfiguration.xml", "/home/ue4/.config/Unreal Engine/UnrealBuildTool/BuildConfiguration.xml"]
 
 # Create an Installed Build of the Engine
 WORKDIR /home/ue4/UnrealEngine
@@ -125,7 +125,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	libxcb1-dev \
 	vulkan-tools \
 	&& rm -rf /var/lib/apt/lists/* && \
-	VULKAN_API_VERSION=`dpkg -s libvulkan1 | grep -oP 'Version: [0-9|\.]+' | grep -oP '[0-9|\.]+'` && \
+	VULKAN_API_VERSION=`dpkg -s libvulkan1 | grep -oP 'Version: [0-9]+\.[0-9]+\.[0-9]+' | grep -oP '[0-9]+\.[0-9]+\.[0-9]+'` && \
 	mkdir -p /etc/vulkan/icd.d/ && \
 	echo \
 	"{\
