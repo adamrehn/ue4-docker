@@ -45,7 +45,7 @@ def log(message: str, colour: str):
 
 
 # Logs a command and runs it
-def run(dryRun: bool, command: str, **kwargs: dict) -> subprocess.CompletedProcess:
+def run(dryRun: bool, command: str, **kwargs: Any) -> subprocess.CompletedProcess:
     log(command, colour="green")
     if not dryRun:
         return subprocess.run(command, **{"check": True, **kwargs})
