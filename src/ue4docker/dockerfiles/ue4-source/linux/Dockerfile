@@ -91,7 +91,6 @@ RUN python3 /tmp/patch-broken-releases.py /home/ue4/UnrealEngine $VERBOSE_OUTPUT
 {% endif %}
 
 # Run post-clone setup steps, ensuring our package lists are up to date since Setup.sh doesn't call `apt-get update`
-{% if credential_mode == "secrets" %}
 
 # Ensure Setup.sh uses the same cache path when building either UE4 or UE5
 ENV UE_GITDEPS=/home/ue4/gitdeps

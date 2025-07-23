@@ -124,12 +124,12 @@ class BuildConfiguration(object):
         parser.add_argument(
             "release",
             nargs="?",  # aka "required = False", but that doesn't work in positionals
-            help='UE4 release to build, in semver format (e.g. 4.27.0) or "custom" for a custom repo and branch (deprecated, use --ue-version instead)',
+            help='Unreal Engine release to build, in semver format (e.g. 4.20.0) or "custom" for a custom repo and branch (deprecated, use --ue-version instead)',
         )
         parser.add_argument(
             "--ue-version",
             default=None,
-            help='UE4 release to build, in semver format (e.g. 4.27.0) or "custom" for a custom repo and branch',
+            help='Unreal Engine release to build, in semver format (e.g. 4.20.0) or "custom" for a custom repo and branch',
         )
         parser.add_argument(
             "--linux",
