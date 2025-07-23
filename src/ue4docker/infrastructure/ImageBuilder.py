@@ -140,7 +140,7 @@ class ImageBuilder(object):
 
                 # Generate the `docker buildx` command to use our build secrets
                 command = DockerUtils.buildx(
-                    imageTags, context_dir, archFlags + args, secretFlags, self.debug
+                    imageTags, context_dir, archFlags + args, secretFlags, debug=self.debug
                 )
             else:
                 command = DockerUtils.build(imageTags, context_dir, archFlags + args)
