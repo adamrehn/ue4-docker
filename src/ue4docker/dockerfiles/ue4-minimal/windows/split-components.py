@@ -48,7 +48,7 @@ ddc = [join(rootDir, "Engine", "DerivedDataCache", "Compressed.ddp")]
 extractComponent(rootDir, outputDir, "DDC", "Derived Data Cache (DDC)", ddc)
 
 # Extract debug symbols
-symbolFiles = glob.glob(join(rootDir, "**", "*.pdb"), recursive=True)
+symbolFiles = glob.glob(join(rootDir, "**", "*U*Editor*.pdb"), recursive=True)
 extractComponent(rootDir, outputDir, "DebugSymbols", "debug symbols", symbolFiles)
 
 # Extract template projects and samples
@@ -56,3 +56,13 @@ subdirs = [join(rootDir, subdir) for subdir in ["FeaturePacks", "Samples", "Temp
 extractComponent(
     rootDir, outputDir, "TemplatesAndSamples", "template projects and samples", subdirs
 )
+
+# Extract the larger non-optional subdirectories of the Engine directory
+for subdir in ["Binaries", "Content", "Extras", "Intermediate", "Plugins", "Source"]:
+    extractComponent(
+        rootDir,
+        outputDir,
+        subdir,
+        f"{subdir} subdirectory",
+        [join(rootDir, "Engine", subdir)],
+    )

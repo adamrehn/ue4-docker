@@ -1,4 +1,4 @@
-import argparse, subprocess, sys
+import argparse, itertools, subprocess, sys
 from .infrastructure import *
 
 
@@ -11,7 +11,9 @@ def _isIntermediateImage(image):
 def _cleanMatching(cleaner, filter, tag, dryRun):
     tagSuffix = ":{}".format(tag) if tag is not None else "*"
     matching = DockerUtils.listImages(tagFilter=filter + tagSuffix)
-    cleaner.cleanMultiple([image.tags[0] for image in matching], dryRun)
+    cleaner.cleanMultiple(
+        itertools.chain.from_iterable([image.tags for image in matching]), dryRun
+    )
 
 
 def clean():

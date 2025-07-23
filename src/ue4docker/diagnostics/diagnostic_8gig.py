@@ -80,7 +80,7 @@ class diagnostic8Gig(DiagnosticBase):
 
         # Verify that the user isn't trying to test Windows containers under Windows 10 when in Linux container mode (or vice versa)
         try:
-            self._checkPlatformMistmatch(logger, containerPlatform)
+            self._checkPlatformMistmatch(logger, containerPlatform, True)
         except RuntimeError:
             return False
 

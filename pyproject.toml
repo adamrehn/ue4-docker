@@ -1,8 +1,8 @@
 [project]
 name = "ue4-docker"
-version = "0.0.110"
+version = "0.0.116"
 description = "Windows and Linux containers for Unreal Engine"
-requires-python = ">= 3.7"
+requires-python = ">= 3.8"
 license = { file = "LICENSE" }
 readme = "README.md"
 authors = [
@@ -25,7 +25,6 @@ dependencies = [
     "colorama",
     "docker>=6.1.0",
     "humanfriendly",
-    "importlib-metadata>=1.0;python_version<'3.8'",
     "Jinja2>=2.11.3",
     "packaging>=19.1",
     "psutil",
@@ -33,10 +32,11 @@ dependencies = [
 ]
 
 # See https://packaging.python.org/en/latest/specifications/declaring-project-metadata/#urls
+# See https://peps.python.org/pep-0753/#well-known-labels
 [project.urls]
-Homepage = "https://github.com/adamrehn/ue4-docker"
-Documentation = "https://adamrehn.github.io/ue4-docker"
-Repository = "https://github.com/adamrehn/ue4-docker.git"
+homepage = "https://github.com/adamrehn/ue4-docker"
+documentation = "https://adamrehn.github.io/ue4-docker"
+repository = "https://github.com/adamrehn/ue4-docker.git"
 
 [project.scripts]
 ue4-docker = "ue4docker:main"

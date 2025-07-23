@@ -17,11 +17,11 @@ ue4-docker-build - build container image for a specific version of Unreal Engine
 == Description
 
 To build container images for a specific version of the Unreal Engine, simply specify the _version_ that you would like to build using full https://semver.org/[semver] syntax.
-For example, to build Unreal Engine 4.20.3, run:
+For example, to build Unreal Engine 4.27.0, run:
 
 [source,shell]
 ----
-ue4-docker build 4.20.3
+ue4-docker build 4.27.0
 ----
 
 You will be prompted for the Git credentials to be used when cloning the Unreal Engine GitHub repository (this will be the GitHub username and password you normally use when cloning <https://github.com/EpicGames/UnrealEngine>.
@@ -45,6 +45,10 @@ Combine generated Dockerfiles into a single multi-stage build Dockerfile
 
 *-conan-ue4cli* _conan_ue4cli_::
 Override the default version of conan-ue4cli installed in the ue4-full image
+
+*--docker-build-args* _args_::
+Allows passing custom args to `docker build` command.
+For example, this can be useful for pushing images.
 
 *--dry-run*::
 Use this if you would like to see what Docker commands would be run by `ue4-docker build` without actually building anything.

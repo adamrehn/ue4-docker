@@ -40,7 +40,7 @@ RUN pip install "%CONAN_VERSION%" "%UE4CLI_VERSION%" "%CONAN_UE4CLI_VERSION%" ue
 
 # Explicitly set the configuration directory for ue4cli
 # (This prevents things from breaking when using CI/CD systems that override the $HOME environment variable)
-ENV UE4CLI_CONFIG_DIR C:\Users\ContainerAdministrator\AppData\Roaming\ue4cli
+ENV UE4CLI_CONFIG_DIR=C:\Users\ContainerAdministrator\AppData\Roaming\ue4cli
 
 # Copy the Conan configuration settings and package cache from the previous build stage
 COPY --from=conan C:\Users\ContainerAdministrator\.conan C:\Users\ContainerAdministrator\.conan

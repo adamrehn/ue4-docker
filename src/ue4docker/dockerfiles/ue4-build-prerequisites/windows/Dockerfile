@@ -2,9 +2,9 @@
 ARG BASEIMAGE
 ARG DLLSRCIMAGE
 
-FROM ${DLLSRCIMAGE} as dlls
+FROM ${DLLSRCIMAGE} AS dlls
 
-FROM ${BASEIMAGE} as deduplication
+FROM ${BASEIMAGE} AS deduplication
 SHELL ["cmd", "/S", "/C"]
 
 {% if not disable_labels %}
@@ -22,6 +22,7 @@ COPY --from=dlls `
     C:\Windows\System32\dsound.dll `
     C:\Windows\System32\dxva2.dll `
     C:\Windows\System32\glu32.dll `
+    C:\Windows\System32\InputHost.dll `
     C:\Windows\System32\ksuser.dll `
     C:\Windows\System32\mf.dll `
     C:\Windows\System32\mfcore.dll `
@@ -34,6 +35,7 @@ COPY --from=dlls `
     C:\Windows\System32\opengl32.dll `
     C:\Windows\System32\ResampleDMO.dll `
     C:\Windows\System32\ResourcePolicyClient.dll `
+    C:\Windows\System32\XInput1_4.dll `
     C:\GatheredDLLs\
 
 # Remove any DLL files that already exist in the target base image, to avoid permission errors when attempting to overwrite existing files with a COPY directive
@@ -41,7 +43,7 @@ COPY remove-duplicate-dlls.ps1 C:\remove-duplicate-dlls.ps1
 RUN powershell -ExecutionPolicy Bypass -File C:\remove-duplicate-dlls.ps1
 
 # Copy the DLL files into a clean image
-FROM ${BASEIMAGE} as prerequisites
+FROM ${BASEIMAGE} AS prerequisites
 SHELL ["cmd", "/S", "/C"]
 COPY --from=deduplication C:\GatheredDlls\ C:\Windows\System32\
 

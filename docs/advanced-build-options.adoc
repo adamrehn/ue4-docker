@@ -67,7 +67,7 @@ For example:
 [source,shell]
 ----
 # Excludes both debug symbols and template projects
-ue4-docker build 4.21.2 --exclude debug --exclude templates
+ue4-docker build 4.27.0 --exclude debug --exclude templates
 ----
 
 === Enabling system resource monitoring during builds
@@ -78,19 +78,19 @@ You can also use the `-interval` flag to override the default interval of 20 sec
 [source,shell]
 ----
 # Logs system resource levels every 20 seconds
-ue4-docker build 4.24.2 --monitor
+ue4-docker build 4.27.0 --monitor
 ----
 
 [source,shell]
 ----
 # Logs system resource levels every 20 seconds
-ue4-docker build 4.24.2 --monitor
+ue4-docker build 4.27.0 --monitor
 ----
 
 [source,shell]
 ----
 # Logs system resource levels every 5 seconds
-ue4-docker build 4.24.2 --monitor -interval=5
+ue4-docker build 4.27.0 --monitor -interval=5
 ----
 
 [[exporting-generated-dockerfiles]]
@@ -103,19 +103,19 @@ You can use these flags like so:
 [source,shell]
 ----
 # Exports Dockerfiles for all images to the specified filesystem directory
-ue4-docker build 4.25.4 -layout "/path/to/Dockerfiles"
+ue4-docker build 4.27.0 -layout "/path/to/Dockerfiles"
 ----
 
 [source,shell]
 ----
 # Exports Dockerfiles for all images
-ue4-docker build 4.25.4 -layout "/path/to/Dockerfiles"
+ue4-docker build 4.27.0 -layout "/path/to/Dockerfiles"
 ----
 
 [source,shell]
 ----
 # Exports Dockerfiles for all images and combines them into a single Dockerfile
-ue4-docker build 4.25.4 -layout "/path/to/Dockerfiles" --combine
+ue4-docker build 4.27.0 -layout "/path/to/Dockerfiles" --combine
 ----
 
 Exporting Dockerfiles is useful for debugging or contributing to the development of ue4-docker itself.
@@ -158,28 +158,9 @@ This includes the labels which specify the <<exclude-components,components exclu
 This is useful when building a custom fork of the Unreal Engine to which the appropriate patches have already been applied, **but will break the build process when used with a version of the Unreal Engine that requires one or more patches**.
 It is typically safer to disable individual patches using the specific flag for each patch instead of simply disabling everything:
 
-- **`disable_release_patches`**: *(boolean)* disables the patches that ue4-docker ordinarily applies to versions of the Unreal Engine which are known to contain bugs, such as Unreal Engine 4.25.4. This will obviously break the build process when building these known broken releases, but will have no effect when building other versions of the Unreal Engine.
+- **`disable_release_patches`**: *(boolean)* disables the patches that ue4-docker ordinarily applies to versions of the Unreal Engine which are known to contain bugs. This will obviously break the build process when building these known broken releases, but will have no effect when building other versions of the Unreal Engine.
 
 - **`disable_windows_setup_patch`**: *(boolean)* prevents ue4-docker from patching `Setup.bat` under Windows to comment out the calls to the Unreal Engine prerequisites installer and UnrealVersionSelector, both of which are known to cause issues during the build process for Windows containers.
-
-- **`disable_linker_fixup`**: *(boolean)* prevents ue4-docker from replacing the linker in the Unreal Engine's bundled toolchain with a symbolic link to the system linker under Linux.
-
-- **`disable_example_platform_cleanup`**: *(boolean)* prevents ue4-docker from removing the `Engine/Platforms/XXX` directory that was introduced in Unreal Engine 4.24.0 and subsequently removed in Unreal Engine 4.26.0. This directory represents a "dummy" target platform for demonstration purposes, and the presence of this directory will typically break the build process.
-
-- **`disable_ubt_patches`**: *(boolean)* disables the patches that ue4-docker ordinarily applies to fix bugs in UnrealBuildTool (UBT) under various versions of the Unreal Engine.
-
-- **`disable_opengl_patch`**: *(boolean)* prevents ue4-docker from attempting to re-enable the OpenGL RHI under Linux for versions of the Unreal Engine in which it is present but deprecated.
-
-- **`disable_buildgraph_patches`**: *(boolean)* disables the patches that ue4-docker ordinarily applies to the BuildGraph XML files used to create an Installed Build of the Unreal Engine.
-These patches fix various bugs under both Windows and Linux across multiple versions of the Unreal Engine.
-
-- **`disable_target_patches`**: *(boolean)* disables the patches that ue4-docker ordinarily applies to fix broken `PlatformType` fields for client and server targets in `BaseEngine.ini` under Unreal Engine versions where these values are set incorrectly.
-
-- **`disable_unrealpak_copy`**: *(boolean)* prevents ue4-docker from ensuring the UnrealPak tool is correctly copied into Installed Builds of the Unreal Engine under Linux.
-Some older versions of the Unreal Engine did not copy this correctly, breaking the functionality of created Installed Builds.
-
-- **`disable_toolchain_copy`**: *(boolean)* prevents ue4-docker from ensuring the bundled clang toolchain is correctly copied into Installed Builds of the Unreal Engine under Linux.
-Some older versions of the Unreal Engine did not copy this correctly, breaking the functionality of created Installed Builds.
 
 == Windows-specific options
 
@@ -197,7 +178,7 @@ If you are building images with the intention of subsequently running them under
 
 [source,shell]
 ----
-ue4-docker build 4.20.3 -basetag=ltsc2016 # Uses Windows Server 2016 (Long Term Support Channel)
+ue4-docker build 4.27.0 -basetag=ltsc2019 # Uses Windows Server 2019 (Long Term Support Channel)
 ----
 
 For a list of supported base image tags, see the https://hub.docker.com/r/microsoft/windowsservercore/[Windows Server Core base image on Docker Hub].

@@ -1,4 +1,4 @@
-import argparse, getpass, humanfriendly, json, os, shutil, sys, tempfile, time
+import argparse, getpass, humanfriendly, json, os, platform, shutil, sys, tempfile, time
 from .infrastructure import *
 from .version import __version__
 from os.path import join
@@ -86,8 +86,18 @@ def build():
             )
             sys.exit(1)
 
+    # Warn the user if they're using an older version of Docker that can't build or run UE 5.4 Linux images without config changes
+    if (
+        config.containerPlatform == "linux"
+        and DockerUtils.isVersionWithoutIPV6Loopback()
+    ):
+        logger.warning(
+            DockerUtils.getIPV6WarningMessage() + "\n",
+            False,
+        )
+
     # Create an auto-deleting temporary directory to hold our build context
-    with tempfile.TemporaryDirectory() as tempDir:
+    with tempfile.TemporaryDirectory(prefix="ue4docker", delete=not config.debug) as tempDir:
         contextOrig = join(os.path.dirname(os.path.abspath(__file__)), "dockerfiles")
 
         template_context = {
@@ -97,6 +107,9 @@ def build():
         }
 
         template_context.update(config.opts)
+
+        if config.debug:
+            logger.info(f"Temp build context dir: {tempDir}", False)
 
         # Create the builder instance to build the Docker images
         builder = ImageBuilder(
@@ -119,9 +132,11 @@ def build():
 
         # Print the command-line invocation that triggered this build, masking any supplied passwords
         args = [
-            "*******"
-            if config.args.password is not None and arg == config.args.password
-            else arg
+            (
+                "*******"
+                if config.args.password is not None and arg == config.args.password
+                else arg
+            )
             for arg in sys.argv
         ]
         logger.info("COMMAND-LINE INVOCATION:", False)
@@ -305,12 +320,35 @@ def build():
         else:
             logger.info("Not excluding any Engine components.", False)
 
+        # Print a warning if the user is attempting to build Linux images under Windows
+        if config.containerPlatform == "linux" and (
+            platform.system() == "Windows" or WindowsUtils.isWSL()
+        ):
+            logger.warning(
+                "Warning: attempting to build Linux container images under Windows (e.g. via WSL)."
+            )
+            logger.warning(
+                "The ue4-docker maintainers do not provide support for building and running Linux",
+                False,
+            )
+            logger.warning(
+                "containers under Windows, and this configuration is not tested to verify that it",
+                False,
+            )
+            logger.warning(
+                "functions correctly. Users are solely responsible for troubleshooting any issues",
+                False,
+            )
+            logger.warning(
+                "they encounter when attempting to build Linux container images under Windows.",
+                False,
+            )
+
         # Determine if we need to prompt for credentials
         if config.dryRun == True:
             # Don't bother prompting the user for any credentials during a dry run
             logger.info(
-                "Performing a dry run, `docker build` commands will be printed and not executed.",
-                False,
+                "Performing a dry run, `docker build` commands will be printed and not executed."
             )
             username = ""
             password = ""
@@ -367,7 +405,7 @@ def build():
             commonArgs = [
                 "--build-arg",
                 "NAMESPACE={}".format(GlobalConfiguration.getTagNamespace()),
-            ]
+            ] + config.args.docker_build_args
 
             # Build the UE4 build prerequisites image
             if config.buildTargets["build-prerequisites"]:
@@ -379,7 +417,8 @@ def build():
                         "--build-arg",
                         "DLLSRCIMAGE=" + config.dllSrcImage,
                         "--build-arg",
-                        "VISUAL_STUDIO_BUILD_NUMBER=" + config.visualStudioBuildNumber,
+                        "VISUAL_STUDIO_BUILD_NUMBER="
+                        + config.visualStudio.build_number,
                     ]
 
                 custom_prerequisites_dockerfile = config.args.prerequisites_dockerfile
@@ -437,34 +476,38 @@ def build():
                     "--build-arg",
                     "VERBOSE_OUTPUT={}".format("1" if config.verbose == True else "0"),
                 ]
-                builder.build_builtin_image(
-                    "ue4-source",
-                    mainTags,
-                    commonArgs + config.platformArgs + ue4SourceArgs + credentialArgs,
-                    secrets=secrets,
-                )
-                builtImages.append("ue4-source")
-            else:
-                logger.info("Skipping ue4-source image build.")
 
-            if config.buildTargets["minimal"]:
-                ue4BuildArgs = prereqConsumerArgs + [
-                    "--build-arg",
-                    "TAG={}".format(mainTags[1]),
-                ]
-
-            # Build the minimal UE4 CI image, unless requested otherwise by the user
-            if config.buildTargets["minimal"]:
-                minimalArgs = (
+                changelistArgs = (
                     ["--build-arg", "CHANGELIST={}".format(config.changelist)]
                     if config.changelist is not None
                     else []
                 )
 
                 builder.build_builtin_image(
+                    "ue4-source",
+                    mainTags,
+                    commonArgs
+                    + config.platformArgs
+                    + ue4SourceArgs
+                    + credentialArgs
+                    + changelistArgs,
+                    secrets=secrets,
+                )
+                builtImages.append("ue4-source")
+            else:
+                logger.info("Skipping ue4-source image build.")
+
+            # Build the minimal UE4 CI image, unless requested otherwise by the user
+            if config.buildTargets["minimal"]:
+                minimalArgs = prereqConsumerArgs + [
+                    "--build-arg",
+                    "TAG={}".format(mainTags[1]),
+                ]
+
+                builder.build_builtin_image(
                     "ue4-minimal",
                     mainTags,
-                    commonArgs + config.platformArgs + ue4BuildArgs + minimalArgs,
+                    commonArgs + config.platformArgs + minimalArgs,
                 )
                 builtImages.append("ue4-minimal")
             else:
@@ -495,7 +538,6 @@ def build():
                     mainTags,
                     commonArgs
                     + config.platformArgs
-                    + ue4BuildArgs
                     + infrastructureFlags,
                 )
                 builtImages.append("ue4-full")

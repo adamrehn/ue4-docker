@@ -7,79 +7,53 @@ ARG PREREQS_TAG
 FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 {% endif %}
 
-# Set the changelist number in Build.version to ensure our Build ID is generated correctly
-ARG CHANGELIST
-COPY set-changelist.py /tmp/set-changelist.py
-RUN python3 /tmp/set-changelist.py /home/ue4/UnrealEngine/Engine/Build/Build.version $CHANGELIST
-
 # Remove the .git directory to disable UBT `git status` calls and speed up the build process
 RUN rm -rf /home/ue4/UnrealEngine/.git
-
-{% if (not disable_all_patches) and (not disable_opengl_patch) %}
-# Enable the OpenGL RHI for Engine versions where it is present but deprecated
-COPY enable-opengl.py /tmp/enable-opengl.py
-RUN python3 /tmp/enable-opengl.py /home/ue4/UnrealEngine/Engine/Config/BaseEngine.ini
-{% endif %}
-
-{% if (not disable_all_patches) and (not disable_buildgraph_patches) %}
-COPY patch-filters-xml.py /tmp/patch-filters-xml.py
-RUN python3 /tmp/patch-filters-xml.py /home/ue4/UnrealEngine/Engine/Build/InstalledEngineFilters.xml
-
-# Patch the default settings in InstalledEngineBuild.xml and increase the output verbosity of the DDC generation step
-COPY patch-build-graph.py /tmp/patch-build-graph.py
-RUN python3 /tmp/patch-build-graph.py /home/ue4/UnrealEngine/Engine/Build/InstalledEngineBuild.xml /home/ue4/UnrealEngine/Engine/Build/Build.version
-{% endif %}
 
 # Ensure UBT is built before we create the Installed Build, since Build.sh explicitly sets the
 # target .NET Framework version, whereas InstalledEngineBuild.xml just uses the system default,
 # which can result in errors when running the built UBT due to the wrong version being targeted
-RUN ./Engine/Build/BatchFiles/Linux/Build.sh ShaderCompileWorker Linux Development -SkipBuild -buildubt
+RUN if [ -f ./Engine/Build/BatchFiles/BuildUBT.sh ]; then \
+		./Engine/Build/BatchFiles/BuildUBT.sh; \
+	else \
+		./Engine/Build/BatchFiles/Linux/Build.sh ShaderCompileWorker Linux Development -SkipBuild -buildubt; \
+	fi
+
+# Copy the BuildConfiguration.xml file to disable UnrealBuildAccelerator
+COPY --chown=ue4:ue4 ["BuildConfiguration.xml", "/home/ue4/.config/Unreal Engine/UnrealBuildTool/BuildConfiguration.xml"]
 
 # Create an Installed Build of the Engine
 WORKDIR /home/ue4/UnrealEngine
 RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph \
-    -target="Make Installed Build Linux" \
-    -script=Engine/Build/InstalledEngineBuild.xml \
-    -set:HostPlatformOnly=true \
-    -set:WithDDC=false \
-    {{ buildgraph_args }} && \
+	-target="Make Installed Build Linux" \
+	-script=Engine/Build/InstalledEngineBuild.xml \
+	-set:HostPlatformOnly=true \
+	-set:WithClient=true \
+	-set:WithDDC={% if excluded_components.ddc == true %}false{% else %}true{% endif %} \
+	-set:WithServer=false \
+	{{ buildgraph_args }} && \
 	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC
 
-#sed s/MaxShaderJobBatchSize=10/MaxShaderJobBatchSize=5/ Engine/Config/BaseEngine.ini
-RUN sed -i s/PercentageUnusedShaderCompilingThreads=50/PercentageUnusedShaderCompilingThreads=80/ Engine/Config/BaseEngine.ini
+# Ensure UnrealVersionSelector is built, since the prebuilt binaries may not be up-to-date
+RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealVersionSelector Linux Shipping
 
-{% if not excluded_components.ddc %}
-# Create the DDC
-WORKDIR /home/ue4/UnrealEngine
-RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph \
-    -target="DDC Group Linux" \
-    -script=Engine/Build/InstalledEngineBuild.xml \
-    -set:HostPlatformOnly=true \
-    -set:WithDDC=true \
-    {{ buildgraph_args }} && \
-	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC
+# Copy InstalledBuild.txt from the Installed Build and run UnrealVersionSelector to populate Install.ini with any custom Build ID specified in the BuildGraph flags
+# (Note that the `-unattended` flag used below requires Unreal Engine 4.22 or newer, so this will break under older versions)
+# (Note also that custom Build IDs are supported by Unreal Engine 5.3.1 and newer, and older versions will just use a GUID as the Build ID)
+RUN cp /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux/Engine/Build/InstalledBuild.txt /home/ue4/UnrealEngine/Engine/Build/InstalledBuild.txt && \
+	./Engine/Binaries/Linux/UnrealVersionSelector-Linux-Shipping -register -unattended
+
+{% if enable_ushell %}
+# Ensure ushell is copied to the Installed Build
+RUN rm -rf ./LocalBuilds/Engine/Linux/Engine/Extras/ushell && \
+	cp -r ./Engine/Extras/ushell ./LocalBuilds/Engine/Linux/Engine/Extras/ushell && \
+	bash -c 'set -e; shopt -s globstar; cd /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux/Engine/Extras/ushell && chmod +x ./**/*.sh'
 {% endif %}
 
-# Split out components (DDC, debug symbols, template projects) so they can be copied into the final container image as separate filesystem layers
+# Split out both optional components (DDC, debug symbols, template projects) and large subdirectories so they can be copied
+# into the final container image as separate filesystem layers, avoiding creating a single monolithic layer with everything
 COPY split-components.py /tmp/split-components.py
 RUN python3 /tmp/split-components.py /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux /home/ue4/UnrealEngine/Components
-
-{% if (not disable_all_patches) and (not disable_target_patches) %}
-# Ensure Client and Server targets have their `PlatformType` field set correctly in BaseEngine.ini
-COPY fix-targets.py /tmp/fix-targets.py
-RUN python3 /tmp/fix-targets.py /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux/Engine/Config/BaseEngine.ini
-{% endif %}
-
-{% if (not disable_all_patches) and (not disable_unrealpak_copy) %}
-# Some versions of the Engine fail to include UnrealPak in the Installed Build, so copy it manually
-RUN cp ./Engine/Binaries/Linux/UnrealPak ./LocalBuilds/Engine/Linux/Engine/Binaries/Linux/UnrealPak
-{% endif %}
-
-{% if (not disable_all_patches) and (not disable_toolchain_copy) %}
-# Ensure the bundled toolchain included in 4.20.0 and newer is copied to the Installed Build
-COPY --chown=ue4:ue4 copy-toolchain.py /tmp/copy-toolchain.py
-RUN python3 /tmp/copy-toolchain.py /home/ue4/UnrealEngine
-{% endif %}
 
 # Copy the Installed Build into a clean image, discarding the source build
 {% if combine %}
@@ -91,6 +65,12 @@ FROM ${NAMESPACE}/ue4-build-prerequisites:${PREREQS_TAG}
 
 # Copy the Installed Build files from the builder image
 COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux /home/ue4/UnrealEngine
+COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/Binaries /home/ue4/UnrealEngine
+COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/Content /home/ue4/UnrealEngine
+COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/Extras /home/ue4/UnrealEngine
+COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/Intermediate /home/ue4/UnrealEngine
+COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/Plugins /home/ue4/UnrealEngine
+COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/Source /home/ue4/UnrealEngine
 {% if excluded_components.ddc == false %}
 COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/DDC /home/ue4/UnrealEngine
 {% endif %}
@@ -100,6 +80,12 @@ COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/DebugSymbo
 {% if excluded_components.templates == false %}
 COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/TemplatesAndSamples /home/ue4/UnrealEngine
 {% endif %}
+
+
+# Copy Install.ini from the builder image, so it can be used by tools that read the list of engine installations (e.g. ushell)
+COPY --from=builder --chown=ue4:ue4 /home/ue4/.config/Epic/UnrealEngine/Install.ini /home/ue4/.config/Epic/UnrealEngine/Install.ini
+# Copy the BuildConfiguration.xml file to disable UnrealBuildAccelerator
+COPY --chown=ue4:ue4 ["BuildConfiguration.xml", "/home/ue4/.config/Unreal Engine/UnrealBuildTool/BuildConfiguration.xml"]
 WORKDIR /home/ue4/UnrealEngine
 
 {% if not disable_labels %}
@@ -107,6 +93,15 @@ WORKDIR /home/ue4/UnrealEngine
 LABEL com.adamrehn.ue4-docker.excluded.ddc={% if excluded_components.ddc == true %}1{% else %}0{% endif %} 
 LABEL com.adamrehn.ue4-docker.excluded.debug={% if excluded_components.debug == true %}1{% else %}0{% endif %} 
 LABEL com.adamrehn.ue4-docker.excluded.templates={% if excluded_components.templates == true %}1{% else %}0{% endif %} 
+{% endif %}
+
+{% if enable_ushell %}
+# Add ushell to the system PATH and alias `ushell` to `ushell.sh`
+ENV PATH="$PATH:/home/ue4/UnrealEngine/Engine/Extras/ushell"
+RUN echo 'alias ushell="ushell.sh"' >> /home/ue4/.bashrc
+
+# Perform first-run setup for ushell
+RUN bash -c 'set -e; source /home/ue4/UnrealEngine/Engine/Extras/ushell/ushell.sh && exit 0'
 {% endif %}
 
 # Perform first-run setup for Mono, UnrealBuildTool and AutomationTool, which makes it possible to build Unreal projects and plugins as users other than `ue4`
@@ -130,7 +125,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	libxcb1-dev \
 	vulkan-tools \
 	&& rm -rf /var/lib/apt/lists/* && \
-	VULKAN_API_VERSION=`dpkg -s libvulkan1 | grep -oP 'Version: [0-9|\.]+' | grep -oP '[0-9|\.]+'` && \
+	VULKAN_API_VERSION=`dpkg -s libvulkan1 | grep -oP 'Version: [0-9]+\.[0-9]+\.[0-9]+' | grep -oP '[0-9]+\.[0-9]+\.[0-9]+'` && \
 	mkdir -p /etc/vulkan/icd.d/ && \
 	echo \
 	"{\

@@ -1,5 +1,6 @@
-import docker, fnmatch, humanfriendly, itertools, json, logging, os, platform, re
+import docker, fnmatch, humanfriendly, itertools, json, logging, os, platform, re, sys
 from docker.models.containers import Container
+from packaging.version import Version
 
 from .FilesystemUtils import FilesystemUtils
 
@@ -33,6 +34,48 @@ class DockerUtils(object):
         return client.info()
 
     @staticmethod
+    def minimumVersionForIPV6():
+        """
+        Returns the minimum version of the Docker daemon that supports IPv6 by default
+        without requiring manual configuration by the user
+        """
+        return Version("26.0.0")
+
+    @staticmethod
+    def isVersionWithoutIPV6Loopback():
+        """
+        Determines if the version of the Docker daemon lacks support for using the
+        IPv6 loopback address [::1] when using its default network configuration
+        """
+        dockerVersion = Version(DockerUtils.version()["Version"])
+        return dockerVersion < DockerUtils.minimumVersionForIPV6()
+
+    @staticmethod
+    def getIPV6WarningMessage():
+        """
+        Generates a warning message about Docker's IPv6 support.
+
+        This function returns a multi-line string that warns users about potential issues
+        with older Docker versions lacking IPv6 support. It also provides instructions
+        for testing IPv6 functionality and links to additional resources.
+
+        Returns:
+            str: A multi-line warning message about Docker's IPv6 support.
+        """
+        return "\n".join(
+            [
+                f"Warning: detected a Docker version older than {DockerUtils.minimumVersionForIPV6()}.",
+                "Older versions of Docker cannot build or run Linux images for Unreal Engine 5.4 or",
+                "newer unless the Docker daemon is explicitly configured to enable IPv6 support.",
+                "",
+                "To test whether IPv6 support is working, run the following diagnostic test:",
+                f"{sys.argv[0]} diagnostics ipv6",
+                "",
+                "For more details, see: https://github.com/adamrehn/ue4-docker/issues/357",
+            ]
+        )
+
+    @staticmethod
     def exists(name):
         """
         Determines if the specified image exists
@@ -58,13 +101,14 @@ class DockerUtils(object):
         )
 
     @staticmethod
-    def buildx(tags: [str], context: str, args: [str], secrets: [str]) -> [str]:
+    def buildx(tags: [str], context: str, args: [str], secrets: [str], debug=False) -> [str]:
         """
         Returns the `docker buildx` command to build an image with the BuildKit backend
         """
         tagArgs = [["-t", tag] for tag in tags]
+        prefix = ["docker"] if not debug else ["docker", "buildx", "debug", "--on=error"]
         return (
-            ["docker", "build"]
+            prefix + ["build"]
             + list(itertools.chain.from_iterable(tagArgs))
             + [context]
             + ["--progress=plain"]

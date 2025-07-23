@@ -1,6 +1,7 @@
 import json
 import platform
 import random
+from typing import Optional
 
 import humanfriendly
 from packaging.version import Version, InvalidVersion
@@ -30,45 +31,62 @@ DEFAULT_MEMORY_LIMIT = 10.0
 
 # The Perforce changelist numbers for each supported .0 release of the Unreal Engine
 UNREAL_ENGINE_RELEASE_CHANGELISTS = {
-    "4.20.0": 4212847,
-    "4.21.0": 4541578,
-    "4.22.0": 5660361,
-    "4.23.0": 8386587,
-    "4.24.0": 10570792,
-    "4.25.0": 13144385,
-    "4.26.0": 14830424,
     "4.27.0": 17155196,
     "5.0.0": 19505902,
     "5.1.0": 23058290,
     "5.2.0": 25360045,
     "5.3.0": 27405482,
+    "5.4.0": 33043543,
+    "5.5.0": 37670630,
+    "5.6.0": 43139311,
 }
 
 
 class VisualStudio(object):
-    VS2017 = "2017"
-    VS2019 = "2019"
-    VS2022 = "2022"
+    def __init__(
+        self,
+        name: str,
+        build_number: str,
+        supported_since: Version,
+        unsupported_since: Optional[Version],
+        pass_version_to_buildgraph: bool,
+    ):
+        self.name = name
+        self.build_number = build_number
+        self.supported_since = supported_since
+        self.unsupported_since = unsupported_since
+        self.pass_version_to_buildgraph = pass_version_to_buildgraph
 
-    BuildNumbers = {
-        VS2017: "15",
-        VS2019: "16",
-        VS2022: "17",
-    }
+    def __str__(self) -> str:
+        return self.name
 
-    SupportedSince = {
-        # We do not support versions older than 4.20
-        VS2017: Version("4.20"),
-        # Unreal Engine 4.23.1 is the first that successfully builds with Visual Studio v16.3
-        # See https://github.com/EpicGames/UnrealEngine/commit/2510d4fd07a35ba5bff6ac2c7becaa6e8b7f11fa
-        #
-        # Unreal Engine 4.25 is the first that works with .NET SDK 4.7+
-        # See https://github.com/EpicGames/UnrealEngine/commit/5256eedbdef30212ab69fdf4c09e898098959683
-        VS2019: Version("4.25"),
-        VS2022: Version("5.0.0"),
-    }
 
-    UnsupportedSince = {VS2017: Version("5.0")}
+DefaultVisualStudio = "2017"
+
+VisualStudios = {
+    "2017": VisualStudio(
+        name="2017",
+        build_number="15",
+        # We do not support versions older than 4.27
+        supported_since=Version("4.27"),
+        unsupported_since=Version("5.0"),
+        pass_version_to_buildgraph=False,
+    ),
+    "2019": VisualStudio(
+        name="2019",
+        build_number="16",
+        supported_since=Version("4.27"),
+        unsupported_since=Version("5.4"),
+        pass_version_to_buildgraph=True,
+    ),
+    "2022": VisualStudio(
+        name="2022",
+        build_number="17",
+        supported_since=Version("5.0"),
+        unsupported_since=None,
+        pass_version_to_buildgraph=True,
+    ),
+}
 
 
 class ExcludedComponent(object):
@@ -129,6 +147,11 @@ class BuildConfiguration(object):
             help="Print `docker build` commands instead of running them",
         )
         parser.add_argument(
+            "--debug",
+            action="store_true",
+            help="Use buildx debug features",
+        )
+        parser.add_argument(
             "--no-minimal",
             action="store_true",
             help="Don't build the ue4-minimal image (deprecated, use --target instead)",
@@ -150,6 +173,12 @@ class BuildConfiguration(object):
             "--random-memory",
             action="store_true",
             help="Use a random memory limit for Windows containers",
+        )
+        parser.add_argument(
+            "--docker-build-args",
+            action="append",
+            default=[],
+            help="Specify additional options for 'docker build' commands",
         )
         parser.add_argument(
             "--exclude",
@@ -176,8 +205,8 @@ class BuildConfiguration(object):
         )
         parser.add_argument(
             "--visual-studio",
-            default=VisualStudio.VS2017,
-            choices=VisualStudio.BuildNumbers.keys(),
+            default=DefaultVisualStudio,
+            choices=VisualStudios.keys(),
             help="Specify Visual Studio Build Tools version to use for Windows containers",
         )
         parser.add_argument(
@@ -429,7 +458,7 @@ class BuildConfiguration(object):
                     )
                 except InvalidVersion:
                     raise RuntimeError(
-                        'invalid Unreal Engine release number "{}", full semver format required (e.g. "4.20.0")'.format(
+                        'invalid Unreal Engine release number "{}", full semver format required (e.g. "4.27.0")'.format(
                             self.args.release
                         )
                     )
@@ -460,6 +489,7 @@ class BuildConfiguration(object):
             if platform.system() == "Windows" and self.args.linux == False
             else "linux"
         )
+        self.debug = self.args.debug
         self.dryRun = self.args.dry_run
         self.rebuild = self.args.rebuild
         self.suffix = self.args.suffix
@@ -613,24 +643,25 @@ class BuildConfiguration(object):
         )
 
     def _generateWindowsConfig(self):
-        self.visualStudio = self.args.visual_studio
+        self.visualStudio = VisualStudios.get(self.args.visual_studio)
+        if self.visualStudio is None:
+            raise RuntimeError(
+                f"unknown Visual Studio version: {self.args.visual_studio}"
+            )
 
         if self.release is not None and not self.custom:
             # Check whether specified Unreal Engine release is compatible with specified Visual Studio
-            supportedSince = VisualStudio.SupportedSince.get(self.visualStudio, None)
-            if supportedSince is not None and Version(self.release) < supportedSince:
+            if (
+                self.visualStudio.supported_since is not None
+                and Version(self.release) < self.visualStudio.supported_since
+            ):
                 raise RuntimeError(
-                    "specified version of Unreal Engine is too old for Visual Studio {}".format(
-                        self.visualStudio
-                    )
+                    f"specified version of Unreal Engine is too old for Visual Studio {self.visualStudio.name}"
                 )
 
-            unsupportedSince = VisualStudio.UnsupportedSince.get(
-                self.visualStudio, None
-            )
             if (
-                unsupportedSince is not None
-                and Version(self.release) >= unsupportedSince
+                self.visualStudio.unsupported_since is not None
+                and Version(self.release) >= self.visualStudio.unsupported_since
             ):
                 raise RuntimeError(
                     "Visual Studio {} is too old for specified version of Unreal Engine".format(
@@ -638,14 +669,13 @@ class BuildConfiguration(object):
                     )
                 )
 
-        self.visualStudioBuildNumber = VisualStudio.BuildNumbers[self.visualStudio]
         # See https://github.com/EpicGames/UnrealEngine/commit/72585138472785e2ee58aab9950a7260275ee2ac
         # Note: We must not pass VS2019 arg for older UE4 versions that didn't have VS2019 variable in their build graph xml.
         # Otherwise, UAT errors out with "Unknown argument: VS2019".
-        if self.visualStudio != VisualStudio.VS2017:
+        if self.visualStudio.pass_version_to_buildgraph:
             self.opts["buildgraph_args"] = (
                 self.opts.get("buildgraph_args", "")
-                + f" -set:VS{self.visualStudio}=true"
+                + f" -set:VS{self.visualStudio.name}=true"
             )
 
         # Determine base tag for the Windows release of the host system
@@ -663,7 +693,7 @@ class BuildConfiguration(object):
 
         self.baseImage = "mcr.microsoft.com/windows/servercore:" + self.basetag
         self.dllSrcImage = WindowsUtils.getDllSrcImage(self.basetag)
-        self.prereqsTag = self.basetag + "-vs" + self.visualStudio
+        self.prereqsTag = self.basetag + "-vs" + self.visualStudio.name
 
         # If the user has explicitly specified an isolation mode then use it, otherwise auto-detect
         if self.args.isolation is not None:
