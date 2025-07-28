@@ -14,9 +14,11 @@ DEFAULT_GIT_REPO = "https://github.com/EpicGames/UnrealEngine.git"
 
 # The base images for Linux containers
 LINUX_BASE_IMAGES = {
-    "opengl": "nvidia/opengl:1.0-glvnd-devel-{ubuntu}",
-    "cuda": "nvidia/cuda:{cuda}-devel-{ubuntu}",
+    "opengl": "{org}/opengl:1.0-glvnd-devel-{ubuntu}",
+    "cuda": "{org}/cuda:{cuda}-devel-{ubuntu}",
 }
+
+DEFAULT_BASE_IMG_ORG = "nvidia"
 
 # The default ubuntu base to use
 DEFAULT_LINUX_VERSION = "ubuntu22.04"
@@ -122,12 +124,12 @@ class BuildConfiguration(object):
         parser.add_argument(
             "release",
             nargs="?",  # aka "required = False", but that doesn't work in positionals
-            help='UE4 release to build, in semver format (e.g. 4.27.0) or "custom" for a custom repo and branch (deprecated, use --ue-version instead)',
+            help='Unreal Engine release to build, in semver format (e.g. 4.20.0) or "custom" for a custom repo and branch (deprecated, use --ue-version instead)',
         )
         parser.add_argument(
             "--ue-version",
             default=None,
-            help='UE4 release to build, in semver format (e.g. 4.27.0) or "custom" for a custom repo and branch',
+            help='Unreal Engine release to build, in semver format (e.g. 4.20.0) or "custom" for a custom repo and branch',
         )
         parser.add_argument(
             "--linux",
@@ -143,6 +145,11 @@ class BuildConfiguration(object):
             "--dry-run",
             action="store_true",
             help="Print `docker build` commands instead of running them",
+        )
+        parser.add_argument(
+            "--debug",
+            action="store_true",
+            help="Use buildx debug features",
         )
         parser.add_argument(
             "--no-minimal",
@@ -228,6 +235,11 @@ class BuildConfiguration(object):
             help="Set the isolation mode to use for Windows containers (process or hyperv)",
         )
         parser.add_argument(
+            "-baseorg",
+            default=DEFAULT_BASE_IMG_ORG,
+            help=f"The Docker organisation to pull the base images from (defaults to '{DEFAULT_BASE_IMG_ORG}')",
+        )
+        parser.add_argument(
             "-basetag",
             default=None if platform.system() == "Windows" else DEFAULT_LINUX_VERSION,
             help="Operating system base image tag to use. For Linux this is the version of Ubuntu (default is ubuntu22.04). "
@@ -238,8 +250,15 @@ class BuildConfiguration(object):
         )
         parser.add_argument(
             "-m",
+            "--memory",
             default=None,
-            help="Override the default memory limit under Windows (also overrides --random-memory)",
+            help="Override the default memory limit (also overrides --random-memory)",
+        )
+        parser.add_argument(
+            "--cpus",
+            type=int,
+            default=None,
+            help="Override the number of CPUs available during build",
         )
         parser.add_argument(
             "-ue4cli",
@@ -446,7 +465,7 @@ class BuildConfiguration(object):
 
                 # Use the default repository and the release tag for the specified version
                 self.repository = DEFAULT_GIT_REPO
-                self.branch = "{}-release".format(self.release)
+                self.branch = self.args.ue_version if self.args.ue_version else "{}-release".format(self.release)
                 self.custom = False
 
                 # If the user specified a .0 release of the Unreal Engine and did not specify a changelist override then
@@ -470,6 +489,7 @@ class BuildConfiguration(object):
             if platform.system() == "Windows" and self.args.linux == False
             else "linux"
         )
+        self.debug = self.args.debug
         self.dryRun = self.args.dry_run
         self.rebuild = self.args.rebuild
         self.suffix = self.args.suffix
@@ -582,6 +602,16 @@ class BuildConfiguration(object):
                     False,
                 )
 
+        # If the user has explicitly specified a memory limit then use it, otherwise auto-detect
+        self.memLimit = None
+        if self.args.memory is not None:
+            try:
+                self.memLimit = humanfriendly.parse_size(self.args.memory) / (
+                    1000 * 1000 * 1000
+                )
+            except:
+                raise RuntimeError('invalid memory limit "{}"'.format(self.args.memory))
+
         # If we're building Windows containers, generate our Windows-specific configuration settings
         if self.containerPlatform == "windows":
             self._generateWindowsConfig()
@@ -589,6 +619,14 @@ class BuildConfiguration(object):
         # If we're building Linux containers, generate our Linux-specific configuration settings
         if self.containerPlatform == "linux":
             self._generateLinuxConfig()
+
+        # Set the memory limit Docker flag
+        if self.memLimit is not None:
+            self.platformArgs.extend(["--memory", "{:.2f}GB".format(self.memLimit)])
+
+        # Set the number of CPUs to use for building
+        if self.args.cpus is not None:
+            self.platformArgs.extend(["--cpuset-cpus", "0-{:d}".format(self.args.cpus - 1)])
 
         # If the user-specified suffix passed validation, prefix it with a dash
         self.suffix = "-{}".format(self.suffix) if self.suffix != "" else ""
@@ -695,17 +733,12 @@ class BuildConfiguration(object):
                     )
                 )
 
-        # Set the memory limit Docker flag
-        if self.memLimit is not None:
-            self.platformArgs.extend(["-m", "{:.2f}GB".format(self.memLimit)])
-
     def _generateLinuxConfig(self):
         # Verify that any user-specified tag suffix does not collide with our base tags
         if self.suffix.startswith("opengl") or self.suffix.startswith("cuda"):
             raise RuntimeError('tag suffix cannot begin with "opengl" or "cuda".')
 
         # Determine if we are building CUDA-enabled container images
-        self.cuda = None
         if self.args.cuda is not None:
             # Verify that the specified CUDA version is valid
             self.cuda = self.args.cuda if self.args.cuda != "" else DEFAULT_CUDA_VERSION
@@ -717,7 +750,7 @@ class BuildConfiguration(object):
             self.prereqsTag = "opengl-{ubuntu}"
 
         self.baseImage = self.baseImage.format(
-            cuda=self.args.cuda, ubuntu=self.args.basetag
+            org=self.args.baseorg, cuda=self.args.cuda, ubuntu=self.args.basetag
         )
         self.prereqsTag = self.prereqsTag.format(
             cuda=self.args.cuda, ubuntu=self.args.basetag

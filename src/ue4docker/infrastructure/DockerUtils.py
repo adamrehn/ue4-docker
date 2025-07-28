@@ -52,7 +52,16 @@ class DockerUtils(object):
 
     @staticmethod
     def getIPV6WarningMessage():
-        """ """
+        """
+        Generates a warning message about Docker's IPv6 support.
+
+        This function returns a multi-line string that warns users about potential issues
+        with older Docker versions lacking IPv6 support. It also provides instructions
+        for testing IPv6 functionality and links to additional resources.
+
+        Returns:
+            str: A multi-line warning message about Docker's IPv6 support.
+        """
         return "\n".join(
             [
                 f"Warning: detected a Docker version older than {DockerUtils.minimumVersionForIPV6()}.",
@@ -92,13 +101,14 @@ class DockerUtils(object):
         )
 
     @staticmethod
-    def buildx(tags: [str], context: str, args: [str], secrets: [str]) -> [str]:
+    def buildx(tags: [str], context: str, args: [str], secrets: [str], debug=False) -> [str]:
         """
         Returns the `docker buildx` command to build an image with the BuildKit backend
         """
         tagArgs = [["-t", tag] for tag in tags]
+        prefix = ["docker"] if not debug else ["docker", "buildx", "debug", "--on=error"]
         return (
-            ["docker", "build"]
+            prefix + ["build"]
             + list(itertools.chain.from_iterable(tagArgs))
             + [context]
             + ["--progress=plain"]
