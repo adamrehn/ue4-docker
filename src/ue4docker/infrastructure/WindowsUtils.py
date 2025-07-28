@@ -23,7 +23,8 @@ class WindowsUtils(object):
         19042: "20H2",
         19043: "21H1",
         20348: "ltsc2022",
-        22000: "ltsc2022",
+        22000: "ltsc2025",
+        26100: "ltsc2025",
     }
 
     _knownTags = list(_knownTagsByBuildNumber.values())
@@ -123,6 +124,7 @@ class WindowsUtils(object):
         # TODO: we also need to use Windows Server image when user specifies custom tags, like '10.0.20348.169'
         image = {
             "ltsc2022": "mcr.microsoft.com/windows/server",
+            "ltsc2025": "mcr.microsoft.com/windows/server",
         }.get(basetag, "mcr.microsoft.com/windows")
 
         tag = {
