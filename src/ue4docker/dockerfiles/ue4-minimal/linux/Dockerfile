@@ -19,6 +19,9 @@ RUN if [ -f ./Engine/Build/BatchFiles/BuildUBT.sh ]; then \
 		./Engine/Build/BatchFiles/Linux/Build.sh ShaderCompileWorker Linux Development -SkipBuild -buildubt; \
 	fi
 
+# Copy the BuildConfiguration.xml file to disable UnrealBuildAccelerator
+COPY --chown=ue4:ue4 ["BuildConfiguration.xml", "/home/ue4/.config/Unreal Engine/UnrealBuildTool/BuildConfiguration.xml"]
+
 # Create an Installed Build of the Engine
 WORKDIR /home/ue4/UnrealEngine
 RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph \
@@ -78,8 +81,11 @@ COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/DebugSymbo
 COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/TemplatesAndSamples /home/ue4/UnrealEngine
 {% endif %}
 
+
 # Copy Install.ini from the builder image, so it can be used by tools that read the list of engine installations (e.g. ushell)
 COPY --from=builder --chown=ue4:ue4 /home/ue4/.config/Epic/UnrealEngine/Install.ini /home/ue4/.config/Epic/UnrealEngine/Install.ini
+# Copy the BuildConfiguration.xml file to disable UnrealBuildAccelerator
+COPY --chown=ue4:ue4 ["BuildConfiguration.xml", "/home/ue4/.config/Unreal Engine/UnrealBuildTool/BuildConfiguration.xml"]
 WORKDIR /home/ue4/UnrealEngine
 
 # GitHub Actions forcibly overrides $HOME and redirects it to a host directory that is bind-mounted at `/github/home`,
@@ -114,9 +120,17 @@ RUN EDITOR_TARGET=$(python3 /tmp/print-editor-target.py /home/ue4/UnrealEngine) 
 
 # Enable Vulkan support for NVIDIA GPUs
 USER root
-RUN apt-get update && apt-get install -y --no-install-recommends libvulkan1 && \
-	rm -rf /var/lib/apt/lists/* && \
-	VULKAN_API_VERSION=`dpkg -s libvulkan1 | grep -oP 'Version: [0-9|\.]+' | grep -oP '[0-9|\.]+'` && \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	libvulkan1 \
+	libglvnd0 \
+	libgl1 \
+	libglx0 \
+	libegl1  \
+	libgles2  \
+	libxcb1-dev \
+	vulkan-tools \
+	&& rm -rf /var/lib/apt/lists/* && \
+	VULKAN_API_VERSION=`dpkg -s libvulkan1 | grep -oP 'Version: [0-9]+\.[0-9]+\.[0-9]+' | grep -oP '[0-9]+\.[0-9]+\.[0-9]+'` && \
 	mkdir -p /etc/vulkan/icd.d/ && \
 	echo \
 	"{\
