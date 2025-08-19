@@ -82,6 +82,11 @@ COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/TemplatesA
 COPY --from=builder --chown=ue4:ue4 /home/ue4/.config/Epic/UnrealEngine/Install.ini /home/ue4/.config/Epic/UnrealEngine/Install.ini
 WORKDIR /home/ue4/UnrealEngine
 
+# GitHub Actions forcibly overrides $HOME and redirects it to a host directory that is bind-mounted at `/github/home`,
+# so we need to explicitly set XDG_CONFIG_HOME to ensure this does not bypass our engine config files and break things
+# (see: <https://github.com/actions/runner/issues/863>)
+ENV XDG_CONFIG_HOME=/home/ue4/.config
+
 {% if not disable_labels %}
 # Add labels to the built image to identify which components (if any) were excluded from the build that it contains
 LABEL com.adamrehn.ue4-docker.excluded.ddc={% if excluded_components.ddc == true %}1{% else %}0{% endif %} 
