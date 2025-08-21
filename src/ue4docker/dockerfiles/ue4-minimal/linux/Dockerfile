@@ -13,7 +13,11 @@ RUN rm -rf /home/ue4/UnrealEngine/.git
 # Ensure UBT is built before we create the Installed Build, since Build.sh explicitly sets the
 # target .NET Framework version, whereas InstalledEngineBuild.xml just uses the system default,
 # which can result in errors when running the built UBT due to the wrong version being targeted
-RUN ./Engine/Build/BatchFiles/Linux/Build.sh ShaderCompileWorker Linux Development -SkipBuild -buildubt
+RUN if [ -f ./Engine/Build/BatchFiles/BuildUBT.sh ]; then \
+		./Engine/Build/BatchFiles/BuildUBT.sh; \
+	else \
+		./Engine/Build/BatchFiles/Linux/Build.sh ShaderCompileWorker Linux Development -SkipBuild -buildubt; \
+	fi
 
 # Create an Installed Build of the Engine
 WORKDIR /home/ue4/UnrealEngine
@@ -77,6 +81,11 @@ COPY --from=builder --chown=ue4:ue4 /home/ue4/UnrealEngine/Components/TemplatesA
 # Copy Install.ini from the builder image, so it can be used by tools that read the list of engine installations (e.g. ushell)
 COPY --from=builder --chown=ue4:ue4 /home/ue4/.config/Epic/UnrealEngine/Install.ini /home/ue4/.config/Epic/UnrealEngine/Install.ini
 WORKDIR /home/ue4/UnrealEngine
+
+# GitHub Actions forcibly overrides $HOME and redirects it to a host directory that is bind-mounted at `/github/home`,
+# so we need to explicitly set XDG_CONFIG_HOME to ensure this does not bypass our engine config files and break things
+# (see: <https://github.com/actions/runner/issues/863>)
+ENV XDG_CONFIG_HOME=/home/ue4/.config
 
 {% if not disable_labels %}
 # Add labels to the built image to identify which components (if any) were excluded from the build that it contains

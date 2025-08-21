@@ -36,21 +36,15 @@ jobs:
         - { os: ubuntu-22.04, python: "3.10" }
         - { os: ubuntu-24.04, python: "3.12" }
 
-          # All supported Visual Studio on Windows Server 2019
-        - { os: windows-2019, python: "3.12", visual-studio: 2017 }
-        - { os: windows-2019, python: "3.12", visual-studio: 2019 }
-        - { os: windows-2019, python: "3.12", visual-studio: 2022 }
-
           # All supported Visual Studio on Windows Server 2022
         - { os: windows-2022, python: "3.12", visual-studio: 2017 }
         - { os: windows-2022, python: "3.12", visual-studio: 2019 }
         - { os: windows-2022, python: "3.12", visual-studio: 2022 }
 
         # All supported Visual Studio on Windows Server 2025
-        # TODO: Waiting for https://github.com/actions/runner-images/issues/10806
-        # - { os: windows-2022, python: "3.12", visual-studio: 2017 }
-        # - { os: windows-2022, python: "3.12", visual-studio: 2019 }
-        # - { os: windows-2022, python: "3.12", visual-studio: 2022 }
+        - { os: windows-2025, python: "3.12", visual-studio: 2017 }
+        - { os: windows-2025, python: "3.12", visual-studio: 2019 }
+        - { os: windows-2025, python: "3.12", visual-studio: 2022 }
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout

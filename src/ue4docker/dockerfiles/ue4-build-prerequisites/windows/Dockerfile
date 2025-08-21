@@ -27,13 +27,13 @@ COPY --from=dlls `
     C:\Windows\System32\mf.dll `
     C:\Windows\System32\mfcore.dll `
     C:\Windows\System32\mfplat.dll `
-    C:\Windows\System32\mfplay.dll `
+    C:\Windows\System32\MFPlay.dll `
     C:\Windows\System32\mfreadwrite.dll `
     C:\Windows\System32\msacm32.dll `
     C:\Windows\System32\msdmo.dll `
     C:\Windows\System32\msvfw32.dll `
     C:\Windows\System32\opengl32.dll `
-    C:\Windows\System32\ResampleDMO.dll `
+    C:\Windows\System32\RESAMPLEDMO.DLL `
     C:\Windows\System32\ResourcePolicyClient.dll `
     C:\Windows\System32\XInput1_4.dll `
     C:\GatheredDLLs\
@@ -45,7 +45,7 @@ RUN powershell -ExecutionPolicy Bypass -File C:\remove-duplicate-dlls.ps1
 # Copy the DLL files into a clean image
 FROM ${BASEIMAGE} AS prerequisites
 SHELL ["cmd", "/S", "/C"]
-COPY --from=deduplication C:\GatheredDlls\ C:\Windows\System32\
+COPY --from=deduplication C:\GatheredDLLs\ C:\Windows\System32\
 
 {% if not disable_labels %}
 # Add a sentinel label so we can easily identify all derived images, including intermediate images
