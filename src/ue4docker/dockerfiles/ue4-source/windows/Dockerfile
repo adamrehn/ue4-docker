@@ -1,10 +1,10 @@
 # escape=`
 {% if combine %}
-FROM prerequisites as source
+FROM prerequisites as source-prep
 {% else %}
 ARG NAMESPACE
 ARG PREREQS_TAG
-FROM ${NAMESPACE}/ue4-build-prerequisites:${PREREQS_TAG}
+FROM ${NAMESPACE}/ue4-build-prerequisites:${PREREQS_TAG} as source-prep
 {% endif %}
 
 {% if source_mode == "copy" %}
@@ -50,6 +50,24 @@ RUN mkdir C:\UnrealEngine && `
 	git checkout FETCH_HEAD
 
 {% endif %}
+
+{% if combine %}
+FROM prerequisites as source
+{% else %}
+ARG NAMESPACE
+ARG PREREQS_TAG
+FROM ${NAMESPACE}/ue4-build-prerequisites:${PREREQS_TAG} as source
+{% endif %}
+
+RUN pip install json-with-comments
+# TODO: Rework this. If Windows_SDK.json is missing, generate it on previous stage. So the only file that VS installation depends on is Windows_SDK.json and we don't reinstall VS when other files change
+# Only copy files required to determine Visual Studio version to avoid reinstalling it when minor engine changes happen
+COPY --from=source-prep C:\UnrealEngine\Engine\Config\Windows C:\install-vs\
+COPY --from=source-prep C:\UnrealEngine\Engine\Build\Build.version C:\install-vs\
+COPY install-vs.py C:\install-vs\
+RUN python C:\install-vs\install-vs.py C:\install-vs\Windows_SDK.json C:\install-vs\Build.Version
+
+COPY --from=source-prep C:\UnrealEngine C:\UnrealEngine
 
 {% if (not disable_all_patches) and (not disable_windows_setup_patch) %}
 # Since the UE4 prerequisites installer appears to break when newer versions

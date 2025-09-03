@@ -2,6 +2,7 @@ import multiprocessing, secrets, time, urllib.parse
 from .NetworkUtils import NetworkUtils
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
+from typing import List
 from functools import partial
 
 
@@ -44,7 +45,7 @@ class CredentialEndpoint(object):
         # Generate a security token to require when requesting credentials
         self.token = secrets.token_hex(16)
 
-    def args(self) -> [str]:
+    def args(self) -> List[str]:
         """
         Returns the Docker build arguments for creating containers that require Git credentials
         """

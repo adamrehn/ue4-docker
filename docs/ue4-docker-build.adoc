@@ -147,14 +147,6 @@ Use Linux containers under Windows hosts (useful when testing Docker Desktop or 
 *--random-memory*::
 Use a random memory limit for Windows containers
 
-*--visual-studio {2017,2019,2022}*::
-Specify Visual Studio Build Tools version.
-+
-By default, ue4-docker uses Visual Studio Build Tools 2017 to build Unreal Engine.
-Starting with Unreal Engine 4.25, you may choose to use Visual Studio Build Tools 2019 instead.
-+
-Unreal Engine 5.0 adds support for VS2022 but removes support for VS2017.
-
 == Environment
 
 This section describes several environment variables that affect how `ue4-docker build` operates.
