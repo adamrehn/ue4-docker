@@ -31,8 +31,8 @@ RUN chmod +x /tmp/git-credential-helper-secrets.sh
 # (Note that we include the changelist override value here to ensure any cached source code is invalidated if
 #  the override is modified between runs, which is useful when testing preview versions of the Unreal Engine)
 ARG CHANGELIST
-RUN --mount=type=secret,id=username,uid=1000,required \
-	--mount=type=secret,id=password,uid=1000,required \
+RUN --mount=type=secret,id=username,uid=2000,required \
+	--mount=type=secret,id=password,uid=2000,required \
 	CHANGELIST="$CHANGELIST" \
 	mkdir /home/ue4/UnrealEngine && \
 	cd /home/ue4/UnrealEngine && \
@@ -87,7 +87,7 @@ ARG VERBOSE_OUTPUT=0
 # Apply our bugfix patches to broken Engine releases
 # (Make sure we do this before the post-clone setup steps are run)
 COPY --chown=ue4:ue4 patch-broken-releases.py /tmp/patch-broken-releases.py
-RUN --mount=type=secret,id=password,env=GITPASS,uid=1000,required \
+RUN --mount=type=secret,id=password,env=GITPASS,uid=2000,required \
 	sudo apt-get update && sudo apt-get install -y --no-install-recommends python3-requests && sudo rm -rf /var/lib/apt/lists/* \
 	&& python3 /tmp/patch-broken-releases.py /home/ue4/UnrealEngine $VERBOSE_OUTPUT
 {% endif %}
@@ -102,7 +102,7 @@ RUN mkdir "$UE_GITDEPS"
 
 # When running with BuildKit, we use a cache mount to cache the dependency data across multiple build invocations
 WORKDIR /home/ue4/UnrealEngine
-RUN --mount=type=cache,target=/home/ue4/gitdeps,uid=1000,gid=1000 sudo apt-get update && \
+RUN --mount=type=cache,target=/home/ue4/gitdeps,uid=2000,gid=2000 sudo apt-get update && \
 	./Setup.sh {{ gitdependencies_args }} && \
 	sudo rm -rf /var/lib/apt/lists/*
 
