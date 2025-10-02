@@ -52,7 +52,7 @@ RUN apt-get update && \
 	else \
 	    LIBASOUND2="libasound2"; \
 	fi && apt-get install -y --no-install-recommends \
-			$LIBASOUND2
+			$LIBASOUND2 \
 			libatk1.0-0 \
 			libatk-bridge2.0-0 \
 			libcairo2 \
