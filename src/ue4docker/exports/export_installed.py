@@ -63,25 +63,3 @@ def doExportInstalledBuild(container: Container, destination: str, extraArgs) ->
     subprocess.run(
         ["docker", "cp", f"{container.name}:{engineRoot}", destination], check=True
     )
-
-    # If the export succeeded, regenerate the linker symlinks on the host system
-    if platform.system() != "Windows":
-        print("Performing linker symlink fixup...")
-        subprocess.run(
-            [
-                sys.executable,
-                os.path.join(
-                    os.path.dirname(os.path.dirname(__file__)),
-                    "dockerfiles",
-                    "ue4-source",
-                    "linux",
-                    "linker-fixup.py",
-                ),
-                os.path.join(
-                    destination,
-                    "Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/Linux_x64",
-                ),
-                shutil.which("ld"),
-            ],
-            check=True,
-        )
