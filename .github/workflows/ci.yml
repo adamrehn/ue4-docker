@@ -34,17 +34,10 @@ jobs:
         # All supported Ubuntu LTS with system python
         # Be careful when removing EOL versions so that we still test our oldest supported python at least somewhere
         - { os: ubuntu-22.04, python: "3.10" }
-        - { os: ubuntu-24.04, python: "3.12" }
+        - { os: ubuntu-24.04, python: "3.13" }
 
-          # All supported Visual Studio on Windows Server 2022
-        - { os: windows-2022, python: "3.12", visual-studio: 2017 }
-        - { os: windows-2022, python: "3.12", visual-studio: 2019 }
-        - { os: windows-2022, python: "3.12", visual-studio: 2022 }
-
-        # All supported Visual Studio on Windows Server 2025
-        - { os: windows-2025, python: "3.12", visual-studio: 2017 }
-        - { os: windows-2025, python: "3.12", visual-studio: 2019 }
-        - { os: windows-2025, python: "3.12", visual-studio: 2022 }
+        - { os: windows-2022, python: "3.13" }
+        - { os: windows-2025, python: "3.13" }
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
@@ -56,6 +49,6 @@ jobs:
     - name: Install
       run: pip install . --user
     - name: Build prerequisites
-      run: ue4-docker build --target=build-prerequisites --visual-studio ${{ matrix.visual-studio || '2017' }}
+      run: ue4-docker build --target=build-prerequisites
     - name: Run diagnostics
       run: ue4-docker diagnostics all
