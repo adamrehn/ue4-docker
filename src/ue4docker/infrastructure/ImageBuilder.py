@@ -28,6 +28,7 @@ class ImageBuilder(object):
         layoutDir: str = None,
         templateContext: Dict[str, str] = None,
         combine: bool = False,
+        debug: bool = False,
     ):
         """
         Creates an ImageBuilder for the specified build parameters
@@ -40,6 +41,7 @@ class ImageBuilder(object):
         self.layoutDir = layoutDir
         self.templateContext = templateContext if templateContext is not None else {}
         self.combine = combine
+        self.debug = debug
 
     def get_built_image_context(self, name):
         """
@@ -125,6 +127,9 @@ class ImageBuilder(object):
             # Determine whether we are building using `docker buildx` with build secrets
             imageTags = self._formatTags(name, tags)
 
+            if self.debug:
+                self.logger.info(f"Temp secrets context dir: {tempDir}", False)
+
             if self.platform == "linux" and secrets is not None and len(secrets) > 0:
                 # Create temporary files to store the contents of each of our secrets
                 secretFlags = []
@@ -135,7 +140,7 @@ class ImageBuilder(object):
 
                 # Generate the `docker buildx` command to use our build secrets
                 command = DockerUtils.buildx(
-                    imageTags, context_dir, archFlags + args, secretFlags
+                    imageTags, context_dir, archFlags + args, secretFlags, debug=self.debug
                 )
             else:
                 command = DockerUtils.build(imageTags, context_dir, archFlags + args)
@@ -145,6 +150,8 @@ class ImageBuilder(object):
             env = os.environ.copy()
             if self.platform == "linux":
                 env["DOCKER_BUILDKIT"] = "1"
+                if self.debug:
+                    env["BUILDX_EXPERIMENTAL"] = "1"
 
             # Build the image if it doesn't already exist
             self._processImage(
@@ -209,12 +216,16 @@ class ImageBuilder(object):
         self.logger.action(
             '{}ing image "{}"...'.format(actionPresentTense.capitalize(), image)
         )
+
         if self.dryRun:
             print(command)
             self.logger.action(
                 'Completed dry run for image "{}".'.format(image), newline=False
             )
             return
+
+        if self.debug:
+            self.logger.info(f"Command: {command}", False)
 
         # Determine if we're just copying the Dockerfile to an output directory
         if self.layoutDir is not None:
