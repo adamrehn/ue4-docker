@@ -1,4 +1,5 @@
 import argparse, getpass, humanfriendly, json, os, platform, shutil, sys, tempfile, time
+from pathlib import Path
 from .infrastructure import *
 from .version import __version__
 from os.path import join
@@ -103,7 +104,8 @@ def build():
         template_context = {
             'namespace': GlobalConfiguration.getTagNamespace(),
             'tag': config.release + config.suffix,
-            'prereqs_tag': config.prereqsTag
+            'prereqs_tag': config.prereqsTag,
+            'prebuilt_archives': [str(Path(archive).name) for archive in config.prebuilt_archive_paths]
         }
 
         template_context.update(config.opts)
@@ -124,7 +126,7 @@ def build():
         )
 
         # Resolve our main set of tags for the generated images; this is used only for Source and downstream
-        if config.buildTargets["source"]:
+        if config.buildTargets["source"] or config.buildTargets["minimal"] or config.buildTargets["full"]:
             mainTags = [
                 "{}{}-{}".format(config.release, config.suffix, config.prereqsTag),
                 config.release + config.suffix,
@@ -502,12 +504,30 @@ def build():
                 minimalArgs = prereqConsumerArgs + [
                     "--build-arg",
                     "TAG={}".format(mainTags[1]),
+                    "--build-arg",
+                    "PREREQS_TAG={}".format(config.prereqsTag),
                 ]
+
+                if config.prebuilt_archive_paths:
+                    # have to copy the prebuilt archive paths into the build context
+                    context_dir = Path(builder.get_built_image_context("ue4-minimal"))
+
+                    for archive_path in config.prebuilt_archive_paths:
+                        archive_path = Path(archive_path).resolve()
+                        if not Path(archive_path).is_file():
+                            raise RuntimeError(f"Prebuilt archive path '{archive_path}' is not a valid file.")
+
+                        if Path(context_dir, archive_path.name).is_file():
+                            logger.info(f"Prebuilt archive '{archive_path}' already exists in build context, skipping copy.")
+                        else:
+                            logger.info(f"Copying prebuilt archive '{archive_path}' to build context.")
+                            shutil.copy(archive_path, context_dir)
 
                 builder.build_builtin_image(
                     "ue4-minimal",
                     mainTags,
                     commonArgs + config.platformArgs + minimalArgs,
+                    dockerfile_name="Dockerfile.prebuilt" if config.prebuilt_archive_paths else "Dockerfile",
                 )
                 builtImages.append("ue4-minimal")
             else:

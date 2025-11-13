@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 import platform
 import random
 from typing import Optional
@@ -21,7 +22,7 @@ LINUX_BASE_IMAGES = {
 DEFAULT_BASE_IMG_ORG = "nvidia"
 
 # The default ubuntu base to use
-DEFAULT_LINUX_VERSION = "ubuntu22.04"
+DEFAULT_LINUX_VERSION = "ubuntu24.04"
 
 # The default CUDA version to use when `--cuda` is specified without a value
 DEFAULT_CUDA_VERSION = "12.2.0"
@@ -220,6 +221,13 @@ class BuildConfiguration(object):
             help="Specify access token or password to use when cloning the git repository",
         )
         parser.add_argument(
+            "--prebuilt-archive",
+            default=None,
+            metavar="PATH",
+            action='append',
+            help="Paths to a archives containing a prebuilt Unreal Engine and components",
+        )
+        parser.add_argument(
             "-repo",
             default=None,
             help='Set the custom git repository to clone when "custom" is specified as the release value',
@@ -367,6 +375,8 @@ class BuildConfiguration(object):
             raise RuntimeError(
                 "specified both `--target` and the old `--no-*` options; please use only `--target`!"
             )
+        
+        self.prebuilt_archive_paths = [Path(p) for p in self.args.prebuilt_archive] if self.args.prebuilt_archive else []
 
         # Now that we have our options in `self.args.target`, evaluate our dependencies
         # In a theoretical ideal world this should be code-driven; if you find yourself adding a lot more code to this, consider a redesign!
@@ -397,7 +407,10 @@ class BuildConfiguration(object):
 
         if "minimal" in active_targets or "all" in active_targets:
             self.buildTargets["minimal"] = True
-            active_targets.add("source")
+            if not self.prebuilt_archive_paths:
+                active_targets.add("source")
+            else:
+                active_targets.add("build-prerequisites")
 
         if "source" in active_targets or "all" in active_targets:
             self.buildTargets["source"] = True
@@ -482,6 +495,15 @@ class BuildConfiguration(object):
             self.release = None
             self.repository = None
             self.branch = None
+
+            for archive in self.prebuilt_archive_paths:
+                if archive.name.startswith("Linux_Unreal_Engine_"):
+                    parts = archive.name.split("_")
+                    if len(parts) >= 4:
+                        version_with_ext = parts[3]
+                        version = version_with_ext.replace(".zip", "")
+                        self.release = version
+                        break
 
         # Store our common configuration settings
         self.containerPlatform = (

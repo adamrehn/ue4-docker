@@ -60,26 +60,28 @@ class ImageBuilder(object):
     def build_builtin_image(
         self,
         name: str,
-        tags: [str],
-        args: [str],
+        tags: list[str],
+        args: list[str],
         builtin_name: str = None,
         secrets: Dict[str, str] = None,
+        dockerfile_name: str = "Dockerfile",
     ):
         context_dir = self.get_built_image_context(
             name if builtin_name is None else builtin_name
         )
         return self.build(
-            name, tags, args, join(context_dir, "Dockerfile"), context_dir, secrets
+            name, tags, args, join(context_dir, dockerfile_name), context_dir, secrets, dockerfile_name
         )
 
     def build(
         self,
         name: str,
-        tags: [str],
-        args: [str],
+        tags: list[str],
+        args: list[str],
         dockerfile_template: str,
         context_dir: str,
         secrets: Dict[str, str] = None,
+        dockerfile_name: str = "Dockerfile",
     ):
         """
         Builds the specified image if it doesn't exist or if we're forcing a rebuild
@@ -92,7 +94,7 @@ class ImageBuilder(object):
         environment = Environment(
             autoescape=False, trim_blocks=True, lstrip_blocks=True
         )
-        dockerfile = join(workdir, "Dockerfile")
+        dockerfile = join(workdir, dockerfile_name)
 
         templateInstance = environment.from_string(
             FilesystemUtils.readFile(dockerfile_template)

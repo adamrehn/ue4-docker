@@ -1,0 +1,76 @@
+{% if combine %}
+FROM prerequisites as minimal
+{% else %}
+ARG NAMESPACE
+ARG PREREQS_TAG
+FROM ${NAMESPACE}/ue4-build-prerequisites:${PREREQS_TAG}
+{% endif %}
+
+WORKDIR /home/ue4/UnrealEngine
+
+# Copy the BuildConfiguration.xml file to disable UnrealBuildAccelerator
+# COPY --chown=ue4:ue4 ["BuildConfiguration.xml", "/home/ue4/.config/Unreal Engine/UnrealBuildTool/BuildConfiguration.xml"]
+
+# Copy the precompiled Engine into the image
+
+{% for archive in prebuilt_archives %}
+RUN --mount=type=bind,target=/tmp/archives/ \
+  unzip /tmp/archives/{{ archive }} -d /home/ue4/UnrealEngine/
+{% endfor %}
+
+# Run UnrealVersionSelector to populate Install.ini with any custom Build ID specified in the BuildGraph flags
+# (Note that the `-unattended` flag used below requires Unreal Engine 4.22 or newer, so this will break under older versions)
+# (Note also that custom Build IDs are supported by Unreal Engine 5.3.1 and newer, and older versions will just use a GUID as the Build ID)
+# RUN ./Engine/Binaries/Linux/UnrealVersionSelector-Linux-Shipping -register -unattended
+
+# Split out both optional components (DDC, debug symbols, template projects) and large subdirectories so they can be copied
+# into the final container image as separate filesystem layers, avoiding creating a single monolithic layer with everything
+# COPY split-components.py /tmp/split-components.py
+# RUN python3 /tmp/split-components.py /home/ue4/UnrealEngine/LocalBuilds/Engine/Linux /home/ue4/UnrealEngine/Components
+
+{% if not disable_labels %}
+# Add labels to the built image to identify which components (if any) were excluded from the build that it contains
+LABEL com.adamrehn.ue4-docker.excluded.ddc={% if excluded_components.ddc == true %}1{% else %}0{% endif %} 
+LABEL com.adamrehn.ue4-docker.excluded.debug={% if excluded_components.debug == true %}1{% else %}0{% endif %} 
+LABEL com.adamrehn.ue4-docker.excluded.templates={% if excluded_components.templates == true %}1{% else %}0{% endif %} 
+{% endif %}
+
+{% if enable_ushell %}
+# Add ushell to the system PATH and alias `ushell` to `ushell.sh`
+ENV PATH="$PATH:/home/ue4/UnrealEngine/Engine/Extras/ushell"
+RUN echo 'alias ushell="ushell.sh"' >> /home/ue4/.bashrc
+
+# Perform first-run setup for ushell
+RUN bash -c 'set -e; source /home/ue4/UnrealEngine/Engine/Extras/ushell/ushell.sh && exit 0'
+{% endif %}
+
+# Perform first-run setup for Mono, UnrealBuildTool and AutomationTool, which makes it possible to build Unreal projects and plugins as users other than `ue4`
+# (Note that this will only work with 4.26.0 and newer, older Engine versions will always require write access to `/home/ue4/UnrealEngine`)
+# See the comments on this issue for details, including the need to ensure $HOME is set correctly: <https://github.com/adamrehn/ue4-docker/issues/141>
+
+RUN mkdir -p ./Engine/Programs/AutomationTool/Saved && \
+	chmod a+rw ./Engine/Programs/AutomationTool/Saved
+
+# Enable Vulkan support for NVIDIA GPUs
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	libvulkan1 \
+	libglvnd0 \
+	libgl1 \
+	libglx0 \
+	libegl1  \
+	libgles2  \
+	libxcb1-dev \
+	vulkan-tools \
+	&& rm -rf /var/lib/apt/lists/* && \
+	VULKAN_API_VERSION=`dpkg -s libvulkan1 | grep -oP 'Version: [0-9]+\.[0-9]+\.[0-9]+' | grep -oP '[0-9]+\.[0-9]+\.[0-9]+'` && \
+	mkdir -p /etc/vulkan/icd.d/ && \
+	echo \
+	"{\
+		\"file_format_version\" : \"1.0.0\",\
+		\"ICD\": {\
+			\"library_path\": \"libGLX_nvidia.so.0\",\
+			\"api_version\" : \"${VULKAN_API_VERSION}\"\
+		}\
+	}" > /etc/vulkan/icd.d/nvidia_icd.json
+USER ue4

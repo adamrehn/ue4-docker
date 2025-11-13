@@ -19,12 +19,14 @@ RUN rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED
 RUN pip3 install --ignore-installed  "$CONAN_VERSION" "$UE4CLI_VERSION" "$CONAN_UE4CLI_VERSION"
 USER ue4
 
+{% if not prebuilt_archives %}
 # Copy in UBT from minimal image, if present (required for `ue4 conan generate` to work on UE5)
 ARG UBT_DIR="/home/ue4/UnrealEngine/Engine/Binaries/DotNET"
 {% if combine %}
 COPY --from=minimal --chown=ue4:ue4 $UBT_DIR/UnrealBuildTool $UBT_DIR/UnrealBuildTool
 {% else %}
 COPY --from={{ namespace }}/ue4-minimal:{{ tag }}-{{ prereqs_tag }} --chown=ue4:ue4 $UBT_DIR/UnrealBuildTool $UBT_DIR/UnrealBuildTool
+{% endif %}
 {% endif %}
 
 # Extract the third-party library details from UBT
