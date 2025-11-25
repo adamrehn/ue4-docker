@@ -1,6 +1,6 @@
 [project]
 name = "ue4-docker"
-version = "0.0.117"
+version = "0.0.118"
 description = "Windows and Linux containers for Unreal Engine"
 requires-python = ">= 3.8"
 license = { file = "LICENSE" }
