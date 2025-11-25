@@ -74,6 +74,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 			xkb-data && \
 	rm -rf /var/lib/apt/lists/*
 
+# Install the Avahi runtime libraries required by the NDIMedia plugin
+# (Starting in Unreal Engine 5.7, we need these installed before creating an Installed Build to prevent cooking failures)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+			libavahi-client3 && \
+	rm -rf /var/lib/apt/lists/*
+
 {% if enable_dso_patch %}
 # Install the glibc DSO patch to improve Editor startup times
 RUN add-apt-repository -y ppa:slonopotamus/glibc-dso && \
