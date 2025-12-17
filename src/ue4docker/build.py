@@ -408,6 +408,8 @@ def build():
                         "--build-arg",
                         "VISUAL_STUDIO_BUILD_NUMBER="
                         + config.visualStudio.build_number,
+                        "--build-arg",
+                        "UE_VERSION=" + config.release,
                     ]
 
                 custom_prerequisites_dockerfile = config.args.prerequisites_dockerfile
