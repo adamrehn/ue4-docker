@@ -10,6 +10,9 @@ FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 # Remove the .git directory to disable UBT `git status` calls and speed up the build process
 RUN rm -rf /home/ue4/UnrealEngine/.git
 
+# Disable Nuget package auditing (warnings NU1902 and NU1903)
+ENV NuGetAudit=false
+
 # Ensure UBT is built before we create the Installed Build, since Build.sh explicitly sets the
 # target .NET Framework version, whereas InstalledEngineBuild.xml just uses the system default,
 # which can result in errors when running the built UBT due to the wrong version being targeted
