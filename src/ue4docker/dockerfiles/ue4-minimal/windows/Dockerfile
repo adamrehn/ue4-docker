@@ -11,6 +11,9 @@ FROM ${NAMESPACE}/ue4-source:${TAG}-${PREREQS_TAG} AS builder
 # Remove the .git directory to disable UBT `git status` calls and speed up the build process
 RUN if exist C:\UnrealEngine\.git rmdir /s /q C:\UnrealEngine\.git
 
+# Disable Nuget package auditing (warnings NU1902 and NU1903)
+ENV NuGetAudit=false
+
 # Create an Installed Build of the Engine
 WORKDIR C:\UnrealEngine
 RUN .\Engine\Build\BatchFiles\RunUAT.bat BuildGraph `
