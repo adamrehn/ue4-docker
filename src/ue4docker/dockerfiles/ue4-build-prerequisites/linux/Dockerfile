@@ -44,8 +44,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install the X11 runtime libraries required by CEF so we can cook Unreal Engine projects that use the WebBrowserWidget plugin
 # (Starting in Unreal Engine 5.0, we need these installed before creating an Installed Build to prevent cooking failures related to loading the Quixel Bridge plugin)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-			libasound2 \
+RUN apt-get update && \
+    OS_NAME=$(grep "^NAME=" /etc/os-release | awk -F= '{print $2}' | tr -d '"') && \
+    OS_VERSION=$(grep "^VERSION_ID=" /etc/os-release | awk -F= '{print $2}' | tr -d '"') && \
+	if [ "$OS_NAME" = "Ubuntu" ] && dpkg --compare-versions "$OS_VERSION" ge "24.04"; then \
+	    LIBASOUND2="libasound2t64"; \
+	else \
+	    LIBASOUND2="libasound2"; \
+	fi && apt-get install -y --no-install-recommends \
+			$LIBASOUND2 \
 			libatk1.0-0 \
 			libatk-bridge2.0-0 \
 			libcairo2 \
@@ -95,7 +102,7 @@ ENV GLIBC_TUNABLES=glibc.rtld.dynamic_sort=2
 RUN echo 'Defaults lecture="never"' >> /etc/sudoers
 
 # Unreal refuses to run as the root user, so create a non-root user with no password and allow them to run commands using sudo
-RUN useradd --create-home --home /home/ue4 --shell /bin/bash --uid 1000 ue4 && \
+RUN useradd --create-home --home /home/ue4 --shell /bin/bash --uid 2000 ue4 && \
 	passwd -d ue4 && \
 	usermod -a -G audio,video,sudo ue4
 USER ue4
