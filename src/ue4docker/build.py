@@ -200,9 +200,6 @@ def build():
                 "Detected max image size:      {:.0f}GB".format(DockerUtils.maxsize()),
                 False,
             )
-            logger.info(
-                "Visual Studio:                {}".format(config.visualStudio), False
-            )
 
             # Verify that the host OS is not a release that is blacklisted due to critical bugs
             if (
@@ -405,9 +402,6 @@ def build():
                     prereqsArgs = prereqsArgs + [
                         "--build-arg",
                         "DLLSRCIMAGE=" + config.dllSrcImage,
-                        "--build-arg",
-                        "VISUAL_STUDIO_BUILD_NUMBER="
-                        + config.visualStudio.build_number,
                     ]
 
                 custom_prerequisites_dockerfile = config.args.prerequisites_dockerfile

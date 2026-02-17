@@ -1,7 +1,6 @@
 import json
 import platform
 import random
-from typing import Optional
 
 import humanfriendly
 from packaging.version import Version, InvalidVersion
@@ -38,53 +37,6 @@ UNREAL_ENGINE_RELEASE_CHANGELISTS = {
     "5.5.0": 37670630,
     "5.6.0": 43139311,
     "5.7.0": 47537391,
-}
-
-
-class VisualStudio(object):
-    def __init__(
-        self,
-        name: str,
-        build_number: str,
-        supported_since: Version,
-        unsupported_since: Optional[Version],
-        pass_version_to_buildgraph: bool,
-    ):
-        self.name = name
-        self.build_number = build_number
-        self.supported_since = supported_since
-        self.unsupported_since = unsupported_since
-        self.pass_version_to_buildgraph = pass_version_to_buildgraph
-
-    def __str__(self) -> str:
-        return self.name
-
-
-DefaultVisualStudio = "2017"
-
-VisualStudios = {
-    "2017": VisualStudio(
-        name="2017",
-        build_number="15",
-        # We do not support versions older than 4.27
-        supported_since=Version("4.27"),
-        unsupported_since=Version("5.0"),
-        pass_version_to_buildgraph=False,
-    ),
-    "2019": VisualStudio(
-        name="2019",
-        build_number="16",
-        supported_since=Version("4.27"),
-        unsupported_since=Version("5.4"),
-        pass_version_to_buildgraph=True,
-    ),
-    "2022": VisualStudio(
-        name="2022",
-        build_number="17",
-        supported_since=Version("5.0"),
-        unsupported_since=None,
-        pass_version_to_buildgraph=True,
-    ),
 }
 
 
@@ -196,12 +148,6 @@ class BuildConfiguration(object):
             default=None,
             metavar="VERSION",
             help="Add CUDA support as well as OpenGL support when building Linux containers",
-        )
-        parser.add_argument(
-            "--visual-studio",
-            default=DefaultVisualStudio,
-            choices=VisualStudios.keys(),
-            help="Specify Visual Studio Build Tools version to use for Windows containers",
         )
         parser.add_argument(
             "-username",
@@ -477,7 +423,7 @@ class BuildConfiguration(object):
         self.platformArgs = ["--no-cache"] if self.args.no_cache == True else []
         self.excludedComponents = set(self.args.exclude)
         self.baseImage = None
-        self.prereqsTag = None
+        self.prereqsTag: str | None = None
         self.ignoreBlacklist = self.args.ignore_blacklist
         self.verbose = self.args.verbose
         self.layoutDir = self.args.layout
@@ -606,41 +552,6 @@ class BuildConfiguration(object):
         )
 
     def _generateWindowsConfig(self):
-        self.visualStudio = VisualStudios.get(self.args.visual_studio)
-        if self.visualStudio is None:
-            raise RuntimeError(
-                f"unknown Visual Studio version: {self.args.visual_studio}"
-            )
-
-        if self.release is not None and not self.custom:
-            # Check whether specified Unreal Engine release is compatible with specified Visual Studio
-            if (
-                self.visualStudio.supported_since is not None
-                and Version(self.release) < self.visualStudio.supported_since
-            ):
-                raise RuntimeError(
-                    f"specified version of Unreal Engine is too old for Visual Studio {self.visualStudio.name}"
-                )
-
-            if (
-                self.visualStudio.unsupported_since is not None
-                and Version(self.release) >= self.visualStudio.unsupported_since
-            ):
-                raise RuntimeError(
-                    "Visual Studio {} is too old for specified version of Unreal Engine".format(
-                        self.visualStudio
-                    )
-                )
-
-        # See https://github.com/EpicGames/UnrealEngine/commit/72585138472785e2ee58aab9950a7260275ee2ac
-        # Note: We must not pass VS2019 arg for older UE4 versions that didn't have VS2019 variable in their build graph xml.
-        # Otherwise, UAT errors out with "Unknown argument: VS2019".
-        if self.visualStudio.pass_version_to_buildgraph:
-            self.opts["buildgraph_args"] = (
-                self.opts.get("buildgraph_args", "")
-                + f" -set:VS{self.visualStudio.name}=true"
-            )
-
         # Determine base tag for the Windows release of the host system
         self.hostBasetag = WindowsUtils.getHostBaseTag()
 
@@ -656,7 +567,7 @@ class BuildConfiguration(object):
 
         self.baseImage = "mcr.microsoft.com/windows/servercore:" + self.basetag
         self.dllSrcImage = WindowsUtils.getDllSrcImage(self.basetag)
-        self.prereqsTag = self.basetag + "-vs" + self.visualStudio.name
+        self.prereqsTag = self.basetag
 
         # If the user has explicitly specified an isolation mode then use it, otherwise auto-detect
         if self.args.isolation is not None:
