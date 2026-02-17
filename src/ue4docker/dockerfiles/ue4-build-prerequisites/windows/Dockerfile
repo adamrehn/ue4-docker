@@ -34,6 +34,7 @@ COPY --from=dlls `
     C:\Windows\System32\msvfw32.dll `
     C:\Windows\System32\opengl32.dll `
     C:\Windows\System32\RESAMPLEDMO.DLL `
+    C:\Windows\System32\qwave.dll `
     C:\Windows\System32\ResourcePolicyClient.dll `
     C:\Windows\System32\XInput1_4.dll `
     C:\GatheredDLLs\
