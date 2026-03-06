@@ -11,7 +11,10 @@ WORKDIR /home/ue4/UnrealEngine
 # Copy the BuildConfiguration.xml file to disable UnrealBuildAccelerator
 # COPY --chown=ue4:ue4 ["BuildConfiguration.xml", "/home/ue4/.config/Unreal Engine/UnrealBuildTool/BuildConfiguration.xml"]
 
-# Copy the precompiled Engine into the image
+# Copy the chunked precompiled Engine into the image as layers
+{% for chunked_part in chunked_parts %}
+ADD --chown=ue4:ue4 chunked_engine/{{ chunked_part }}/ /home/ue4/UnrealEngine/
+{% endfor %}
 
 {% for archive in prebuilt_archives %}
 RUN --mount=type=bind,target=/tmp/archives/ \

@@ -2,6 +2,7 @@ import argparse, getpass, humanfriendly, json, os, platform, shutil, sys, tempfi
 from pathlib import Path
 from .infrastructure import *
 from .version import __version__
+from . import directory_breakup
 from os.path import join
 
 
@@ -512,10 +513,28 @@ def build():
                     # have to copy the prebuilt archive paths into the build context
                     context_dir = Path(builder.get_built_image_context("ue4-minimal"))
 
-                    for archive_path in config.prebuilt_archive_paths:
+                    for archive_path in list(config.prebuilt_archive_paths):
                         archive_path = Path(archive_path).resolve()
                         if not Path(archive_path).is_file():
                             raise RuntimeError(f"Prebuilt archive path '{archive_path}' is not a valid file.")
+
+                        # if the archive is the Engine, then we need to split it into chunks and copy the chunks instead
+                        if archive_path.name.startswith("Linux_Unreal_Engine_"):
+                            if Path(context_dir, "chunked_engine").exists():
+                                logger.info(f"Chunked engine already exists in build context, skipping unpack and regroup of '{archive_path}'.")
+                                builder.templateContext["chunked_parts"] = sorted([str(path.name) for path in (context_dir / "chunked_engine").iterdir() if path.is_dir()])
+                            else:
+                                os.system(f"unzip {archive_path} -d {context_dir}/engine")
+                                total_sizes, direct_files = directory_breakup.analyze_directories(context_dir / "engine")
+
+                                # group files into subdirectories of no more than 10GB
+                                groups = directory_breakup.breadth_first_groups(context_dir / "engine", total_sizes, direct_files, 1024*1024*1024*10)
+                                packs = directory_breakup.pack_groups(groups, 1024*1024*1024*8, 1024*1024*1024*10)
+                                logger.info(f"Creating {len(packs)} part(s) under {context_dir / "chunked_engine"}")
+                                builder.templateContext["chunked_parts"] = directory_breakup.create_output(context_dir / "engine", context_dir / "chunked_engine", packs, False)
+
+                            builder.templateContext["prebuilt_archives"].remove(archive_path.name)
+                            continue
 
                         if Path(context_dir, archive_path.name).is_file():
                             logger.info(f"Prebuilt archive '{archive_path}' already exists in build context, skipping copy.")

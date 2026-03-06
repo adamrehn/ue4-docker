@@ -496,7 +496,8 @@ class BuildConfiguration(object):
             self.repository = None
             self.branch = None
 
-            for archive in self.prebuilt_archive_paths:
+            for idx in range(len(self.prebuilt_archive_paths)):
+                archive = self.prebuilt_archive_paths[idx]
                 if archive.name.startswith("Linux_Unreal_Engine_"):
                     parts = archive.name.split("_")
                     if len(parts) >= 4:
