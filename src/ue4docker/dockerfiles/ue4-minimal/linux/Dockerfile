@@ -24,14 +24,15 @@ RUN if [ -f ./Engine/Build/BatchFiles/BuildUBT.sh ]; then \
 
 # Create an Installed Build of the Engine
 WORKDIR /home/ue4/UnrealEngine
-RUN ./Engine/Build/BatchFiles/RunUAT.sh BuildGraph \
+RUN {% if automatic_build_id %}export BUILD_ID_OVERRIDE=UE_`cat ./Engine/Build/Build.version | jq --raw-output '"\(.MajorVersion).\(.MinorVersion)"'` && {% endif %}\
+	./Engine/Build/BatchFiles/RunUAT.sh BuildGraph \
 	-target="Make Installed Build Linux" \
 	-script=Engine/Build/InstalledEngineBuild.xml \
 	-set:HostPlatformOnly=true \
 	-set:WithClient=true \
 	-set:WithDDC={% if excluded_components.ddc == true %}false{% else %}true{% endif %} \
 	-set:WithServer=true \
-	{{ buildgraph_args }} && \
+	{%+ if automatic_build_id %}-set:BuildIdOverride="$BUILD_ID_OVERRIDE" {% endif %}{{ buildgraph_args }} && \
 	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC
 
 # Ensure UnrealVersionSelector is built, since the prebuilt binaries may not be up-to-date
