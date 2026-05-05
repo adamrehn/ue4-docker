@@ -23,8 +23,10 @@ RUN if [ -f ./Engine/Build/BatchFiles/BuildUBT.sh ]; then \
 	fi
 
 # Create an Installed Build of the Engine
+ARG BUILDGRAPH_ARGS=""
 WORKDIR /home/ue4/UnrealEngine
-RUN {% if automatic_build_id %}export BUILD_ID_OVERRIDE=UE_`cat ./Engine/Build/Build.version | jq --raw-output '"\(.MajorVersion).\(.MinorVersion)"'` && {% endif %}\
+RUN {% if build_secret_vars %}{% for var in build_secret_vars %}--mount=type=secret,id={{ var }},env={{ var }} {% endfor %}{% endif %}\
+	{% if automatic_build_id %}export BUILD_ID_OVERRIDE=UE_`cat ./Engine/Build/Build.version | jq --raw-output '"\(.MajorVersion).\(.MinorVersion)"'` && {% endif %}\
 	./Engine/Build/BatchFiles/RunUAT.sh BuildGraph \
 	-target="Make Installed Build Linux" \
 	-script=Engine/Build/InstalledEngineBuild.xml \
@@ -32,7 +34,7 @@ RUN {% if automatic_build_id %}export BUILD_ID_OVERRIDE=UE_`cat ./Engine/Build/B
 	-set:WithClient=true \
 	-set:WithDDC={% if excluded_components.ddc == true %}false{% else %}true{% endif %} \
 	-set:WithServer=true \
-	{%+ if automatic_build_id %}-set:BuildIdOverride="$BUILD_ID_OVERRIDE" {% endif %}{{ buildgraph_args }} && \
+	{%+ if automatic_build_id %}-set:BuildIdOverride="$BUILD_ID_OVERRIDE" {% endif %}{{ buildgraph_args }} ${BUILDGRAPH_ARGS} && \
 	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC
 
 # Ensure UnrealVersionSelector is built, since the prebuilt binaries may not be up-to-date
