@@ -87,7 +87,9 @@ ARG VERBOSE_OUTPUT=0
 # Apply our bugfix patches to broken Engine releases
 # (Make sure we do this before the post-clone setup steps are run)
 COPY --chown=ue4:ue4 patch-broken-releases.py /tmp/patch-broken-releases.py
-RUN python3 /tmp/patch-broken-releases.py /home/ue4/UnrealEngine $VERBOSE_OUTPUT
+RUN --mount=type=secret,id=password,env=GITPASS,uid=1000,required \
+	sudo apt-get update && sudo apt-get install -y --no-install-recommends python3-requests && sudo rm -rf /var/lib/apt/lists/* \
+	&& python3 /tmp/patch-broken-releases.py /home/ue4/UnrealEngine $VERBOSE_OUTPUT
 {% endif %}
 
 # Run post-clone setup steps, ensuring our package lists are up to date since Setup.sh doesn't call `apt-get update`

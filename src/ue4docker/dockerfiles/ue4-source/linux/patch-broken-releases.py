@@ -2,6 +2,8 @@
 import json
 import sys
 from os.path import join
+import os
+import requests
 
 
 def readFile(filename):
@@ -20,11 +22,11 @@ versionDetails = json.loads(
     readFile(join(engineRoot, "Engine", "Build", "Build.version"))
 )
 
-if (
-    versionDetails["MajorVersion"] == 5
-    and versionDetails["MinorVersion"] == 0
-    and versionDetails["PatchVersion"] == 0
-):
+major = versionDetails["MajorVersion"]
+minor = versionDetails["MinorVersion"]
+patch = versionDetails["PatchVersion"]
+
+if major == 5 and minor == 0 and patch == 0:
     buildFile = join(engineRoot, "Engine", "Build", "InstalledEngineFilters.xml")
     buildXml = readFile(buildFile)
 
@@ -42,3 +44,36 @@ if (
         print("PATCHED {}:\n\n{}".format(buildFile, buildXml), file=sys.stderr)
     else:
         print("PATCHED {}".format(buildFile), file=sys.stderr)
+
+if major < 5 or (major == 5 and minor < 2):
+    gitdepsFile = join(engineRoot, "Engine", "Build", "Commit.gitdeps.xml")
+    # See https://forums.unrealengine.com/t/upcoming-disruption-of-service-impacting-unreal-engine-users-on-github/1155880
+    # In May 2023, Epics broke Commit.gitdeps.xml for *all existing releases up to 5.1.1* due to changes in their CDN
+    # we need to authenticate
+    password = os.getenv("GITPASS")
+    #  eg curl -L \
+    #          -H "Accept: application/vnd.github+json" \
+    #          -H "Authorization: Bearer ghp_secretGoesHere" \
+    #          -H "X-GitHub-Api-Version: 2022-11-28" \
+    #          https://api.github.com/repos/EpicGames/UnrealEngine/releases/tags/4.27.2-release
+    gitdepsUrl = f"https://api.github.com/repos/EpicGames/UnrealEngine/releases/tags/{major}.{minor}.{patch}-release"
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": "Bearer " + password.strip(),
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    with requests.get(gitdepsUrl, headers=headers) as response:
+        assets = response.json()["assets"]
+        if len(assets) == 1:
+            gitdepsUrl = assets[0]["url"]
+
+    # eg gitdepsUrl = f"https://api.github.com/repos/EpicGames/UnrealEngine/releases/assets/107274338"
+    headers["Accept"] = "application/octet-stream"
+    with requests.get(gitdepsUrl, headers=headers) as response:
+        gitdepsXml = response.text.replace("&", "&amp;")
+        writeFile(gitdepsFile, gitdepsXml)
+
+        if verboseOutput:
+            print("PATCHED {}:\n\n{}".format(gitdepsFile, gitdepsXml), file=sys.stderr)
+        else:
+            print("PATCHED {}".format(gitdepsFile), file=sys.stderr)
