@@ -68,7 +68,7 @@ class CredentialEndpoint(object):
         # Create a child process to run the credential endpoint
         self.endpoint = multiprocessing.Process(
             target=CredentialEndpoint._endpoint,
-            args=(self.username, self.password, self.token),
+            args=(self.username, self.password, self.token, NetworkUtils.hostIP()),
         )
 
         # Spawn the child process and give the endpoint time to start
@@ -87,11 +87,11 @@ class CredentialEndpoint(object):
         self.endpoint.join()
 
     @staticmethod
-    def _endpoint(username: str, password: str, token: str) -> None:
+    def _endpoint(username: str, password: str, token: str, host: str) -> None:
         """
         Implements a HTTP endpoint to provide Git credentials to Docker containers
         """
         handler = partial(CredentialRequestHandler, username, password, token)
 
-        server = HTTPServer(("0.0.0.0", 9876), RequestHandlerClass=handler)
+        server = HTTPServer((host, 9876), RequestHandlerClass=handler)
         server.serve_forever()
