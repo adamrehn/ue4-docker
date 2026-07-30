@@ -57,7 +57,7 @@ jobs:
       run: pip install . --user
     - name: Start Windows Docker Daemon
       shell: powershell
-      if: contains(matrix.os, "windows")
+      if: contains(matrix.os, 'windows')
       run: Start-Service docker
     - name: Build prerequisites
       run: ue4-docker build --target=build-prerequisites --visual-studio ${{ matrix.visual-studio || '2017' }}
