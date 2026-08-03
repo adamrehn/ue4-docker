@@ -40,7 +40,7 @@ RUN {% if build_secret_vars %}{% for var in build_secret_vars %}--mount=type=sec
 	rm -R -f /home/ue4/UnrealEngine/LocalBuilds/InstalledDDC
 
 # Ensure UnrealVersionSelector is built, since the prebuilt binaries may not be up-to-date
-RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealVersionSelector Linux Shipping
+RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealVersionSelector Linux Shipping {{ standalone_build_args }}
 
 # Copy InstalledBuild.txt from the Installed Build and run UnrealVersionSelector to populate Install.ini with any custom Build ID specified in the BuildGraph flags
 # (Note that the `-unattended` flag used below requires Unreal Engine 4.22 or newer, so this will break under older versions)
