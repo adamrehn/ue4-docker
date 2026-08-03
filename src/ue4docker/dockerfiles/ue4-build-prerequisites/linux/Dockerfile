@@ -102,6 +102,9 @@ RUN useradd --create-home --home /home/ue4 --shell /bin/bash --uid 1000 ue4 && \
 	usermod -a -G audio,video,sudo ue4
 USER ue4
 
+# Create an environment variable to hold the path to the engine, so we don't need to hardcode it everywhere
+ENV UNREAL_ENGINE_ROOT=/home/ue4/UnrealEngine
+
 {% if enable_ushell %}
 # Install Python 3.12, which is required by ushell
 USER root

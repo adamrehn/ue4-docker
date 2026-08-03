@@ -10,7 +10,7 @@ FROM ${NAMESPACE}/ue4-build-prerequisites:${PREREQS_TAG}
 
 # Copy the Unreal Engine source code from the host system
 ARG SOURCE_LOCATION
-COPY --chown=ue4:ue4 ${SOURCE_LOCATION} /home/ue4/UnrealEngine
+COPY --chown=ue4:ue4 ${SOURCE_LOCATION} ${UNREAL_ENGINE_ROOT}
 
 {% else %}
 
@@ -34,8 +34,8 @@ ARG CHANGELIST
 RUN --mount=type=secret,id=username,uid=1000,required \
 	--mount=type=secret,id=password,uid=1000,required \
 	CHANGELIST="$CHANGELIST" \
-	mkdir /home/ue4/UnrealEngine && \
-	cd /home/ue4/UnrealEngine && \
+	mkdir "$UNREAL_ENGINE_ROOT" && \
+	cd "$UNREAL_ENGINE_ROOT" && \
 	git init && \
 	{% if git_config %}
 	{% for key, value in git_config.items() %}
@@ -62,8 +62,8 @@ ENV GIT_ASKPASS=/tmp/git-credential-helper-endpoint.sh
 RUN chmod +x /tmp/git-credential-helper-endpoint.sh
 
 # Clone the UE4 git repository using the endpoint-supplied credentials
-RUN mkdir /home/ue4/UnrealEngine && \
-	cd /home/ue4/UnrealEngine && \
+RUN mkdir "$UNREAL_ENGINE_ROOT" && \
+	cd "$UNREAL_ENGINE_ROOT" && \
 	git init && \
 	{% if git_config %}
 	{% for key, value in git_config.items() %}
@@ -87,7 +87,7 @@ ARG VERBOSE_OUTPUT=0
 # Apply our bugfix patches to broken Engine releases
 # (Make sure we do this before the post-clone setup steps are run)
 COPY --chown=ue4:ue4 patch-broken-releases.py /tmp/patch-broken-releases.py
-RUN python3 /tmp/patch-broken-releases.py /home/ue4/UnrealEngine $VERBOSE_OUTPUT
+RUN python3 /tmp/patch-broken-releases.py "$UNREAL_ENGINE_ROOT" $VERBOSE_OUTPUT
 {% endif %}
 
 # Run post-clone setup steps, ensuring our package lists are up to date since Setup.sh doesn't call `apt-get update`
@@ -99,7 +99,7 @@ ENV UE4_GITDEPS=/home/ue4/gitdeps
 RUN mkdir "$UE_GITDEPS"
 
 # When running with BuildKit, we use a cache mount to cache the dependency data across multiple build invocations
-WORKDIR /home/ue4/UnrealEngine
+WORKDIR ${UNREAL_ENGINE_ROOT}
 RUN --mount=type=cache,target=/home/ue4/gitdeps,uid=1000,gid=1000 sudo apt-get update && \
 	./Setup.sh {{ gitdependencies_args }} && \
 	sudo rm -rf /var/lib/apt/lists/*
@@ -107,7 +107,7 @@ RUN --mount=type=cache,target=/home/ue4/gitdeps,uid=1000,gid=1000 sudo apt-get u
 {% else %}
 
 # When running without BuildKit, we use the `-no-cache` flag to disable caching of dependency data in `.git/ue4-gitdeps`, saving disk space
-WORKDIR /home/ue4/UnrealEngine
+WORKDIR ${UNREAL_ENGINE_ROOT}
 RUN sudo apt-get update && \
 	./Setup.sh -no-cache {{ gitdependencies_args }} && \
 	sudo rm -rf /var/lib/apt/lists/*
@@ -117,4 +117,4 @@ RUN sudo apt-get update && \
 # Set the changelist number in Build.version to ensure our Build ID is generated correctly
 ARG CHANGELIST
 COPY set-changelist.py /tmp/set-changelist.py
-RUN python3 /tmp/set-changelist.py /home/ue4/UnrealEngine/Engine/Build/Build.version $CHANGELIST
+RUN python3 /tmp/set-changelist.py "$UNREAL_ENGINE_ROOT/Engine/Build/Build.version" $CHANGELIST
