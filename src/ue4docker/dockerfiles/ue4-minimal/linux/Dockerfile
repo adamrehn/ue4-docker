@@ -37,7 +37,8 @@ RUN {% if build_secret_vars %}{% for var in build_secret_vars %}--mount=type=sec
 	-set:WithDDC={% if excluded_components.ddc == true %}false{% else %}true{% endif %} \
 	-set:WithServer=true \
 	{%+ if automatic_build_id %}-set:BuildIdOverride="$BUILD_ID_OVERRIDE" {% endif %}{{ buildgraph_args }} && \
-	rm -R -f "$UNREAL_ENGINE_ROOT/LocalBuilds/InstalledDDC"
+	rm -R -f "$UNREAL_ENGINE_ROOT/LocalBuilds/InstalledDDC" && \
+	rm -R -f /home/ue4/.epic
 
 # Ensure UnrealVersionSelector is built, since the prebuilt binaries may not be up-to-date
 RUN ./Engine/Build/BatchFiles/Linux/Build.sh UnrealVersionSelector Linux Shipping {{ standalone_build_args }}
@@ -118,7 +119,8 @@ COPY print-editor-target.py /tmp/print-editor-target.py
 RUN EDITOR_TARGET=$(python3 /tmp/print-editor-target.py "$UNREAL_ENGINE_ROOT") && \
 	./Engine/Build/BatchFiles/Linux/Build.sh "$EDITOR_TARGET" Linux Development -SkipBuild && \
 	mkdir -p ./Engine/Programs/AutomationTool/Saved && \
-	chmod a+rw ./Engine/Programs/AutomationTool/Saved
+	chmod a+rw ./Engine/Programs/AutomationTool/Saved && \
+	rm -R -f /home/ue4/.epic
 
 # Enable Vulkan support for NVIDIA GPUs
 USER root
